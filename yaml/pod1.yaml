@@ -1,0 +1,42 @@
+kind: Pod
+metadata:
+  name: pod1
+  labels:
+    key: test1
+spec:
+  volumes:
+    - name: nginxConfig
+      type: hostFile
+      path: /home/minik8s/test/pod/nginx.conf
+    - name: tmpDir
+      type: hostPath
+      path: /home/minik8s/tmp
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - name: nginxConfig
+          mountPath: /etc/nginx/nginx.conf
+        - name: tmpDir
+          mountPath: /tmp
+    - name: p2
+      image: p2
+      volumeMounts:
+        - name: tmpDir
+          mountPath: /tmp
+      limits:
+        cpu: 0.5
+        memory: 500M
+    - name: render
+      image: p2:latest
+      ports:
+        - containerPort: 10086
+      limits:
+        cpu: 0.5
+        memory: 500M
+      args: [ "/bin/sh","pwd"]
+
+
+

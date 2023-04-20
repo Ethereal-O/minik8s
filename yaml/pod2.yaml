@@ -1,0 +1,24 @@
+kind: Pod
+metadata:
+  name: pod2
+  labels:
+    key: test2
+spec:
+  volumes:
+    - name: tmpDir
+      type: hostPath
+      path: /home/minik8s/tmp
+  containers:
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - name: nginxConfig
+          mountPath: /etc/nginx/nginx.conf
+        - name: tmpDir
+          mountPath: /tmp
+
+
+
+
