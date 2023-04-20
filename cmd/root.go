@@ -9,6 +9,7 @@ import (
 	"minik8s/cmd/edit/del"
 	"minik8s/cmd/edit/get"
 	"minik8s/cmd/edit/watch"
+	"minik8s/cmd/kubeProxy"
 	"os"
 )
 
@@ -23,7 +24,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(apply.Apply(), del.Delete(), get.Get(), watch.Watch(),
-		apiServer.Api(), controller.StartController())
+		apiServer.Api(), controller.StartController(), kubeProxy.Proxy())
 }
 
 func Execute() {

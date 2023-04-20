@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"minik8s/pkg/apiServer"
-	"minik8s/pkg/kubelet"
+	"minik8s/pkg/util/config"
 )
 
 var apiCmd = &cobra.Command{
@@ -15,7 +15,7 @@ var apiCmd = &cobra.Command{
 }
 
 func doit(cmd *cobra.Command, args []string) {
-	fmt.Println("apiServer start at 192.168.142.135:8080")
+	fmt.Println("apiServer start at" + config.APISERVER_URL)
 	apiServer.Init_server()
 	apiServer.Start_server()
 	kubelet.Start_kubelet()
