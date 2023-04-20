@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"minik8s/pkg/apiServer"
+	"minik8s/pkg/kubelet"
 	"minik8s/pkg/util/config"
 )
 
