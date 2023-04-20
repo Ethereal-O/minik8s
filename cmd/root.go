@@ -13,11 +13,11 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "kubectl",
+	Use:   "kubelet",
 	Short: "manage the items of k8s",
 	Long:  "this is the main cmd to controll the items int k8s",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("this is kubectl")
+		fmt.Println("this is kubelet")
 	},
 }
 

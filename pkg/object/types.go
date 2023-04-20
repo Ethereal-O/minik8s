@@ -50,6 +50,7 @@ type Containers struct {
 	VolumeMounts []VolumeMounts `yaml:"volumeMounts" json:"volumeMounts"`
 	Limits       Limits         `yaml:"limits" json:"limits"`
 	Args         []string       `yaml:"args" json:"args"`
+	Command      []string       `yaml:"cmd" json:"cmd"`
 }
 
 type Ports struct {
@@ -59,7 +60,7 @@ type Ports struct {
 
 type VolumeMounts struct {
 	Name      string `yaml:"name" json:"name"`
-	MountPath string `yaml:"mountPath" json:"mountPath"'`
+	MountPath string `yaml:"mountPath" json:"mountPath"`
 }
 
 type Limits struct {
