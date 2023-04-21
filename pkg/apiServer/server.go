@@ -2,7 +2,9 @@ package apiServer
 
 import (
 	"context"
+	"fmt"
 	"github.com/labstack/echo"
+	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/structure"
 )
 
@@ -16,19 +18,22 @@ func Init_server() {
 	monitorProducerStopMap = make(map[string]context.CancelFunc)
 }
 
+var Exited = make(chan bool)
+var ToExit = make(chan bool)
+
 func Start_server() {
-
 	e := echo.New()
-
 	e.POST("/", basic_post)
-
 	e.PUT("/Pod/:key", pod_put)
 	e.GET("/Pod/:key", pod_get)
 	e.DELETE("/Pod/:key", pod_delete)
-
 	e.PUT("/Replicaset/:key", replicaset_put)
 	e.GET("/Replicaset/:key", replicaset_get)
 	e.DELETE("/Replicaset/:key", replicaset_delete)
+	go func() { e.Logger.Fatal(e.Start(":8080")) }()
+	fmt.Println("API Server start at " + config.APISERVER_URL)
 
-	e.Logger.Fatal(e.Start(":8080"))
+	// Wait until Ctrl-C
+	<-ToExit
+	Exited <- true
 }

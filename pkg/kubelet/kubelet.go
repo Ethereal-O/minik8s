@@ -6,30 +6,27 @@ import (
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
-func Start_kubelet() {
-	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGINT)
+var Exited = make(chan bool)
+var ToExit = make(chan bool)
 
+func Start_kubelet() {
 	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
 	go dealPod(podChan)
+	fmt.Println("Kubelet start")
 
-	<-c
+	// Wait until Ctrl-C
+	<-ToExit
 	podStop()
-	time.Sleep(2 * time.Second)
-	return
+	Exited <- true
 }
 
 func dealPod(podChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
-			//fmt.Println("[this]", mes)
+			fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)
 			if err != nil {

@@ -1,6 +1,6 @@
 package config
 
-const BASE_URL string = "192.168.31.68"
+const BASE_URL string = "192.168.29.132"
 const APISERVER_URL string = "http://" + BASE_URL + ":8080"
 const ETCD_Endpoints string = BASE_URL + ":2379"
 const NSQ_PEODUCER string = BASE_URL + ":4150"

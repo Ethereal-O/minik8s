@@ -8,18 +8,14 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/structure"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 var waitingRs structure.Cmap
 
-func Start_rsController() {
-	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGINT)
+var RSExited = make(chan bool)
+var RSToExit = make(chan bool)
 
+func Start_rsController() {
 	waitingRs.Init(1)
 	handleChan := make(chan string, 20)
 	rsChan, rsStop := messging.Watch("/"+config.REPLICASET_TYPE, true)
@@ -27,12 +23,13 @@ func Start_rsController() {
 	go dealRs(rsChan, handleChan)
 	go dealPod(podChan, handleChan)
 	go handle(handleChan)
+	fmt.Println("Controller start")
 
-	<-c
+	// Wait until Ctrl-C
+	<-RSToExit
 	rsStop()
 	podStop()
-	time.Sleep(2 * time.Second)
-	return
+	RSExited <- true
 }
 
 func dealRs(rsChan chan string, handleChan chan string) {
@@ -51,7 +48,7 @@ func dealPod(podChan chan string, handleChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
-			//fmt.Println("[this]", mes)
+			// fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)
 			if err != nil {

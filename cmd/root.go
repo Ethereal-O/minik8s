@@ -3,13 +3,12 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"minik8s/cmd/apiServer"
-	"minik8s/cmd/controller"
 	"minik8s/cmd/edit/apply"
 	"minik8s/cmd/edit/del"
 	"minik8s/cmd/edit/get"
 	"minik8s/cmd/edit/watch"
-	"minik8s/cmd/kubeProxy"
+	"minik8s/cmd/master"
+	"minik8s/cmd/worker"
 	"os"
 )
 
@@ -24,7 +23,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(apply.Apply(), del.Delete(), get.Get(), watch.Watch(),
-		apiServer.Api(), controller.StartController(), kubeProxy.Proxy())
+		master.Execute(), worker.Execute())
 }
 
 func Execute() {
