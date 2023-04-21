@@ -42,8 +42,8 @@ func initConsumer(ctx context.Context, topic string, channel string, address str
 	return
 }
 
-func Consumer(key string, resChan chan string) context.CancelFunc {
+func Consumer(key string, crt string, resChan chan string) context.CancelFunc {
 	ctx, cancel := context.WithCancel(context.Background())
-	go initConsumer(ctx, stringParse.Reform(key), "first", config.NSQ_CONSUMER, resChan)
+	go initConsumer(ctx, stringParse.Reform(key), crt, config.NSQ_CONSUMER, resChan)
 	return cancel
 }

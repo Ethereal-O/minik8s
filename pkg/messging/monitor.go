@@ -8,7 +8,7 @@ import (
 func Watch(key string, prix bool) (chan string, func()) {
 	resChan := make(chan string, 20)
 	newCrt := client.Post(key, prix, "")
-	cancel := Consumer(key, resChan)
+	cancel := Consumer(key, newCrt, resChan)
 	return resChan, func() {
 		cancel()
 		time.Sleep(1 * time.Second)
