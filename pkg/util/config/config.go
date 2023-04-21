@@ -1,21 +1,29 @@
 package config
 
-const BASE_URL string = "192.168.29.132"
-const APISERVER_URL string = "http://" + BASE_URL + ":8080"
-const ETCD_Endpoints string = BASE_URL + ":2379"
-const NSQ_PEODUCER string = BASE_URL + ":4150"
-const NSQ_CONSUMER string = BASE_URL + ":4161"
+const (
+	BASE_URL              = "192.168.29.132"
+	APISERVER_URL  string = "http://" + BASE_URL + ":8080"
+	ETCD_Endpoints string = BASE_URL + ":2379"
+	NSQ_PEODUCER   string = BASE_URL + ":4150"
+	NSQ_CONSUMER   string = BASE_URL + ":4161"
+)
 
-var POD_TYPE = "Pod"
-var REPLICASET_TYPE = "Replicaset"
-var TP = []string{POD_TYPE, REPLICASET_TYPE}
+const (
+	POD_TYPE        = "Pod"
+	REPLICASET_TYPE = "Replicaset"
+	NODE_TYPE       = "Node"
+)
 
-var EMPTY_FLAG = "none"
+var TP = []string{POD_TYPE, REPLICASET_TYPE, NODE_TYPE}
 
-// Only for pod
-var CREATED_STATUS = "CREATED"
-var BOUND_STATUS = "BOUND"
+const EMPTY_FLAG = "none"
 
-// For all API objects
-var RUNNING_STATUS = "RUNNING"
-var EXIT_STATUS = "EXIT"
+const (
+	// Only for pod
+	CREATED_STATUS = "CREATED"
+	BOUND_STATUS   = "BOUND"
+
+	// For all API objects
+	RUNNING_STATUS = "RUNNING"
+	EXIT_STATUS    = "EXIT"
+)

@@ -10,10 +10,10 @@ type Metadata struct {
 
 // Runtime generate values from runtime (not in .yaml files)
 type Runtime struct {
-	Uuid string `yaml:"uuid" json:"uuid"`
+	Uuid   string `yaml:"uuid" json:"uuid"`
+	Status string `yaml:"status" json:"status"`
 	// When a pod belongs to a replica set, Belong refers to the Name of the replica set
 	Belong string `yaml:"belong" json:"belong"`
-	Status string `yaml:"status" json:"status"`
 	// When a pod is bound to a node, Bind refers to the Name of the node
 	Bind string `yaml:"bind" json:"bind"`
 }
@@ -23,8 +23,12 @@ type Runtime struct {
 type Node struct {
 	Kind     string   `yaml:"kind" json:"kind"`
 	Metadata Metadata `yaml:"metadata" json:"metadata"`
-	Ip       string   `yaml:"ip" json:"ip"`
+	Spec     NodeSpec `yaml:"spec" json:"spec"`
 	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
+}
+
+type NodeSpec struct {
+	Ip string `yaml:"ip" json:"ip"`
 }
 
 // --------------------------- Replica Set ---------------------------

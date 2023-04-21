@@ -30,6 +30,9 @@ func Start_server() {
 	e.PUT("/Replicaset/:key", replicaset_put)
 	e.GET("/Replicaset/:key", replicaset_get)
 	e.DELETE("/Replicaset/:key", replicaset_delete)
+	e.PUT("/Node/:key", node_put)
+	e.GET("/Node/:key", node_get)
+	e.DELETE("/Node/:key", node_delete)
 	go func() { e.Logger.Fatal(e.Start(":8080")) }()
 	fmt.Println("API Server start at " + config.APISERVER_URL)
 

@@ -22,22 +22,32 @@ var getCmd = &cobra.Command{
 func doit(cmd *cobra.Command, args []string) {
 	res := client.Get_object(key, tp)
 	if tp == config.POD_TYPE {
-		fmt.Println("Name\tUuid\tBelong")
+		fmt.Println("Name\tUuid\tStatus\tBelong")
 		for _, pod := range res {
 			var podObject object.Pod
 			json.Unmarshal([]byte(pod), &podObject)
-			if podObject.Runtime.Status == config.RUNNING_STATUS {
-				fmt.Println(podObject.Metadata.Name, podObject.Runtime.Uuid, podObject.Runtime.Belong)
+			if podObject.Runtime.Status != config.EXIT_STATUS {
+				fmt.Println(podObject.Metadata.Name, podObject.Runtime.Uuid, podObject.Runtime.Status, podObject.Runtime.Belong)
 			}
 		}
 	}
 	if tp == config.REPLICASET_TYPE {
-		fmt.Println("Name\tUuid\tReplicas")
+		fmt.Println("Name\tUuid\tStatus\tReplicas")
 		for _, rs := range res {
 			var rsObject object.ReplicaSet
 			json.Unmarshal([]byte(rs), &rsObject)
-			if rsObject.Runtime.Status == config.RUNNING_STATUS {
-				fmt.Println(rsObject.Metadata.Name, rsObject.Runtime.Uuid, rsObject.Spec.Replicas)
+			if rsObject.Runtime.Status != config.EXIT_STATUS {
+				fmt.Println(rsObject.Metadata.Name, rsObject.Runtime.Uuid, rsObject.Runtime.Status, rsObject.Spec.Replicas)
+			}
+		}
+	}
+	if tp == config.NODE_TYPE {
+		fmt.Println("Name\tUuid\tStatus\tIP")
+		for _, node := range res {
+			var nodeObject object.Node
+			json.Unmarshal([]byte(node), &nodeObject)
+			if nodeObject.Runtime.Status != config.EXIT_STATUS {
+				fmt.Println(nodeObject.Metadata.Name, nodeObject.Runtime.Uuid, nodeObject.Runtime.Status, nodeObject.Spec.Ip)
 			}
 		}
 	}
