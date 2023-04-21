@@ -13,8 +13,8 @@ func unbind(rsName string) {
 	for _, pod := range pods {
 		var podObject object.Pod
 		json.Unmarshal([]byte(pod), &podObject)
-		if podObject.Belong == rsName {
-			podObject.Belong = ""
+		if podObject.Runtime.Belong == rsName {
+			podObject.Runtime.Belong = ""
 			newPod, err := json.Marshal(podObject)
 			if err != nil {
 				fmt.Println(err.Error())

@@ -63,7 +63,7 @@ func GetRunningPods() []object.Pod {
 	for _, pod := range podList {
 		var podObject object.Pod
 		json.Unmarshal([]byte(pod), &podObject)
-		if podObject.Metadata.Status == config.RUNNING_STATUS {
+		if podObject.Runtime.Status == config.RUNNING_STATUS {
 			resList = append(resList, podObject)
 		}
 	}

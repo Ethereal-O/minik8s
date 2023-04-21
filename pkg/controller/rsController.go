@@ -54,8 +54,8 @@ func dealPod(podChan chan string, handleChan chan string) {
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			if tarPod.Belong != "" {
-				res := client.Get_object(tarPod.Belong, config.REPLICASET_TYPE)
+			if tarPod.Runtime.Belong != "" {
+				res := client.Get_object(tarPod.Runtime.Belong, config.REPLICASET_TYPE)
 				if len(res) != 1 {
 					fmt.Println("Cannot find the Rs which the pod belongs to!")
 					continue
@@ -76,7 +76,7 @@ func handle(handleChan chan string) {
 			waitingRs.Get(mes2rsName(mes))
 			var tarRs object.ReplicaSet
 			err := json.Unmarshal([]byte(mes), &tarRs)
-			if tarRs.Metadata.Status != config.RUNNING_STATUS {
+			if tarRs.Runtime.Status != config.RUNNING_STATUS {
 				continue
 			}
 			if err != nil {
@@ -86,7 +86,7 @@ func handle(handleChan chan string) {
 			podList := client.GetRunningPods()
 			var rspodList []object.Pod
 			for _, pod := range podList {
-				if pod.Belong == tarRs.Metadata.Name {
+				if pod.Runtime.Belong == tarRs.Metadata.Name {
 					actualNum++
 					rspodList = append(rspodList, pod)
 				}
@@ -95,7 +95,7 @@ func handle(handleChan chan string) {
 				for i := 0; i < targetNum-actualNum; i++ {
 					var newPod object.Pod
 					newPod.Kind = config.POD_TYPE
-					newPod.Belong = tarRs.Metadata.Name
+					newPod.Runtime.Belong = tarRs.Metadata.Name
 					newPod.Metadata = tarRs.Spec.Template.Metadata
 					newPod.Metadata.Name = tarRs.Metadata.Name
 					newPod.Spec = tarRs.Spec.Template.Spec

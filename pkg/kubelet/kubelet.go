@@ -26,13 +26,15 @@ func dealPod(podChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
-			fmt.Println("[this]", mes)
+			// fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			CreatePod(&tarPod)
+			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == "TEST" {
+				CreatePod(&tarPod)
+			}
 		}
 	}
 }

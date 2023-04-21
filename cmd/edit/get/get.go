@@ -26,8 +26,8 @@ func doit(cmd *cobra.Command, args []string) {
 		for _, pod := range res {
 			var podObject object.Pod
 			json.Unmarshal([]byte(pod), &podObject)
-			if podObject.Metadata.Status == config.RUNNING_STATUS {
-				fmt.Println(podObject.Metadata.Name, podObject.Metadata.Uuid, podObject.Belong)
+			if podObject.Runtime.Status == config.RUNNING_STATUS {
+				fmt.Println(podObject.Metadata.Name, podObject.Runtime.Uuid, podObject.Runtime.Belong)
 			}
 		}
 	}
@@ -36,8 +36,8 @@ func doit(cmd *cobra.Command, args []string) {
 		for _, rs := range res {
 			var rsObject object.ReplicaSet
 			json.Unmarshal([]byte(rs), &rsObject)
-			if rsObject.Metadata.Status == config.RUNNING_STATUS {
-				fmt.Println(rsObject.Metadata.Name, rsObject.Metadata.Uuid, rsObject.Spec.Replicas)
+			if rsObject.Runtime.Status == config.RUNNING_STATUS {
+				fmt.Println(rsObject.Metadata.Name, rsObject.Runtime.Uuid, rsObject.Spec.Replicas)
 			}
 		}
 	}

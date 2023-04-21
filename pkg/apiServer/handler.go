@@ -55,14 +55,16 @@ func pod_put(c echo.Context) error {
 		return err
 	}
 	key := c.Request().RequestURI
-	if podObject.Metadata.Uuid == "" {
+	if podObject.Runtime.Uuid == "" {
 		uuid := counter.GetUuid()
-		podObject.Metadata.Uuid = uuid
+		podObject.Runtime.Uuid = uuid
 	}
-	podObject.Metadata.Status = config.RUNNING_STATUS
-	if podObject.Belong != "" {
-		podObject.Metadata.Name += podObject.Metadata.Uuid
-		key += podObject.Metadata.Uuid
+	if podObject.Runtime.Status == "" {
+		podObject.Runtime.Status = config.CREATED_STATUS
+	}
+	if podObject.Runtime.Belong != "" {
+		podObject.Metadata.Name += podObject.Runtime.Uuid
+		key += podObject.Runtime.Uuid
 	}
 	pod, err := json.Marshal(podObject)
 	if err != nil {
@@ -102,7 +104,7 @@ func pod_delete(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "unmarshal error!")
 	}
-	podObject.Metadata.Status = config.EXIT_STATUS
+	podObject.Runtime.Status = config.EXIT_STATUS
 	pod, err := json.Marshal(podObject)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -121,11 +123,11 @@ func replicaset_put(c echo.Context) error {
 		return err
 	}
 	key := c.Request().RequestURI
-	if rsObject.Metadata.Uuid == "" {
+	if rsObject.Runtime.Uuid == "" {
 		uuid := counter.GetUuid()
-		rsObject.Metadata.Uuid = uuid
+		rsObject.Runtime.Uuid = uuid
 	}
-	rsObject.Metadata.Status = config.RUNNING_STATUS
+	rsObject.Runtime.Status = config.RUNNING_STATUS
 	rs, err := json.Marshal(rsObject)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -163,7 +165,7 @@ func replicaset_delete(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "unmarshal error!")
 	}
-	rsObject.Metadata.Status = config.EXIT_STATUS
+	rsObject.Runtime.Status = config.EXIT_STATUS
 	rs, err := json.Marshal(rsObject)
 	if err != nil {
 		fmt.Println(err.Error())

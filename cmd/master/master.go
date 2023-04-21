@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"minik8s/pkg/apiServer"
 	"minik8s/pkg/controller"
+	"minik8s/pkg/scheduler"
 	"os"
 	"os/signal"
 	"syscall"
@@ -27,13 +28,17 @@ func doit(cmd *cobra.Command, args []string) {
 	// Wait for API Server to start
 	time.Sleep(1 * time.Second)
 	go controller.Start_rsController()
+	go scheduler.Start_scheduler()
 
 	// Gracefully exit after Ctrl-C
 	<-c
-	apiServer.ToExit <- true
 	controller.RSToExit <- true
-	<-apiServer.Exited
+	scheduler.ToExit <- true
 	<-controller.RSExited
+	<-scheduler.Exited
+	// Wait for other components to exit
+	apiServer.ToExit <- true
+	<-apiServer.Exited
 }
 
 func init() {

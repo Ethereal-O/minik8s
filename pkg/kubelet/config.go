@@ -11,10 +11,10 @@ import (
 type State string
 
 const (
-	StateCreated State = "created"
-	StateRunning State = "running"
-	StateExited  State = "exited"
-	StateUnknown State = "unknown"
+	StateCreated State = "CREATED"
+	StateRunning State = "RUNNING"
+	StateExited  State = "EXITED"
+	StateUnknown State = "UNKNOWN"
 )
 
 type ResourcesUsage struct {
@@ -38,7 +38,7 @@ type Status struct {
 	PortBindings   nat.PortMap
 }
 
-type Container struct {
+type ContainerRuntime struct {
 	ID      string
 	Name    string
 	Image   string

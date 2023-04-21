@@ -12,5 +12,10 @@ var TP = []string{POD_TYPE, REPLICASET_TYPE}
 
 var EMPTY_FLAG = "none"
 
+// Only for pod
+var CREATED_STATUS = "CREATED"
+var BOUND_STATUS = "BOUND"
+
+// For all API objects
 var RUNNING_STATUS = "RUNNING"
 var EXIT_STATUS = "EXIT"

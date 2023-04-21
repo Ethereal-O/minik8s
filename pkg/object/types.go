@@ -1,9 +1,39 @@
 package object
 
+// --------------------------- Basic Types ---------------------------
+
+// Metadata take values from .yaml files
+type Metadata struct {
+	Name   string            `yaml:"name" json:"name"`
+	Labels map[string]string `yaml:"labels" json:"labels"`
+}
+
+// Runtime generate values from runtime (not in .yaml files)
+type Runtime struct {
+	Uuid string `yaml:"uuid" json:"uuid"`
+	// When a pod belongs to a replica set, Belong refers to the Name of the replica set
+	Belong string `yaml:"belong" json:"belong"`
+	Status string `yaml:"status" json:"status"`
+	// When a pod is bound to a node, Bind refers to the Name of the node
+	Bind string `yaml:"bind" json:"bind"`
+}
+
+// --------------------------- Node ---------------------------
+
+type Node struct {
+	Kind     string   `yaml:"kind" json:"kind"`
+	Metadata Metadata `yaml:"metadata" json:"metadata"`
+	Ip       string   `yaml:"ip" json:"ip"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
+}
+
+// --------------------------- Replica Set ---------------------------
+
 type ReplicaSet struct {
 	Kind     string   `yaml:"kind" json:"kind"`
 	Metadata Metadata `yaml:"metadata" json:"metadata"`
 	Spec     RsSpec   `yaml:"spec" json:"spec"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
 }
 
 type RsSpec struct {
@@ -16,20 +46,13 @@ type Template struct {
 	Spec     PodSpec  `yaml:"spec" json:"spec"`
 }
 
-// ------------------------------------------------
+// --------------------------- Pod ---------------------------
 
 type Pod struct {
 	Kind     string   `yaml:"kind" json:"kind"`
 	Metadata Metadata `yaml:"metadata" json:"metadata"`
 	Spec     PodSpec  `yaml:"spec" json:"spec"`
-	Belong   string   `yaml:"belong" json:"belong"`
-}
-
-type Metadata struct {
-	Name   string            `yaml:"name" json:"name"`
-	Labels map[string]string `yaml:"labels" json:"labels"`
-	Uuid   string            `yaml:"uuid" json:"uuid"`
-	Status string            `yaml:"status" json:"status"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
 }
 
 type PodSpec struct {
