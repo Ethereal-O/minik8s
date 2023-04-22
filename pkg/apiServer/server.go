@@ -34,6 +34,9 @@ func Start_server() {
 	e.GET("/Node/:key", node_get)
 	e.DELETE("/Node/:key", node_delete)
 	go func() { e.Logger.Fatal(e.Start(":8080")) }()
+
+	podIPGenerator.Init()
+
 	fmt.Println("API Server start at " + config.APISERVER_URL)
 
 	// Wait until Ctrl-C

@@ -53,6 +53,7 @@ func dealPod(podChan chan string, policy SchedulePolicy) {
 	for {
 		select {
 		case mes := <-podChan:
+			fmt.Println("scheduler: pod!!")
 			// fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)
@@ -60,6 +61,7 @@ func dealPod(podChan chan string, policy SchedulePolicy) {
 				fmt.Println(err.Error())
 			}
 			if tarPod.Runtime.Status == config.CREATED_STATUS {
+				fmt.Println("scheduler: created pod!!")
 				BindPod(&tarPod, policy)
 			}
 		}

@@ -2,10 +2,13 @@ package object
 
 // --------------------------- Basic Types ---------------------------
 
+type Labels map[string]string
+
 // Metadata take values from .yaml files
 type Metadata struct {
-	Name   string            `yaml:"name" json:"name"`
-	Labels map[string]string `yaml:"labels" json:"labels"`
+	Name      string `yaml:"name" json:"name"`
+	Namespace string `yaml:"namespace" json:"namespace"`
+	Labels    Labels `yaml:"labels" json:"labels"`
 }
 
 // Runtime generate values from runtime (not in .yaml files)
@@ -16,6 +19,8 @@ type Runtime struct {
 	Belong string `yaml:"belong" json:"belong"`
 	// When a pod is bound to a node, Bind refers to the Name of the node
 	Bind string `yaml:"bind" json:"bind"`
+	// When a pod is created, it should have a cluster IP so that the containers of the pod share network namespace
+	ClusterIp string `yaml:"clusterIp" json:"clusterIp"`
 }
 
 // --------------------------- Node ---------------------------
@@ -60,32 +65,43 @@ type Pod struct {
 }
 
 type PodSpec struct {
-	Volumes    []Volumes    `yaml:"volumes" json:"volumes"`
-	Containers []Containers `yaml:"containers" json:"containers"`
+	RestartPolicy string      `yaml:"restartPolicy" json:"restartPolicy"`
+	Volumes       []Volume    `yaml:"volumes" json:"volumes"`
+	Containers    []Container `yaml:"containers" json:"containers"`
+	NodeSelector  Labels      `yaml:"nodeSelector" json:"nodeSelector"`
 }
 
-type Volumes struct {
+type Volume struct {
 	Name string `yaml:"name" json:"name"`
 	Type string `yaml:"type" json:"type"`
 	Path string `yaml:"path" json:"path"`
 }
 
-type Containers struct {
-	Name         string         `yaml:"name" json:"name"`
-	Image        string         `yaml:"image" json:"image"`
-	Ports        []Ports        `yaml:"ports" json:"ports"`
-	VolumeMounts []VolumeMounts `yaml:"volumeMounts" json:"volumeMounts"`
-	Limits       Limits         `yaml:"limits" json:"limits"`
-	Args         []string       `yaml:"args" json:"args"`
-	Command      []string       `yaml:"cmd" json:"cmd"`
+type Container struct {
+	Name            string        `yaml:"name" json:"name"`
+	Image           string        `yaml:"image" json:"image"`
+	ImagePullPolicy string        `yaml:"imagePullPolicy" json:"imagePullPolicy"`
+	Ports           []Port        `yaml:"ports" json:"ports"`
+	VolumeMounts    []VolumeMount `yaml:"volumeMounts" json:"volumeMounts"`
+	Limits          Limits        `yaml:"limits" json:"limits"`
+	Args            []string      `yaml:"args" json:"args"`
+	Command         []string      `yaml:"cmd" json:"cmd"`
+	Env             []EnvVar      `yaml:"env"`
 }
 
-type Ports struct {
+type EnvVar struct {
+	Name  string `yaml:"name" json:"name"`
+	Value string `yaml:"value" json:"value"`
+}
+
+type Port struct {
 	ContainerPort int    `yaml:"containerPort" json:"containerPort"`
 	Protocol      string `yaml:"protocol" json:"protocol"`
+	HostPort      int    `yaml:"hostPort" json:"hostPort"`
+	HostIP        string `yaml:"hostIP" json:"hostIP"`
 }
 
-type VolumeMounts struct {
+type VolumeMount struct {
 	Name      string `yaml:"name" json:"name"`
 	MountPath string `yaml:"mountPath" json:"mountPath"`
 }

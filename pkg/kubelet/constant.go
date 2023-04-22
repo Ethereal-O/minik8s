@@ -2,7 +2,7 @@ package kubelet
 
 const (
 	pauseImage                   = "registry.aliyuncs.com/google_containers/pause:3.6"
-	pauseContainerName           = "POD"
+	pauseContainerName           = "PAUSE"
 	KubernetesPodNameLabel       = "io.kubernetes.pod.name"
 	KubernetesPodNamespaceLabel  = "io.kubernetes.pod.namespace"
 	KubernetesPodUIDLabel        = "io.kubernetes.pod.uid"
