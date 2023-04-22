@@ -1,4 +1,4 @@
 killall etcd
-kilall kubectl
+killall kubectl
 
 rm -rf ./default.etcd
