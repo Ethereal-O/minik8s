@@ -12,17 +12,24 @@ type Counter struct {
 
 var uuid = Counter{count: 10000}
 var monitorCertification = Counter{count: 10000}
+var rrPolicyCounter = Counter{count: 0}
+
+func (counter *Counter) fetchAndAdd() int {
+	counter.lock.Lock()
+	defer counter.lock.Unlock()
+	count := counter.count
+	counter.count++
+	return count
+}
 
 func GetUuid() string {
-	uuid.lock.Lock()
-	defer uuid.lock.Unlock()
-	uuid.count++
-	return strconv.Itoa(uuid.count)
+	return strconv.Itoa(uuid.fetchAndAdd())
 }
 
 func GetMonitorCrt() string {
-	monitorCertification.lock.Lock()
-	defer monitorCertification.lock.Unlock()
-	monitorCertification.count++
-	return strconv.Itoa(monitorCertification.count)
+	return strconv.Itoa(monitorCertification.fetchAndAdd())
+}
+
+func GetRRPolicy() int {
+	return rrPolicyCounter.fetchAndAdd()
 }

@@ -21,5 +21,6 @@
 # vendor/
 
 .idea/
-
 default.etcd/
+*.log
+kubectl

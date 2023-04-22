@@ -1,0 +1,7 @@
+kind: Node
+metadata:
+  name: node1
+  labels:
+    key: test1
+spec:
+  ip: 192.168.29.132

@@ -57,13 +57,13 @@ func GetAllPods() []object.Pod {
 	return resList
 }
 
-func GetRunningPods() []object.Pod {
+func GetActivePods() []object.Pod {
 	podList := Get_object(config.EMPTY_FLAG, config.POD_TYPE)
 	var resList []object.Pod
 	for _, pod := range podList {
 		var podObject object.Pod
 		json.Unmarshal([]byte(pod), &podObject)
-		if podObject.Runtime.Status == config.RUNNING_STATUS {
+		if podObject.Runtime.Status != config.EXIT_STATUS {
 			resList = append(resList, podObject)
 		}
 	}

@@ -50,7 +50,6 @@ func basic_post(c2 echo.Context) error {
 }
 
 func pod_put(c echo.Context) error {
-	fmt.Printf("aaa")
 	podObject := new(object.Pod)
 	if err := c.Bind(podObject); err != nil {
 		return err
@@ -62,10 +61,6 @@ func pod_put(c echo.Context) error {
 	}
 	if podObject.Runtime.Status == "" {
 		podObject.Runtime.Status = config.CREATED_STATUS
-	}
-	if podObject.Runtime.Belong != "" {
-		podObject.Metadata.Name += podObject.Runtime.Uuid
-		key += podObject.Runtime.Uuid
 	}
 	pod, err := json.Marshal(podObject)
 	if err != nil {
@@ -80,7 +75,6 @@ func pod_put(c echo.Context) error {
 
 func pod_get(c echo.Context) error {
 	key := c.Request().RequestURI
-	fmt.Println(key)
 	if c.Param("key") == config.EMPTY_FLAG {
 		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
 		return c.JSON(http.StatusOK, res)
@@ -92,10 +86,6 @@ func pod_get(c echo.Context) error {
 
 func pod_delete(c echo.Context) error {
 	key := c.Request().RequestURI
-	//err := etcd.Del_etcd(key)
-	//if err != nil {
-	//	return c.String(http.StatusInternalServerError, "delete failed!")
-	//}
 	res := etcd.Get_etcd(key, false)
 	if len(res) != 1 {
 		return c.String(http.StatusInternalServerError, "not exist!")
@@ -128,7 +118,9 @@ func replicaset_put(c echo.Context) error {
 		uuid := counter.GetUuid()
 		rsObject.Runtime.Uuid = uuid
 	}
-	rsObject.Runtime.Status = config.RUNNING_STATUS
+	if rsObject.Runtime.Status == "" {
+		rsObject.Runtime.Status = config.RUNNING_STATUS
+	}
 	rs, err := json.Marshal(rsObject)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -153,10 +145,6 @@ func replicaset_get(c echo.Context) error {
 
 func replicaset_delete(c echo.Context) error {
 	key := c.Request().RequestURI
-	//err := etcd.Del_etcd(key)
-	//if err != nil {
-	//	return c.String(http.StatusInternalServerError, "delete failed!")
-	//}
 	res := etcd.Get_etcd(key, false)
 	if len(res) != 1 {
 		return c.String(http.StatusInternalServerError, "not exist!")
@@ -176,6 +164,66 @@ func replicaset_delete(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	unbind(rsObject.Metadata.Name)
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+func node_put(c echo.Context) error {
+	nodeObject := new(object.Node)
+	if err := c.Bind(nodeObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if nodeObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		nodeObject.Runtime.Uuid = uuid
+	}
+	if nodeObject.Runtime.Status == "" {
+		nodeObject.Runtime.Status = config.RUNNING_STATUS
+	}
+	node, err := json.Marshal(nodeObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(node)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func node_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	fmt.Println(key)
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func node_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var nodeObject object.Node
+	err := json.Unmarshal([]byte(res[0]), &nodeObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	nodeObject.Runtime.Status = config.EXIT_STATUS
+	node, err := json.Marshal(nodeObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(node)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
