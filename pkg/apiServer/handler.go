@@ -50,6 +50,7 @@ func basic_post(c2 echo.Context) error {
 }
 
 func pod_put(c echo.Context) error {
+	fmt.Printf("aaa")
 	podObject := new(object.Pod)
 	if err := c.Bind(podObject); err != nil {
 		return err
@@ -175,5 +176,77 @@ func replicaset_delete(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	unbind(rsObject.Metadata.Name)
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+// Service
+
+func service_put(c echo.Context) error {
+	serviceObject := new(object.Service)
+	if err := c.Bind(serviceObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if serviceObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		serviceObject.Runtime.Uuid = uuid
+	}
+	if serviceObject.Runtime.Status == "" {
+		serviceObject.Runtime.Status = config.CREATED_STATUS
+	}
+	if serviceObject.Runtime.Belong != "" {
+		serviceObject.Metadata.Name += serviceObject.Runtime.Uuid
+		key += serviceObject.Runtime.Uuid
+	}
+	service, err := json.Marshal(serviceObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(service)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	//can := make(chan *ec.Event, 20)
+	//producerStopFunc := messging.Producer(key, can)
+	return c.String(http.StatusOK, "ok")
+}
+
+func service_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	fmt.Println(key)
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func service_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	//err := etcd.Del_etcd(key)
+	//if err != nil {
+	//	return c.String(http.StatusInternalServerError, "delete failed!")
+	//}
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var serviceObject object.Service
+	err := json.Unmarshal([]byte(res[0]), &serviceObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	serviceObject.Runtime.Status = config.EXIT_STATUS
+	service, err := json.Marshal(serviceObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(service)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.String(http.StatusOK, "delete successfully!")
 }

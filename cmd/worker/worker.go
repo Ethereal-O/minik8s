@@ -2,8 +2,10 @@ package worker
 
 import (
 	"github.com/spf13/cobra"
+	"minik8s/pkg/client"
 	"minik8s/pkg/kubeProxy"
 	"minik8s/pkg/kubelet"
+	"minik8s/pkg/object"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,6 +22,9 @@ func doit(cmd *cobra.Command, args []string) {
 	// Receive Ctrl-C
 	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGINT)
+
+	pod := object.Pod{}
+	client.AddPod(pod)
 
 	kubeProxy.Init()
 	go kubelet.Start_kubelet()

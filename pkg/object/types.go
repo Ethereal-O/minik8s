@@ -90,3 +90,49 @@ type Limits struct {
 	Cpu    string `yaml:"cpu" json:"cpu"`
 	Memory string `yaml:"memory" json:"memory"`
 }
+
+// --------------------------- Service ---------------------------
+
+type Service struct {
+	Kind     string      `yaml:"kind" json:"kind"`
+	Metadata Metadata    `yaml:"metadata" json:"metadata"`
+	Spec     ServiceSpec `yaml:"spec" json:"spec"`
+	Runtime  Runtime     `yaml:"runtime" json:"runtime"`
+}
+
+type ServiceSpec struct {
+	Ports    []Ports  `yaml:"ports" json:"ports"`
+	Selector Selector `yaml:"selector" json:"selector"`
+	Type     string   `yaml:"type" json:"type"`
+	Template Template `yaml:"template" json:"template"`
+	Strategy Strategy `yaml:"strategy" json:"strategy"`
+	Replicas int      `yaml:"replicas" json:"replicas"`
+}
+
+type Selector struct {
+	Name string `yaml:"name" json:"name"`
+}
+
+type Strategy struct {
+	Type string `yaml:"type" json:"type"`
+}
+
+// --------------------------- Dns ---------------------------
+
+type Dns struct {
+	Kind     string   `yaml:"kind" json:"kind"`
+	MetaData Metadata `json:"metadata" yaml:"metadata"`
+	Spec     DnsSpec  `json:"spec" yaml:"spec"`
+}
+
+type DnsSpec struct {
+	Host  string `yaml:"host" json:"host"`
+	Paths []Path `yaml:"paths" json:"paths"`
+}
+
+type Path struct {
+	Name    string  `yaml:"name" json:"name"`
+	Service Service `yaml:"service" json:"service"`
+	IP      string  `yaml:"ip" json:"ip"`
+	Port    string  `yaml:"port" json:"port"`
+}
