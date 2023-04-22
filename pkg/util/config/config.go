@@ -11,10 +11,11 @@ const (
 const (
 	POD_TYPE        = "Pod"
 	REPLICASET_TYPE = "Replicaset"
+	SERVICE_TYPE = "Service"
 	NODE_TYPE       = "Node"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, NODE_TYPE}
+var TP = []string{POD_TYPE, REPLICASET_TYPE, SERVICE_TYPE, NODE_TYPE}
 
 const EMPTY_FLAG = "none"
 

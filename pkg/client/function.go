@@ -44,7 +44,7 @@ func Post(key string, prix bool, crt string) string {
 	return postFormData(key, prix, crt)
 }
 
-// ------------------------------------------------------------------------------------------
+// --------------------------- Pod ---------------------------
 
 func GetAllPods() []object.Pod {
 	podList := Get_object(config.EMPTY_FLAG, config.POD_TYPE)
@@ -80,4 +80,29 @@ func AddPod(pod object.Pod) string {
 
 func DeletePod(pod object.Pod) string {
 	return Delete_object(pod.Metadata.Name, config.POD_TYPE)
+}
+
+// --------------------------- Service ---------------------------
+
+func GetAllServices() []object.Service {
+	serviceList := Get_object(config.EMPTY_FLAG, config.SERVICE_TYPE)
+	var resList []object.Service
+	for _, service := range serviceList {
+		var serviceObject object.Service
+		json.Unmarshal([]byte(service), &serviceObject)
+		resList = append(resList, serviceObject)
+	}
+	return resList
+}
+
+func AddService(service object.Service) string {
+	serviceValue, err := json.Marshal(service)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(service.Metadata.Name, string(serviceValue), config.SERVICE_TYPE)
+}
+
+func DeleteService(service object.Service) string {
+	return Delete_object(service.Metadata.Name, config.SERVICE_TYPE)
 }
