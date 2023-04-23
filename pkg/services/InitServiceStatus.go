@@ -13,20 +13,24 @@ func (serviceStatus *ServiceStatus) InitServiceStatus() {
 }
 
 func (serviceStatus *ServiceStatus) startPoll() {
+	serviceStatus.Timer = *time.NewTicker(CHECK_PODS_TIME_INTERVAL)
 	go serviceStatus.pollLoop()
 }
 
 func (serviceStatus *ServiceStatus) pollLoop() {
+	defer serviceStatus.Timer.Stop()
 	for {
-		//if runtimeService.canPollSend {
-		//	runtimeService.pollSend()
-		//}
-		time.Sleep(time.Second * 5)
+		select {
+		case <-serviceStatus.Timer.C:
+			serviceStatus.poll()
+		}
 	}
 }
 
 func (serviceStatus *ServiceStatus) poll() {
-
+	serviceStatus.Lock.Lock()
+	defer serviceStatus.Lock.Unlock()
+	serviceStatus.selectPods()
 }
 
 func (serviceStatus *ServiceStatus) selectPods() {
@@ -51,8 +55,7 @@ func (serviceStatus *ServiceStatus) selectPods() {
 	// apply filter to get broken pods
 	normalPods, brokenPods := Filter(serviceStatus.Pods, func(pod object.Pod) bool {
 		for _, v := range filterPods {
-			if v.Metadata.Name == pod.Metadata.Name {
-
+			if v.Metadata.Name == pod.Metadata.Name && v.Runtime.ClusterIp == pod.Runtime.ClusterIp {
 				return true
 			}
 		}
@@ -63,17 +66,6 @@ func (serviceStatus *ServiceStatus) selectPods() {
 	if len(brokenPods) == 0 && (len(serviceStatus.Pods) >= MAX_PODS || len(serviceStatus.Pods) == len(filterPods)) {
 		return
 	}
-
-	//// mark normal pods if need to replace net
-	//ForEach(normalPods, func(pod object.Pod) {
-	//	for _, v := range filterPods {
-	//		if v.Metadata.Name == pod.Metadata.Name {
-	//			if v.Runtime.Status == config.NEED_REPLACE_STATUS {
-	//				pod.Runtime.Status = config.NEED_REPLACE_STATUS
-	//			}
-	//		}
-	//	}
-	//})
 
 	// try to fill the pods to max_pods
 	_, differPods := Filter(filterPods, func(pod object.Pod) bool {
@@ -97,48 +89,5 @@ func (serviceStatus *ServiceStatus) selectPods() {
 	serviceStatus.Pods = normalPods
 
 	// update service config
-
-	////更新serviceConfig 并上传
-	////如果没有选取到pod, 需要报错，同时如果已经是错误的不需要在去更新etcd
-	//var replace []object.PodNameAndIp
-	//updateEtcd := false
-	//if len(service.pods) == 0 {
-	//	if len(service.serviceConfig.Spec.PodNameAndIps) != 0 {
-	//		service.serviceConfig.Spec.PodNameAndIps = replace
-	//		service.serviceConfig.Status.Phase = object.Failed
-	//		service.serviceConfig.Status.Err = NoPodsError
-	//		updateEtcd = true
-	//	} else {
-	//		if isInit {
-	//			//第一次就没选到pod
-	//			service.serviceConfig.Spec.PodNameAndIps = replace
-	//			service.serviceConfig.Status.Phase = object.Failed
-	//			service.serviceConfig.Status.Err = NoPodsError
-	//		}
-	//	}
-	//} else {
-	//	//比较旧的和新的pod
-	//	if compareOldAndNew(oldPods, service.pods) {
-	//		//先生成replace
-	//		for _, val := range service.pods {
-	//			replace = append(replace, object.PodNameAndIp{Name: val.Name, Ip: val.Status.PodIP})
-	//		}
-	//		//更新serviceConfig
-	//		service.serviceConfig.Spec.PodNameAndIps = replace
-	//		service.serviceConfig.Status.Phase = object.Running
-	//		if service.serviceConfig.Status.Err == NoPodsError {
-	//			service.serviceConfig.Status.Err = ""
-	//		}
-	//		updateEtcd = true
-	//	}
-	//}
-	////更新etcd
-	//if isInit {
-	//	//第一次是一定要更新的
-	//	err = service.Client.UpdateRuntimeService(service.serviceConfig)
-	//	return err
-	//} else if updateEtcd {
-	//	err = service.Client.UpdateRuntimeService(service.serviceConfig)
-	//}
-	//return err
+	client.AddServiceStatus(*serviceStatus)
 }

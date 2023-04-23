@@ -135,15 +135,16 @@ type ServicePort struct {
 	NodePort   string `json:"nodePort" yaml:"nodePort"`
 }
 
-// --------------------------- Dns ---------------------------
+// --------------------------- Gateway ---------------------------
 
-type Dns struct {
-	Kind     string   `yaml:"kind" json:"kind"`
-	MetaData Metadata `json:"metadata" yaml:"metadata"`
-	Spec     DnsSpec  `json:"spec" yaml:"spec"`
+type Gateway struct {
+	Kind     string      `yaml:"kind" json:"kind"`
+	MetaData Metadata    `json:"metadata" yaml:"metadata"`
+	Spec     GatewaySpec `json:"spec" yaml:"spec"`
+	Runtime  Runtime     `yaml:"runtime" json:"runtime"`
 }
 
-type DnsSpec struct {
+type GatewaySpec struct {
 	Host  string `yaml:"host" json:"host"`
 	Paths []Path `yaml:"paths" json:"paths"`
 }

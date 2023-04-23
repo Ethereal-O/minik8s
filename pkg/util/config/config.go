@@ -7,6 +7,8 @@ const (
 	ETCD_Endpoints string = BASE_URL + ":2379"
 	NSQ_PEODUCER   string = BASE_URL + ":4150"
 	NSQ_CONSUMER   string = BASE_URL + ":4161"
+	// make all server have same DNS server to support DNS query
+	DNS_SERVER string = "11.11.11.11"
 )
 
 const (
@@ -15,9 +17,12 @@ const (
 	SERVICE_TYPE       = "Service"
 	SERVICESTATUS_TYPE = "ServiceStatus"
 	NODE_TYPE          = "Node"
+	DNS_TYPE           = "DNS"
+	GATEWAY_TYPE       = "Gateway"
+	GATEWAYSTATUS_TYPE = "GatewayStatus"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, SERVICE_TYPE, SERVICESTATUS_TYPE, NODE_TYPE}
+var TP = []string{POD_TYPE, REPLICASET_TYPE, SERVICE_TYPE, SERVICESTATUS_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, GATEWAYSTATUS_TYPE}
 
 const EMPTY_FLAG = "none"
 

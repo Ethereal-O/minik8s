@@ -5,7 +5,6 @@ import (
 	"minik8s/pkg/apiServer"
 	"minik8s/pkg/controller"
 	"minik8s/pkg/scheduler"
-	"minik8s/pkg/services"
 	"os"
 	"os/signal"
 	"syscall"
@@ -30,7 +29,8 @@ func doit(cmd *cobra.Command, args []string) {
 	time.Sleep(1 * time.Second)
 	go controller.Start_rsController()
 	go scheduler.Start_scheduler()
-	go services.StartServiceManager()
+	//go services.StartServiceManager()
+	//go services.StartDnsManager()
 
 	// Gracefully exit after Ctrl-C
 	<-c

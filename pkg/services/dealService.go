@@ -23,11 +23,13 @@ func dealExitService(service *object.Service) {
 func createService(service *object.Service) {
 	serviceManager.Lock.Lock()
 	defer serviceManager.Lock.Unlock()
-	serviceStatus := &ServiceStatus{
+	serviceStatus := ServiceStatus{
 		Service: *service,
 		Lock:    sync.Mutex{},
+		Pods:    []object.Pod{},
 	}
 	serviceStatus.InitServiceStatus()
+	serviceManager.ServiceMap[service.Metadata.Name] = serviceStatus
 }
 
 func deleteService(service *object.Service) {

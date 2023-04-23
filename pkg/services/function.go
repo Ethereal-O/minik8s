@@ -1,26 +1,5 @@
 package services
 
-import "minik8s/pkg/object"
-
-func compareOldAndNewPods(oldPods []*object.Pod, newPods []*object.Pod) bool {
-	if len(oldPods) != len(newPods) {
-		return true
-	}
-	for _, oldPod := range oldPods {
-		founded := false
-		for _, newPod := range newPods {
-			if oldPod.Metadata.Name == newPod.Metadata.Name {
-				founded = true
-				break
-			}
-		}
-		if !founded {
-			return true
-		}
-	}
-	return false
-}
-
 func Filter[T any](slice []T, condition func(T) bool) ([]T, []T) {
 	var filtered []T
 	var differed []T
@@ -38,4 +17,12 @@ func ForEach[T any](slice []T, action func(T)) {
 	for _, item := range slice {
 		action(item)
 	}
+}
+
+func Map[T1 any, T2 any](slice []T1, mapper func(T1) T2) []T2 {
+	mapped := make([]T2, 0, len(slice))
+	for _, item := range slice {
+		mapped = append(mapped, mapper(item))
+	}
+	return mapped
 }
