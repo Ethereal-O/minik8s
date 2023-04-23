@@ -1,0 +1,1 @@
+sh ./scripts/helper/nsq_start.sh

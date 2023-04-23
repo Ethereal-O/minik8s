@@ -121,7 +121,7 @@ type Service struct {
 }
 
 type ServiceSpec struct {
-	Ports    []Ports  `yaml:"ports" json:"ports"`
+	Ports    []Port   `yaml:"ports" json:"ports"`
 	Selector Selector `yaml:"selector" json:"selector"`
 	Type     string   `yaml:"type" json:"type"`
 	Template Template `yaml:"template" json:"template"`

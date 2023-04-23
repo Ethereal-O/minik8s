@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"minik8s/pkg/util/counter"
-	"time"
 )
 
 type RRPolicy struct {
@@ -10,8 +9,12 @@ type RRPolicy struct {
 
 func (policy RRPolicy) selectNode() string {
 	availNodeList := availNode.GetAll()
-	for len(availNodeList) == 0 {
-		time.Sleep(100 * time.Millisecond)
+	if len(availNodeList) == 0 {
+		return ""
 	}
-	return availNodeList[counter.GetRRPolicy()%len(availNodeList)]
+	if node, ok := availNodeList[counter.GetRRPolicy()%len(availNodeList)].(string); ok {
+		return node
+	} else {
+		return ""
+	}
 }

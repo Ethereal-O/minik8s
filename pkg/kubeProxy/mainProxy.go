@@ -5,7 +5,7 @@ import (
 	"minik8s/pkg/service"
 )
 
-func Init() {
+func Start_proxy() {
 	fmt.Println("this is proxy")
 	service.StartServiceManager()
 }

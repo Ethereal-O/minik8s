@@ -81,13 +81,14 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 	return name, ID, err
 }
 
-func StartCommonContainer(pod *object.Pod, myContainer *object.Container) {
+func StartCommonContainer(pod *object.Pod, myContainer *object.Container) bool {
 	// Step 1: Prepare for image
 	err := PullImage(myContainer.Image, &PullConfig{
 		All: false,
 	})
 	if err != nil {
 		fmt.Printf("Failed to pull image %v! Reason: %v\n", myContainer.Image, err.Error())
+		return false
 	} else {
 		fmt.Printf("Image %v pulled!\n", myContainer.Image)
 	}
@@ -97,6 +98,7 @@ func StartCommonContainer(pod *object.Pod, myContainer *object.Container) {
 	fullName, ID, err = CreateCommonContainer(pod, myContainer)
 	if err != nil {
 		fmt.Printf("Failed to create container %v! Reason: %v\n", fullName, err.Error())
+		return false
 	} else {
 		fmt.Printf("Container %v created!\n", fullName)
 	}
@@ -105,9 +107,12 @@ func StartCommonContainer(pod *object.Pod, myContainer *object.Container) {
 	err = Client.ContainerStart(Ctx, ID, StartConfig{})
 	if err != nil {
 		fmt.Printf("Failed to start container %v (ID: %v)! Reason: %v\n", fullName, ID, err.Error())
+		return false
 	} else {
 		fmt.Printf("Container %v (ID: %v) started!\n", fullName, ID)
 	}
+
+	return true
 }
 
 func CreatePauseContainer(pod *object.Pod) (string, string, error) {
@@ -147,13 +152,14 @@ func CreatePauseContainer(pod *object.Pod) (string, string, error) {
 	return name, ID, err
 }
 
-func StartPauseContainer(pod *object.Pod) {
+func StartPauseContainer(pod *object.Pod) bool {
 	// Step 1: Prepare for image
 	err := PullImage(pauseImage, &PullConfig{
 		All: false,
 	})
 	if err != nil {
 		fmt.Printf("Failed to pull pause image %v! Reason: %v\n", pauseImage, err.Error())
+		return false
 	} else {
 		fmt.Printf("Pause image %v pulled!\n", pauseImage)
 	}
@@ -163,6 +169,7 @@ func StartPauseContainer(pod *object.Pod) {
 	fullName, ID, err = CreatePauseContainer(pod)
 	if err != nil {
 		fmt.Printf("Failed to create pause container %v! Reason: %v\n", fullName, err.Error())
+		return false
 	} else {
 		fmt.Printf("Pause container %v created!\n", fullName)
 	}
@@ -171,6 +178,7 @@ func StartPauseContainer(pod *object.Pod) {
 	err = Client.ContainerStart(Ctx, ID, StartConfig{})
 	if err != nil {
 		fmt.Printf("Failed to start pause container %v (ID: %v)! Reason: %v\n", fullName, ID, err.Error())
+		return false
 	} else {
 		fmt.Printf("Pause container %v (ID: %v) started!\n", fullName, ID)
 	}
@@ -179,7 +187,10 @@ func StartPauseContainer(pod *object.Pod) {
 	err = weave.Attach(ID, pod.Runtime.ClusterIp+network.Mask)
 	if err != nil {
 		fmt.Printf("Failed to attach pause container %v (ID: %v) to subnet! Reason: %v\n", fullName, ID, err.Error())
+		return false
 	} else {
 		fmt.Printf("Pause Container %v (ID: %v) attached to subnet!\n", fullName, ID)
 	}
+
+	return true
 }

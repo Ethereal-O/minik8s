@@ -7,20 +7,26 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/structure"
+	"time"
 )
 
 var availNode structure.Set
+var scheduleQueue structure.Queue
 
 var Exited = make(chan bool)
 var ToExit = make(chan bool)
 
 func Start_scheduler() {
 	availNode.Init()
+	scheduleQueue.Init()
 	var policy SchedulePolicy = RRPolicy{}
+
 	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
 	nodeChan, nodeStop := messging.Watch("/"+config.NODE_TYPE, true)
-	go dealPod(podChan, policy)
+
+	go dealPod(podChan)
 	go dealNode(nodeChan)
+	go mainLoop(policy)
 	fmt.Println("Scheduler start")
 
 	// Wait until Ctrl-C
@@ -49,11 +55,10 @@ func dealNode(nodeChan chan string) {
 	}
 }
 
-func dealPod(podChan chan string, policy SchedulePolicy) {
+func dealPod(podChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
-			fmt.Println("scheduler: pod!!")
 			// fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)
@@ -62,8 +67,48 @@ func dealPod(podChan chan string, policy SchedulePolicy) {
 			}
 			if tarPod.Runtime.Status == config.CREATED_STATUS {
 				fmt.Println("scheduler: created pod!!")
-				BindPod(&tarPod, policy)
+				scheduleQueue.Push(mes)
 			}
+		}
+	}
+}
+
+func mainLoop(policy SchedulePolicy) {
+	idle := false
+	for {
+		if idle {
+			time.Sleep(1 * time.Second)
+		}
+		mes := scheduleQueue.Front()
+		if mes == nil {
+			// scheduleQueue is empty now
+			idle = true
+			continue
+		} else if mes_str, ok := mes.(string); ok {
+			var tarPod object.Pod
+			err := json.Unmarshal([]byte(mes_str), &tarPod)
+			if err != nil {
+				// Cannot unmarshal, discard it
+				scheduleQueue.Pop()
+				idle = false
+				continue
+			}
+			bound := BindPod(&tarPod, policy)
+			if bound {
+				// Bind pod success!
+				scheduleQueue.Pop()
+				idle = false
+				continue
+			} else {
+				// No available node now
+				idle = true
+				continue
+			}
+		} else {
+			// Cannot unmarshal, discard it
+			scheduleQueue.Pop()
+			idle = false
+			continue
 		}
 	}
 }

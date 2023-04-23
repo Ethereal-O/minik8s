@@ -14,5 +14,5 @@ func TestCreatePod(t *testing.T) {
 	var conf object.Pod
 	err = yaml.Unmarshal(yamlFile, &conf)
 	assert.Nil(t, err)
-	CreatePod(&conf)
+	StartPod(&conf)
 }
