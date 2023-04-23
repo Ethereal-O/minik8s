@@ -8,7 +8,6 @@ import (
 	"minik8s/pkg/etcd"
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
-	"minik8s/pkg/services"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/counter"
 	"minik8s/pkg/util/stringParse"
@@ -297,7 +296,7 @@ func service_delete(c echo.Context) error {
 }
 
 func serviceStatus_put(c echo.Context) error {
-	serviceStatusObject := new(services.ServiceStatus)
+	serviceStatusObject := new(object.ServiceStatus)
 	if err := c.Bind(serviceStatusObject); err != nil {
 		return err
 	}
@@ -333,7 +332,7 @@ func serviceStatus_delete(c echo.Context) error {
 	if len(res) != 1 {
 		return c.String(http.StatusInternalServerError, "not exist!")
 	}
-	var serviceStatusObject services.ServiceStatus
+	var serviceStatusObject object.ServiceStatus
 	err := json.Unmarshal([]byte(res[0]), &serviceStatusObject)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "unmarshal error!")

@@ -15,7 +15,7 @@ var serviceManagerToExit = make(chan bool)
 
 func createServiceManager() *ServiceManager {
 	serviceManager := &ServiceManager{}
-	serviceManager.ServiceMap = make(map[string]ServiceStatus)
+	serviceManager.ServiceMap = make(map[string]object.ServiceStatus)
 	var lock sync.Mutex
 	serviceManager.Lock = lock
 	return serviceManager

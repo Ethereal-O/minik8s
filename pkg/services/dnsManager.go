@@ -15,7 +15,7 @@ var dnsManagerToExit = make(chan bool)
 
 func createDnsManager() *DnsManager {
 	dnsManager := &DnsManager{}
-	dnsManager.GatewayMap = make(map[string]GatewayStatus)
+	dnsManager.GatewayMap = make(map[string]object.GatewayStatus)
 	var lock sync.Mutex
 	dnsManager.Lock = lock
 	return dnsManager

@@ -7,33 +7,33 @@ import (
 	"time"
 )
 
-func (serviceStatus *ServiceStatus) InitServiceStatus() {
-	serviceStatus.selectPods()
-	serviceStatus.startPoll()
+func InitServiceStatus(serviceStatus *object.ServiceStatus) {
+	selectPods(serviceStatus)
+	startPoll(serviceStatus)
 }
 
-func (serviceStatus *ServiceStatus) startPoll() {
+func startPoll(serviceStatus *object.ServiceStatus) {
 	serviceStatus.Timer = *time.NewTicker(CHECK_PODS_TIME_INTERVAL)
-	go serviceStatus.pollLoop()
+	go pollLoop(serviceStatus)
 }
 
-func (serviceStatus *ServiceStatus) pollLoop() {
+func pollLoop(serviceStatus *object.ServiceStatus) {
 	defer serviceStatus.Timer.Stop()
 	for {
 		select {
 		case <-serviceStatus.Timer.C:
-			serviceStatus.poll()
+			poll(serviceStatus)
 		}
 	}
 }
 
-func (serviceStatus *ServiceStatus) poll() {
+func poll(serviceStatus *object.ServiceStatus) {
 	serviceStatus.Lock.Lock()
 	defer serviceStatus.Lock.Unlock()
-	serviceStatus.selectPods()
+	selectPods(serviceStatus)
 }
 
-func (serviceStatus *ServiceStatus) selectPods() {
+func selectPods(serviceStatus *object.ServiceStatus) {
 	// get all pods and selector
 	selector := serviceStatus.Service.Spec.Selector
 	allPods := client.GetAllPods()

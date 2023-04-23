@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"minik8s/pkg/object"
-	"minik8s/pkg/services"
 	"minik8s/pkg/util/config"
 )
 
@@ -121,29 +120,29 @@ func DeleteService(service object.Service) string {
 
 // --------------------------- ServiceStatus ---------------------------
 
-func GetAllServiceStatuses() []services.ServiceStatus {
+func GetAllServiceStatuses() []object.ServiceStatus {
 	serviceStatusList := Get_object(config.EMPTY_FLAG, config.SERVICESTATUS_TYPE)
-	var resList []services.ServiceStatus
+	var resList []object.ServiceStatus
 	for _, serviceStatus := range serviceStatusList {
-		var serviceStatusObject services.ServiceStatus
+		var serviceStatusObject object.ServiceStatus
 		json.Unmarshal([]byte(serviceStatus), &serviceStatusObject)
 		resList = append(resList, serviceStatusObject)
 	}
 	return resList
 }
 
-func GetServiceStatusByKey(key string) []services.ServiceStatus {
+func GetServiceStatusByKey(key string) []object.ServiceStatus {
 	serviceStatusList := Get_object(key, config.SERVICESTATUS_TYPE)
-	var resList []services.ServiceStatus
+	var resList []object.ServiceStatus
 	for _, serviceStatus := range serviceStatusList {
-		var serviceStatusObject services.ServiceStatus
+		var serviceStatusObject object.ServiceStatus
 		json.Unmarshal([]byte(serviceStatus), &serviceStatusObject)
 		resList = append(resList, serviceStatusObject)
 	}
 	return resList
 }
 
-func AddServiceStatus(serviceStatus services.ServiceStatus) string {
+func AddServiceStatus(serviceStatus object.ServiceStatus) string {
 	serviceStatusValue, err := json.Marshal(serviceStatus)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -151,7 +150,7 @@ func AddServiceStatus(serviceStatus services.ServiceStatus) string {
 	return Put_object(serviceStatus.Service.Metadata.Name, string(serviceStatusValue), config.SERVICESTATUS_TYPE)
 }
 
-func DeleteServiceStatus(serviceStatus services.ServiceStatus) string {
+func DeleteServiceStatus(serviceStatus object.ServiceStatus) string {
 	return Delete_object(serviceStatus.Service.Metadata.Name, config.SERVICESTATUS_TYPE)
 }
 
@@ -182,18 +181,18 @@ func DeleteGateway(gateway object.Gateway) string {
 
 // --------------------------- GatewayStatus ---------------------------
 
-func GetAllGatewayStatuses() []services.GatewayStatus {
+func GetAllGatewayStatuses() []object.GatewayStatus {
 	gatewayStatusList := Get_object(config.EMPTY_FLAG, config.GATEWAYSTATUS_TYPE)
-	var resList []services.GatewayStatus
+	var resList []object.GatewayStatus
 	for _, gatewayStatus := range gatewayStatusList {
-		var gatewayStatusObject services.GatewayStatus
+		var gatewayStatusObject object.GatewayStatus
 		json.Unmarshal([]byte(gatewayStatus), &gatewayStatusObject)
 		resList = append(resList, gatewayStatusObject)
 	}
 	return resList
 }
 
-func AddGatewayStatus(gatewayStatus services.GatewayStatus) string {
+func AddGatewayStatus(gatewayStatus object.GatewayStatus) string {
 	gatewayStatusValue, err := json.Marshal(gatewayStatus)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -201,7 +200,7 @@ func AddGatewayStatus(gatewayStatus services.GatewayStatus) string {
 	return Put_object(gatewayStatus.Gateway.MetaData.Name, string(gatewayStatusValue), config.GATEWAYSTATUS_TYPE)
 }
 
-func DeleteGatewayStatus(gatewayStatus services.GatewayStatus) string {
+func DeleteGatewayStatus(gatewayStatus object.GatewayStatus) string {
 	return Delete_object(gatewayStatus.Gateway.MetaData.Name, config.GATEWAYSTATUS_TYPE)
 }
 

@@ -32,17 +32,8 @@ const (
 // Service
 
 type ServiceManager struct {
-	ServiceMap map[string]ServiceStatus
+	ServiceMap map[string]object.ServiceStatus
 	Lock       sync.Mutex
-}
-
-// Runtime service to check diff
-
-type ServiceStatus struct {
-	Service object.Service
-	Pods    []object.Pod
-	Timer   time.Ticker
-	Lock    sync.Mutex
 }
 
 // Gateway
@@ -50,7 +41,7 @@ type ServiceStatus struct {
 type DnsManager struct {
 	Timer        time.Ticker
 	DnsTemplates DnsTemplate
-	GatewayMap   map[string]GatewayStatus
+	GatewayMap   map[string]object.GatewayStatus
 	Lock         sync.Mutex
 }
 
@@ -59,12 +50,4 @@ type DnsTemplate struct {
 	DnsServiceTemplate        object.Service
 	GateWayReplicaSetTemplate object.ReplicaSet
 	GateWayServiceTemplate    object.Service
-}
-
-// Runtime gateway to deploy
-
-type GatewayStatus struct {
-	Gateway   object.Gateway
-	ClusterIp string
-	Status    string
 }
