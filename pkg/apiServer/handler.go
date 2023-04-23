@@ -8,6 +8,7 @@ import (
 	"minik8s/pkg/etcd"
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
+	"minik8s/pkg/services"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/counter"
 	"minik8s/pkg/util/stringParse"
@@ -235,16 +236,13 @@ func service_put(c echo.Context) error {
 		return err
 	}
 	key := c.Request().RequestURI
+	// create
 	if serviceObject.Runtime.Uuid == "" {
 		uuid := counter.GetUuid()
 		serviceObject.Runtime.Uuid = uuid
 	}
 	if serviceObject.Runtime.Status == "" {
 		serviceObject.Runtime.Status = config.CREATED_STATUS
-	}
-	if serviceObject.Runtime.Belong != "" {
-		serviceObject.Metadata.Name += serviceObject.Runtime.Uuid
-		key += serviceObject.Runtime.Uuid
 	}
 	service, err := json.Marshal(serviceObject)
 	if err != nil {
@@ -254,8 +252,6 @@ func service_put(c echo.Context) error {
 	if err2 := etcd.Set_etcd(key, string(service)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	//can := make(chan *ec.Event, 20)
-	//producerStopFunc := messging.Producer(key, can)
 	return c.String(http.StatusOK, "ok")
 }
 
@@ -293,6 +289,61 @@ func service_delete(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	if err2 := etcd.Set_etcd(key, string(service)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+func serviceStatus_put(c echo.Context) error {
+	serviceStatusObject := new(services.ServiceStatus)
+	if err := c.Bind(serviceStatusObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	// unlock to avoid some exception
+	serviceStatusObject.Lock.Unlock()
+	serviceStatus, err := json.Marshal(serviceStatusObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(serviceStatus)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func serviceStatus_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	fmt.Println(key)
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func serviceStatus_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var serviceStatusObject services.ServiceStatus
+	err := json.Unmarshal([]byte(res[0]), &serviceStatusObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	// because we unlock the lock in the serviceStatus_put, so we don't need to unlock it here
+	serviceStatus, err := json.Marshal(serviceStatusObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(serviceStatus)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 

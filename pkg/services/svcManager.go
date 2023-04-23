@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"encoding/json"
@@ -15,11 +15,11 @@ var ToExit = make(chan bool)
 
 func createServiceManager() *ServiceManager {
 	serviceManager := &ServiceManager{}
-	serviceManager.ServiceMap = make(map[string]*ServiceStatus)
-	serviceManager.stopChannel = make(chan struct{})
-	serviceManager.DnsMap = make(map[string]*DnsStatus)
+	serviceManager.ServiceMap = make(map[string]ServiceStatus)
+	serviceManager.StopChannel = make(chan struct{})
+	serviceManager.DnsMap = make(map[string]DnsStatus)
 	var lock sync.Mutex
-	serviceManager.lock = lock
+	serviceManager.Lock = lock
 	return serviceManager
 }
 
@@ -33,6 +33,21 @@ func StartServiceManager() {
 	serviceStop()
 	Exited <- true
 }
+
+//func startTicker() {
+//    //ticker := time.NewTicker(5 * time.Second)
+//    //go func() {
+//    //	for {
+//    //		select {
+//    //		case <-ticker.C:
+//    //			serviceManager.checkAndBoot()
+//    //		case <-serviceManager.stopChannel:
+//    //			ticker.Stop()
+//    //			return
+//    //		}
+//    //	}
+//    //}()
+//}
 
 //func (serviceManager *ServiceManager) dnsLoop() {
 //	for {
@@ -108,14 +123,16 @@ func dealService(serviceChan chan string) {
 	for {
 		select {
 		case mes := <-serviceChan:
-			// fmt.Println("[this]", mes)
 			var tarService object.Service
 			err := json.Unmarshal([]byte(mes), &tarService)
 			if err != nil {
 				fmt.Println(err.Error())
+				continue
 			}
-			if tarService.Runtime.Status == config.RUNNING_STATUS && tarService.Runtime.Bind == "TEST" {
-				createService(&tarService)
+			if tarService.Runtime.Status == config.EXIT_STATUS {
+				dealExitService(&tarService)
+			} else {
+				dealRunningService(&tarService)
 			}
 		}
 	}

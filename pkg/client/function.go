@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"minik8s/pkg/object"
+	"minik8s/pkg/services"
 	"minik8s/pkg/util/config"
 )
 
@@ -105,4 +106,29 @@ func AddService(service object.Service) string {
 
 func DeleteService(service object.Service) string {
 	return Delete_object(service.Metadata.Name, config.SERVICE_TYPE)
+}
+
+// --------------------------- ServiceStatus ---------------------------
+
+func GetAllServiceStatuses() []services.ServiceStatus {
+	serviceStatusList := Get_object(config.EMPTY_FLAG, config.SERVICESTATUS_TYPE)
+	var resList []services.ServiceStatus
+	for _, serviceStatus := range serviceStatusList {
+		var serviceStatusObject services.ServiceStatus
+		json.Unmarshal([]byte(serviceStatus), &serviceStatusObject)
+		resList = append(resList, serviceStatusObject)
+	}
+	return resList
+}
+
+func AddServiceStatus(serviceStatus services.ServiceStatus) string {
+	serviceStatusValue, err := json.Marshal(serviceStatus)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(serviceStatus.Service.Metadata.Name, string(serviceStatusValue), config.SERVICESTATUS_TYPE)
+}
+
+func DeleteServiceStatus(serviceStatus services.ServiceStatus) string {
+	return Delete_object(serviceStatus.Service.Metadata.Name, config.SERVICESTATUS_TYPE)
 }
