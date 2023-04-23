@@ -23,4 +23,7 @@
 .idea/
 default.etcd/
 *.log
+*.dat
 kubectl
+upload/
+download/

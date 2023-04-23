@@ -4,4 +4,4 @@ metadata:
   labels:
     key: test2
 spec:
-  ip: 192.168.29.132
+  ip: 192.168.29.128

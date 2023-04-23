@@ -26,13 +26,15 @@ func dealPod(podChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
+			fmt.Println("kubelet: pod!!")
 			// fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == "TEST" {
+			if tarPod.Runtime.Status == config.BOUND_STATUS {
+				fmt.Println("kubelet: bound pod!!")
 				CreatePod(&tarPod)
 			}
 		}

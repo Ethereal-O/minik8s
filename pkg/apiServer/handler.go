@@ -63,6 +63,9 @@ func pod_put(c echo.Context) error {
 	if podObject.Runtime.Status == "" {
 		podObject.Runtime.Status = config.CREATED_STATUS
 	}
+	if podObject.Runtime.ClusterIp == "" {
+		podObject.Runtime.ClusterIp = NewPodIP()
+	}
 	pod, err := json.Marshal(podObject)
 	if err != nil {
 		fmt.Println(err.Error())

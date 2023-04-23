@@ -1,6 +1,7 @@
 package kubelet
 
 import (
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
 	"time"
@@ -46,6 +47,7 @@ type ContainerRuntime struct {
 	State   State
 }
 
+// CreateConfig : arguments to create a container
 type CreateConfig struct {
 	// Config
 	Image        string
@@ -54,8 +56,7 @@ type CreateConfig struct {
 	Cmd          []string
 	Env          []string
 	Volumes      map[string]struct{}
-	ExposedPorts nat.PortSet `json:",omitempty"` // Exposed ports of the container
-	Tty          bool        // Attach standard streams to a tty, including stdin if it is not closed.
+	ExposedPorts nat.PortSet // Exposed ports of the container
 
 	// HostConfig
 	IpcMode      container.IpcMode     // IPC namespace of the container
@@ -67,9 +68,11 @@ type CreateConfig struct {
 	VolumesFrom  []string              // List of volumes to take from other containers
 }
 
+// StartConfig : arguments to start a container
+type StartConfig = types.ContainerStartOptions
+
 // ------------------Image------------------
 
 type PullConfig struct {
-	Verbose bool
-	All     bool
+	All bool
 }

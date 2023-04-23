@@ -1,6 +1,6 @@
 # note: call scripts from /scripts
 BUILD=$(shell ./scripts/build.sh)
-TESTRR=$(shell ./scripts/testRR.sh)
+TESTPOD=$(shell ./scripts/testPod.sh)
 CLEAN=$(shell ./scripts/clean.sh)
 RUN=$(shell ./scripts/run.sh)
 build:
@@ -10,11 +10,11 @@ run:
 	@echo $(CLEAN)
 	@echo $(BUILD)
 	@echo $(RUN)
-testRR:
+testPod:
 	@echo $(CLEAN)
 	@echo $(BUILD)
 	@echo $(RUN)
-	@echo $(TESTRR)
+	@echo $(TESTPOD)
 clean:
 	@echo $(CLEAN)
 .PHONY:build

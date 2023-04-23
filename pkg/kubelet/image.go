@@ -5,14 +5,11 @@ import (
 )
 
 func PullImage(name string, config *PullConfig) error {
-	events, err := Client.ImagePull(Ctx, name, types.ImagePullOptions{
+	_, err := Client.ImagePull(Ctx, name, types.ImagePullOptions{
 		All: config.All,
 	})
 	if err != nil {
 		return err
-	}
-	if config.Verbose {
-		parseAndPrintPullEvents(events, name)
 	}
 	return nil
 }
