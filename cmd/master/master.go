@@ -29,6 +29,8 @@ func doit(cmd *cobra.Command, args []string) {
 	time.Sleep(1 * time.Second)
 	go controller.Start_rsController()
 	go scheduler.Start_scheduler()
+	//go services.StartServiceManager()
+	//go services.StartDnsManager()
 
 	// Gracefully exit after Ctrl-C
 	<-c

@@ -121,31 +121,30 @@ type Service struct {
 }
 
 type ServiceSpec struct {
-	Ports    []Port   `yaml:"ports" json:"ports"`
-	Selector Selector `yaml:"selector" json:"selector"`
-	Type     string   `yaml:"type" json:"type"`
-	Template Template `yaml:"template" json:"template"`
-	Strategy Strategy `yaml:"strategy" json:"strategy"`
-	Replicas int      `yaml:"replicas" json:"replicas"`
+	Type      string            `json:"type" yaml:"type"`
+	ClusterIp string            `json:"clusterIp" yaml:"clusterIp"`
+	Ports     []ServicePort     `json:"ports" yaml:"ports"`
+	Selector  map[string]string `json:"selector" yaml:"selector"`
 }
 
-type Selector struct {
-	Name string `yaml:"name" json:"name"`
+type ServicePort struct {
+	Name       string `json:"name" yaml:"name"`
+	Protocol   string `json:"protocol" yaml:"protocol"`
+	Port       string `json:"port" yaml:"port"`
+	TargetPort string `json:"targetPort" yaml:"targetPort"`
+	NodePort   string `json:"nodePort" yaml:"nodePort"`
 }
 
-type Strategy struct {
-	Type string `yaml:"type" json:"type"`
+// --------------------------- Gateway ---------------------------
+
+type Gateway struct {
+	Kind     string      `yaml:"kind" json:"kind"`
+	MetaData Metadata    `json:"metadata" yaml:"metadata"`
+	Spec     GatewaySpec `json:"spec" yaml:"spec"`
+	Runtime  Runtime     `yaml:"runtime" json:"runtime"`
 }
 
-// --------------------------- Dns ---------------------------
-
-type Dns struct {
-	Kind     string   `yaml:"kind" json:"kind"`
-	MetaData Metadata `json:"metadata" yaml:"metadata"`
-	Spec     DnsSpec  `json:"spec" yaml:"spec"`
-}
-
-type DnsSpec struct {
+type GatewaySpec struct {
 	Host  string `yaml:"host" json:"host"`
 	Paths []Path `yaml:"paths" json:"paths"`
 }

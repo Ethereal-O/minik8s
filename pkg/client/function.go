@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"minik8s/pkg/object"
+	"minik8s/pkg/services"
 	"minik8s/pkg/util/config"
 )
 
@@ -95,6 +96,17 @@ func GetAllServices() []object.Service {
 	return resList
 }
 
+func GetServiceByKey(key string) []object.Service {
+	serviceList := Get_object(key, config.SERVICE_TYPE)
+	var resList []object.Service
+	for _, service := range serviceList {
+		var serviceObject object.Service
+		json.Unmarshal([]byte(service), &serviceObject)
+		resList = append(resList, serviceObject)
+	}
+	return resList
+}
+
 func AddService(service object.Service) string {
 	serviceValue, err := json.Marshal(service)
 	if err != nil {
@@ -105,4 +117,132 @@ func AddService(service object.Service) string {
 
 func DeleteService(service object.Service) string {
 	return Delete_object(service.Metadata.Name, config.SERVICE_TYPE)
+}
+
+// --------------------------- ServiceStatus ---------------------------
+
+func GetAllServiceStatuses() []services.ServiceStatus {
+	serviceStatusList := Get_object(config.EMPTY_FLAG, config.SERVICESTATUS_TYPE)
+	var resList []services.ServiceStatus
+	for _, serviceStatus := range serviceStatusList {
+		var serviceStatusObject services.ServiceStatus
+		json.Unmarshal([]byte(serviceStatus), &serviceStatusObject)
+		resList = append(resList, serviceStatusObject)
+	}
+	return resList
+}
+
+func GetServiceStatusByKey(key string) []services.ServiceStatus {
+	serviceStatusList := Get_object(key, config.SERVICESTATUS_TYPE)
+	var resList []services.ServiceStatus
+	for _, serviceStatus := range serviceStatusList {
+		var serviceStatusObject services.ServiceStatus
+		json.Unmarshal([]byte(serviceStatus), &serviceStatusObject)
+		resList = append(resList, serviceStatusObject)
+	}
+	return resList
+}
+
+func AddServiceStatus(serviceStatus services.ServiceStatus) string {
+	serviceStatusValue, err := json.Marshal(serviceStatus)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(serviceStatus.Service.Metadata.Name, string(serviceStatusValue), config.SERVICESTATUS_TYPE)
+}
+
+func DeleteServiceStatus(serviceStatus services.ServiceStatus) string {
+	return Delete_object(serviceStatus.Service.Metadata.Name, config.SERVICESTATUS_TYPE)
+}
+
+// --------------------------- Gateway ---------------------------
+
+func GetAllGateways() []object.Gateway {
+	gatewayList := Get_object(config.EMPTY_FLAG, config.GATEWAY_TYPE)
+	var resList []object.Gateway
+	for _, gateway := range gatewayList {
+		var gatewayObject object.Gateway
+		json.Unmarshal([]byte(gateway), &gatewayObject)
+		resList = append(resList, gatewayObject)
+	}
+	return resList
+}
+
+func AddGateway(gateway object.Gateway) string {
+	gatewayValue, err := json.Marshal(gateway)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(gateway.MetaData.Name, string(gatewayValue), config.GATEWAY_TYPE)
+}
+
+func DeleteGateway(gateway object.Gateway) string {
+	return Delete_object(gateway.MetaData.Name, config.GATEWAY_TYPE)
+}
+
+// --------------------------- GatewayStatus ---------------------------
+
+func GetAllGatewayStatuses() []services.GatewayStatus {
+	gatewayStatusList := Get_object(config.EMPTY_FLAG, config.GATEWAYSTATUS_TYPE)
+	var resList []services.GatewayStatus
+	for _, gatewayStatus := range gatewayStatusList {
+		var gatewayStatusObject services.GatewayStatus
+		json.Unmarshal([]byte(gatewayStatus), &gatewayStatusObject)
+		resList = append(resList, gatewayStatusObject)
+	}
+	return resList
+}
+
+func AddGatewayStatus(gatewayStatus services.GatewayStatus) string {
+	gatewayStatusValue, err := json.Marshal(gatewayStatus)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(gatewayStatus.Gateway.MetaData.Name, string(gatewayStatusValue), config.GATEWAYSTATUS_TYPE)
+}
+
+func DeleteGatewayStatus(gatewayStatus services.GatewayStatus) string {
+	return Delete_object(gatewayStatus.Gateway.MetaData.Name, config.GATEWAYSTATUS_TYPE)
+}
+
+// --------------------------- ReplicaSet ---------------------------
+
+// TODO: add ReplicaSet
+
+func AddReplicaSet(replicaSet object.ReplicaSet) string {
+	replicaSetValue, err := json.Marshal(replicaSet)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(replicaSet.Metadata.Name, string(replicaSetValue), config.REPLICASET_TYPE)
+}
+
+func GetReplicaSetByKey(key string) []object.ReplicaSet {
+	replicaSetList := Get_object(key, config.REPLICASET_TYPE)
+	var resList []object.ReplicaSet
+	for _, replicaSet := range replicaSetList {
+		var replicaSetObject object.ReplicaSet
+		json.Unmarshal([]byte(replicaSet), &replicaSetObject)
+		resList = append(resList, replicaSetObject)
+	}
+	return resList
+}
+
+func DeleteReplicaSet(replicaSet object.ReplicaSet) string {
+	return Delete_object(replicaSet.Metadata.Name, config.REPLICASET_TYPE)
+}
+
+// --------------------------- Nodes ---------------------------
+
+// TODO: add Node
+
+func GetAllNodes() []object.Node {
+	nodeList := Get_object(config.EMPTY_FLAG, config.NODE_TYPE)
+	var resList []object.Node
+	for _, node := range nodeList {
+		var nodeObject object.Node
+		json.Unmarshal([]byte(node), &nodeObject)
+		resList = append(resList, nodeObject)
+	}
+	return resList
 }

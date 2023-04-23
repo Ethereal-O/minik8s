@@ -36,6 +36,9 @@ func Start_server() {
 	e.PUT("/Service/:key", service_put)
 	e.GET("/Service/:key", service_get)
 	e.DELETE("/Service/:key", service_delete)
+	e.PUT("/ServiceStatus/:key", serviceStatus_put)
+	e.GET("/ServiceStatus/:key", serviceStatus_get)
+	e.DELETE("/ServiceStatus/:key", serviceStatus_delete)
 	go func() { e.Logger.Fatal(e.Start(":8080")) }()
 
 	podIPGenerator.Init()
