@@ -197,7 +197,6 @@ func node_put(c echo.Context) error {
 
 func node_get(c echo.Context) error {
 	key := c.Request().RequestURI
-	fmt.Println(key)
 	if c.Param("key") == config.EMPTY_FLAG {
 		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
 		return c.JSON(http.StatusOK, res)
@@ -260,7 +259,6 @@ func service_put(c echo.Context) error {
 
 func service_get(c echo.Context) error {
 	key := c.Request().RequestURI
-	fmt.Println(key)
 	if c.Param("key") == config.EMPTY_FLAG {
 		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
 		return c.JSON(http.StatusOK, res)

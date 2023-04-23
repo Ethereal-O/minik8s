@@ -1,15 +1,25 @@
 package kubelet
 
 import (
+	"minik8s/pkg/client"
 	"minik8s/pkg/object"
+	"minik8s/pkg/util/config"
 )
 
-func CreatePod(pod *object.Pod) {
+func StartPod(pod *object.Pod) bool {
 	// Step 1: Start pause container
-	StartPauseContainer(pod)
+	if !StartPauseContainer(pod) {
+		return false
+	}
 
 	// Step 2: Start common containers
 	for _, myContainer := range pod.Spec.Containers {
-		StartCommonContainer(pod, &myContainer)
+		if !StartCommonContainer(pod, &myContainer) {
+			return false
+		}
 	}
+
+	pod.Runtime.Status = config.RUNNING_STATUS
+	client.AddPod(*pod)
+	return true
 }

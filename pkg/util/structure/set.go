@@ -5,14 +5,14 @@ import "sync"
 // Set : A thread-safe set
 type Set struct {
 	lock   sync.Mutex
-	record map[string]struct{}
+	record map[any]struct{}
 }
 
 func (s *Set) Init() {
-	s.record = make(map[string]struct{})
+	s.record = make(map[any]struct{})
 }
 
-func (s *Set) Put(element string) bool {
+func (s *Set) Put(element any) bool {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	// element is in s.record
@@ -24,7 +24,7 @@ func (s *Set) Put(element string) bool {
 	}
 }
 
-func (s *Set) Del(element string) bool {
+func (s *Set) Del(element any) bool {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	// element is in s.record
@@ -36,15 +36,15 @@ func (s *Set) Del(element string) bool {
 	}
 }
 
-func (s *Set) Contain(element string) bool {
+func (s *Set) Contain(element any) bool {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	_, ok := s.record[element]
 	return ok
 }
 
-func (s *Set) GetAll() []string {
-	var allElements []string
+func (s *Set) GetAll() []any {
+	var allElements []any
 	for element := range s.record {
 		allElements = append(allElements, element)
 	}

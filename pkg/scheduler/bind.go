@@ -6,10 +6,15 @@ import (
 	"minik8s/pkg/util/config"
 )
 
-func BindPod(pod *object.Pod, policy SchedulePolicy) {
-	pod.Runtime.Status = config.BOUND_STATUS
+func BindPod(pod *object.Pod, policy SchedulePolicy) bool {
 	pod.Runtime.Bind = policy.selectNode()
-	client.AddPod(*pod)
+	if pod.Runtime.Bind != "" {
+		pod.Runtime.Status = config.BOUND_STATUS
+		client.AddPod(*pod)
+		return true
+	} else {
+		return false
+	}
 }
 
 type SchedulePolicy interface {
