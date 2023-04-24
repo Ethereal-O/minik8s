@@ -72,7 +72,3 @@ type CreateConfig struct {
 type StartConfig = types.ContainerStartOptions
 
 // ------------------Image------------------
-
-type PullConfig struct {
-	All bool
-}

@@ -36,6 +36,9 @@ func dealService(serviceChan chan string) {
 	for {
 		select {
 		case mes := <-serviceChan:
+			if mes=="hello" {
+				continue
+			}
 			var tarService object.Service
 			err := json.Unmarshal([]byte(mes), &tarService)
 			if err != nil {

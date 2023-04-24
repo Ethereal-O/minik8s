@@ -83,9 +83,7 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 
 func StartCommonContainer(pod *object.Pod, myContainer *object.Container) bool {
 	// Step 1: Prepare for image
-	err := PullImage(myContainer.Image, &PullConfig{
-		All: false,
-	})
+	err := PullImage(myContainer.Image)
 	if err != nil {
 		fmt.Printf("Failed to pull image %v! Reason: %v\n", myContainer.Image, err.Error())
 		return false
@@ -154,9 +152,7 @@ func CreatePauseContainer(pod *object.Pod) (string, string, error) {
 
 func StartPauseContainer(pod *object.Pod) bool {
 	// Step 1: Prepare for image
-	err := PullImage(pauseImage, &PullConfig{
-		All: false,
-	})
+	err := PullImage(pauseImage)
 	if err != nil {
 		fmt.Printf("Failed to pull pause image %v! Reason: %v\n", pauseImage, err.Error())
 		return false

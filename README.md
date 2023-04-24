@@ -1,26 +1,27 @@
 **Usage:**
 
-- Prepare environment for k8s, **only call it once after your VM startup!**
-```
-make prepare
-```
 - Build k8s but not run
 ```
 make build
 ```
-- Build k8s and run, but no kubectl commands
-```
-make run
-```
-- Build k8s and run testPod.sh
+- Build k8s, run a master, a worker and a Pod on one host
 ```
 make testPod
 ```
-- Stop k8s and clear its states (etcd, containers, ...)
+- Build k8s, run a master and a worker on one host
+- Due to resource constraints (3 cloud servers), we have to run a master and a worker on one host
+```
+make master
+```
+- Build k8s, run a worker on one host
+```
+make worker
+```
+- Stop k8s and clear k8s states
 ```
 make clean
 ```
-- Stop everything, including k8s and environment
+- Stop everything, include k8s and environment
 ```
 make stop
 ```

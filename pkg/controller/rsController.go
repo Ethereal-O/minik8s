@@ -37,6 +37,9 @@ func dealRs(rsChan chan string, handleChan chan string) {
 	for {
 		select {
 		case mes := <-rsChan:
+			if mes=="hello" {
+				continue
+			}
 			//fmt.Println("[this]", mes)
 			if waitingRs.Put(mes2rsName(mes)) {
 				handleChan <- mes
@@ -73,7 +76,9 @@ func handle(handleChan chan string) {
 	for {
 		select {
 		case mes := <-handleChan:
-			fmt.Println("Handle RS")
+			if mes=="hello" {
+				continue
+			}
 			waitingRs.Get(mes2rsName(mes))
 			var tarRs object.ReplicaSet
 			err := json.Unmarshal([]byte(mes), &tarRs)

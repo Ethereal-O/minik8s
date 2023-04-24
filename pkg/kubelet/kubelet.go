@@ -34,6 +34,9 @@ func dealPod(podChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
+			if mes=="hello" {
+				continue
+			}
 			// fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)
