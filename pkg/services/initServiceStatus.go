@@ -1,59 +1,61 @@
 package services
 
 import (
+	"fmt"
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
+	"minik8s/pkg/util/tools"
 	"time"
 )
 
-func InitServiceStatus(serviceStatus *object.ServiceStatus) {
-	selectPods(serviceStatus)
-	startPoll(serviceStatus)
+func InitRuntimeService(runtimeService *object.RuntimeService) {
+	selectPods(runtimeService)
+	startPoll(runtimeService)
 }
 
-func startPoll(serviceStatus *object.ServiceStatus) {
-	serviceStatus.Timer = *time.NewTicker(CHECK_PODS_TIME_INTERVAL)
-	go pollLoop(serviceStatus)
+func startPoll(runtimeService *object.RuntimeService) {
+	runtimeService.Timer = *time.NewTicker(CHECK_PODS_TIME_INTERVAL)
+	go pollLoop(runtimeService)
 }
 
-func pollLoop(serviceStatus *object.ServiceStatus) {
-	defer serviceStatus.Timer.Stop()
+func pollLoop(runtimeService *object.RuntimeService) {
+	defer runtimeService.Timer.Stop()
 	for {
 		select {
-		case <-serviceStatus.Timer.C:
-			poll(serviceStatus)
+		case <-runtimeService.Timer.C:
+			poll(runtimeService)
 		}
 	}
 }
 
-func poll(serviceStatus *object.ServiceStatus) {
-	serviceStatus.Lock.Lock()
-	defer serviceStatus.Lock.Unlock()
-	selectPods(serviceStatus)
+func poll(runtimeService *object.RuntimeService) {
+	runtimeService.Lock.Lock()
+	defer runtimeService.Lock.Unlock()
+	selectPods(runtimeService)
 }
 
-func selectPods(serviceStatus *object.ServiceStatus) {
+func selectPods(runtimeService *object.RuntimeService) {
 	// get all pods and selector
-	selector := serviceStatus.Service.Spec.Selector
+	selector := runtimeService.Service.Spec.Selector
 	allPods := client.GetAllPods()
 
 	// apply filter to get new pods
-	filterPods, _ := Filter(allPods, func(pod object.Pod) bool {
+	filterPods, _ := tools.Filter(allPods, func(pod object.Pod) bool {
 		if pod.Runtime.Status != config.RUNNING_STATUS {
 			return false
 		}
 		for k, v := range selector {
 			podLabel, ok := pod.Metadata.Labels[k]
-			if !ok || v != podLabel {
-				return false
+			if ok && v == podLabel {
+				return true
 			}
 		}
-		return true
+		return false
 	})
 
 	// apply filter to get broken pods
-	normalPods, brokenPods := Filter(serviceStatus.Pods, func(pod object.Pod) bool {
+	normalPods, brokenPods := tools.Filter(runtimeService.Pods, func(pod object.Pod) bool {
 		for _, v := range filterPods {
 			if v.Metadata.Name == pod.Metadata.Name && v.Runtime.ClusterIp == pod.Runtime.ClusterIp {
 				return true
@@ -63,18 +65,18 @@ func selectPods(serviceStatus *object.ServiceStatus) {
 	})
 
 	// if no change or has max pods, return
-	if len(brokenPods) == 0 && (len(serviceStatus.Pods) >= MAX_PODS || len(serviceStatus.Pods) == len(filterPods)) {
+	if len(brokenPods) == 0 && (len(runtimeService.Pods) >= MAX_PODS || len(runtimeService.Pods) == len(filterPods)) {
 		return
 	}
 
 	// try to fill the pods to max_pods
-	_, differPods := Filter(filterPods, func(pod object.Pod) bool {
+	_, differPods := tools.Filter(filterPods, func(pod object.Pod) bool {
 		for _, v := range normalPods {
 			if v.Metadata.Name == pod.Metadata.Name {
-				return false
+				return true
 			}
 		}
-		return true
+		return false
 	})
 
 	// fill normalPods to max pods
@@ -86,8 +88,9 @@ func selectPods(serviceStatus *object.ServiceStatus) {
 	}
 
 	// update service status
-	serviceStatus.Pods = normalPods
+	runtimeService.Pods = normalPods
+	fmt.Printf("service %s update pods num: %d\n", runtimeService.Service.Metadata.Name, len(runtimeService.Pods))
 
 	// update service config
-	client.AddServiceStatus(*serviceStatus)
+	client.AddRuntimeService(*runtimeService)
 }

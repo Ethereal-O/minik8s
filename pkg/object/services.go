@@ -7,16 +7,16 @@ import (
 
 // Runtime service to check diff
 
-type ServiceStatus struct {
+type RuntimeService struct {
 	Service Service
 	Pods    []Pod
-	Timer   time.Ticker
-	Lock    sync.Mutex
+	Timer   time.Ticker `json:"-"`
+	Lock    sync.Mutex  `json:"-"`
 }
 
 // Runtime gateway to deploy
 
-type GatewayStatus struct {
+type RuntimeGateway struct {
 	Gateway   Gateway
 	ClusterIp string
 	Status    string

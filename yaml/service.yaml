@@ -1,0 +1,13 @@
+kind: Service
+metadata:
+  name: testService
+spec:
+  type: ClusterIp
+  clusterIp: 10.10.10.12
+  ports:
+    - port: 80
+      targetPort: 8888
+      protocol: TCP
+      name: http
+  selector:
+    app: myApp

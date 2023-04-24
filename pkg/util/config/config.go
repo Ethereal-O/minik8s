@@ -12,17 +12,17 @@ const (
 )
 
 const (
-	POD_TYPE           = "Pod"
-	REPLICASET_TYPE    = "Replicaset"
-	SERVICE_TYPE       = "Service"
-	SERVICESTATUS_TYPE = "ServiceStatus"
-	NODE_TYPE          = "Node"
-	DNS_TYPE           = "DNS"
-	GATEWAY_TYPE       = "Gateway"
-	GATEWAYSTATUS_TYPE = "GatewayStatus"
+	POD_TYPE            = "Pod"
+	REPLICASET_TYPE     = "Replicaset"
+	SERVICE_TYPE        = "Service"
+	RUNTIMESERVICE_TYPE = "RuntimeService"
+	NODE_TYPE           = "Node"
+	DNS_TYPE            = "DNS"
+	GATEWAY_TYPE        = "Gateway"
+	RUNTIMEGATEWAY_TYPE = "RuntimeGateway"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, SERVICE_TYPE, SERVICESTATUS_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, GATEWAYSTATUS_TYPE}
+var TP = []string{POD_TYPE, REPLICASET_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE}
 
 const EMPTY_FLAG = "none"
 

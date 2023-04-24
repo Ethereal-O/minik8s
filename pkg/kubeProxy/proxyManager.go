@@ -1,32 +1,61 @@
 package kubeProxy
 
 import (
+	"encoding/json"
 	"fmt"
+	"minik8s/pkg/messging"
+	"minik8s/pkg/object"
+	"minik8s/pkg/util/config"
+	"sync"
 )
 
-func Start_proxy() {
-	fmt.Println("this is proxy")
+var kubeProxyManager *KubeProxyManager
+var kubeProxyManagerExited = make(chan bool)
+var kubeProxyManagerToExit = make(chan bool)
+
+func createKubeProxyManager() *KubeProxyManager {
+	kubeProxyManager := &KubeProxyManager{}
+	kubeProxyManager.RootMap = make(map[string]map[string]*SingleService)
+	kubeProxyManager.RuntimeServiceMap = make(map[string]object.RuntimeService)
+	kubeProxyManager.GatewayMap = make(map[string]object.Gateway)
+	var lock sync.Mutex
+	kubeProxyManager.Lock = lock
+	return kubeProxyManager
 }
 
-//var serviceManager *ServiceManager
-//var serviceManagerExited = make(chan bool)
-//var serviceManagerToExit = make(chan bool)
-//
-//func createServiceManager() *ServiceManager {
-//	serviceManager := &ServiceManager{}
-//	serviceManager.ServiceMap = make(map[string]ServiceStatus)
-//	var lock sync.Mutex
-//	serviceManager.Lock = lock
-//	return serviceManager
-//}
-//
-//func StartServiceManager() {
-//	serviceManager = createServiceManager()
-//	serviceChan, serviceStop := messging.Watch("/"+config.SERVICE_TYPE, true)
-//	go dealService(serviceChan)
-//
-//	// Wait until Ctrl-C
-//	<-serviceManagerToExit
-//	serviceStop()
-//	serviceManagerExited <- true
-//}
+func Start_proxy() {
+	fmt.Println("kube-proxy start")
+	kubeProxyManager = createKubeProxyManager()
+	kubeProxyManager.initKubeProxyManager()
+}
+
+func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
+	runtimeServiceChan, runtimeServiceStop := messging.Watch("/"+config.RUNTIMESERVICE_TYPE, true)
+	go dealRuntimeService(runtimeServiceChan)
+
+	// Wait until Ctrl-C
+	<-kubeProxyManagerToExit
+	runtimeServiceStop()
+	kubeProxyManagerExited <- true
+}
+
+func dealRuntimeService(runtimeServiceChan chan string) {
+	for {
+		select {
+		case mes := <-runtimeServiceChan:
+			var tarRuntimeService object.RuntimeService
+			err := json.Unmarshal([]byte(mes), &tarRuntimeService)
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+			if tarRuntimeService.Service.Runtime.Status == config.EXIT_STATUS {
+				dealExitRuntimeService(&tarRuntimeService)
+			} else if tarRuntimeService.Service.Runtime.Status == config.RUNNING_STATUS {
+				dealRunningRuntimeService(&tarRuntimeService)
+			} else {
+				fmt.Println("runtime service status error\n")
+			}
+		}
+	}
+}

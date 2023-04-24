@@ -118,40 +118,40 @@ func DeleteService(service object.Service) string {
 	return Delete_object(service.Metadata.Name, config.SERVICE_TYPE)
 }
 
-// --------------------------- ServiceStatus ---------------------------
+// --------------------------- RuntimeService ---------------------------
 
-func GetAllServiceStatuses() []object.ServiceStatus {
-	serviceStatusList := Get_object(config.EMPTY_FLAG, config.SERVICESTATUS_TYPE)
-	var resList []object.ServiceStatus
-	for _, serviceStatus := range serviceStatusList {
-		var serviceStatusObject object.ServiceStatus
-		json.Unmarshal([]byte(serviceStatus), &serviceStatusObject)
-		resList = append(resList, serviceStatusObject)
+func GetAllRuntimeServices() []object.RuntimeService {
+	runtimeServiceList := Get_object(config.EMPTY_FLAG, config.RUNTIMESERVICE_TYPE)
+	var resList []object.RuntimeService
+	for _, runtimeService := range runtimeServiceList {
+		var runtimeServiceObject object.RuntimeService
+		json.Unmarshal([]byte(runtimeService), &runtimeServiceObject)
+		resList = append(resList, runtimeServiceObject)
 	}
 	return resList
 }
 
-func GetServiceStatusByKey(key string) []object.ServiceStatus {
-	serviceStatusList := Get_object(key, config.SERVICESTATUS_TYPE)
-	var resList []object.ServiceStatus
-	for _, serviceStatus := range serviceStatusList {
-		var serviceStatusObject object.ServiceStatus
-		json.Unmarshal([]byte(serviceStatus), &serviceStatusObject)
-		resList = append(resList, serviceStatusObject)
+func GetRuntimeServiceByKey(key string) []object.RuntimeService {
+	runtimeServiceList := Get_object(key, config.RUNTIMESERVICE_TYPE)
+	var resList []object.RuntimeService
+	for _, runtimeService := range runtimeServiceList {
+		var runtimeServiceObject object.RuntimeService
+		json.Unmarshal([]byte(runtimeService), &runtimeServiceObject)
+		resList = append(resList, runtimeServiceObject)
 	}
 	return resList
 }
 
-func AddServiceStatus(serviceStatus object.ServiceStatus) string {
-	serviceStatusValue, err := json.Marshal(serviceStatus)
+func AddRuntimeService(runtimeService object.RuntimeService) string {
+	serviceStatusValue, err := json.Marshal(runtimeService)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	return Put_object(serviceStatus.Service.Metadata.Name, string(serviceStatusValue), config.SERVICESTATUS_TYPE)
+	return Put_object(runtimeService.Service.Metadata.Name, string(serviceStatusValue), config.RUNTIMESERVICE_TYPE)
 }
 
-func DeleteServiceStatus(serviceStatus object.ServiceStatus) string {
-	return Delete_object(serviceStatus.Service.Metadata.Name, config.SERVICESTATUS_TYPE)
+func DeleteRuntimeService(runtimeService object.RuntimeService) string {
+	return Delete_object(runtimeService.Service.Metadata.Name, config.RUNTIMESERVICE_TYPE)
 }
 
 // --------------------------- Gateway ---------------------------
@@ -179,29 +179,29 @@ func DeleteGateway(gateway object.Gateway) string {
 	return Delete_object(gateway.MetaData.Name, config.GATEWAY_TYPE)
 }
 
-// --------------------------- GatewayStatus ---------------------------
+// --------------------------- RuntimeGateway ---------------------------
 
-func GetAllGatewayStatuses() []object.GatewayStatus {
-	gatewayStatusList := Get_object(config.EMPTY_FLAG, config.GATEWAYSTATUS_TYPE)
-	var resList []object.GatewayStatus
-	for _, gatewayStatus := range gatewayStatusList {
-		var gatewayStatusObject object.GatewayStatus
-		json.Unmarshal([]byte(gatewayStatus), &gatewayStatusObject)
-		resList = append(resList, gatewayStatusObject)
+func GetAllRuntimeGateways() []object.RuntimeGateway {
+	runtimegatewayList := Get_object(config.EMPTY_FLAG, config.RUNTIMEGATEWAY_TYPE)
+	var resList []object.RuntimeGateway
+	for _, runtimeGateway := range runtimegatewayList {
+		var runtimeGatewayObject object.RuntimeGateway
+		json.Unmarshal([]byte(runtimeGateway), &runtimeGatewayObject)
+		resList = append(resList, runtimeGatewayObject)
 	}
 	return resList
 }
 
-func AddGatewayStatus(gatewayStatus object.GatewayStatus) string {
-	gatewayStatusValue, err := json.Marshal(gatewayStatus)
+func AddRuntimeGateway(runtimeGateway object.RuntimeGateway) string {
+	gatewayStatusValue, err := json.Marshal(runtimeGateway)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	return Put_object(gatewayStatus.Gateway.MetaData.Name, string(gatewayStatusValue), config.GATEWAYSTATUS_TYPE)
+	return Put_object(runtimeGateway.Gateway.MetaData.Name, string(gatewayStatusValue), config.RUNTIMEGATEWAY_TYPE)
 }
 
-func DeleteGatewayStatus(gatewayStatus object.GatewayStatus) string {
-	return Delete_object(gatewayStatus.Gateway.MetaData.Name, config.GATEWAYSTATUS_TYPE)
+func DeleteRuntimeGateway(runtimeGateway object.RuntimeGateway) string {
+	return Delete_object(runtimeGateway.Gateway.MetaData.Name, config.RUNTIMEGATEWAY_TYPE)
 }
 
 // --------------------------- ReplicaSet ---------------------------

@@ -15,7 +15,7 @@ var serviceManagerToExit = make(chan bool)
 
 func createServiceManager() *ServiceManager {
 	serviceManager := &ServiceManager{}
-	serviceManager.ServiceMap = make(map[string]object.ServiceStatus)
+	serviceManager.ServiceMap = make(map[string]object.RuntimeService)
 	var lock sync.Mutex
 	serviceManager.Lock = lock
 	return serviceManager
@@ -44,8 +44,10 @@ func dealService(serviceChan chan string) {
 			}
 			if tarService.Runtime.Status == config.EXIT_STATUS {
 				dealExitService(&tarService)
-			} else {
+			} else if tarService.Runtime.Status == config.RUNNING_STATUS {
 				dealRunningService(&tarService)
+			} else {
+				fmt.Println("service status error\n")
 			}
 		}
 	}

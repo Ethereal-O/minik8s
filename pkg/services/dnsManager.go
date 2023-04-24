@@ -15,7 +15,7 @@ var dnsManagerToExit = make(chan bool)
 
 func createDnsManager() *DnsManager {
 	dnsManager := &DnsManager{}
-	dnsManager.GatewayMap = make(map[string]object.GatewayStatus)
+	dnsManager.GatewayMap = make(map[string]object.RuntimeGateway)
 	var lock sync.Mutex
 	dnsManager.Lock = lock
 	return dnsManager
@@ -23,7 +23,7 @@ func createDnsManager() *DnsManager {
 
 func StartDnsManager() {
 	dnsManager = createDnsManager()
-	dnsManager.InitDnsManager()
+	dnsManager.initDnsManager()
 	gatewayChan, dnsStop := messging.Watch("/"+config.GATEWAY_TYPE, true)
 	go dealGateway(gatewayChan)
 
@@ -45,8 +45,10 @@ func dealGateway(gatewayChan chan string) {
 			}
 			if tarGateway.Runtime.Status == config.EXIT_STATUS {
 				dealExitGateway(&tarGateway)
-			} else {
+			} else if tarGateway.Runtime.Status == config.RUNNING_STATUS {
 				dealRunningGateway(&tarGateway)
+			} else {
+				fmt.Println("Gateway status error")
 			}
 		}
 	}
