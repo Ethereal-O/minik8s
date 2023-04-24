@@ -11,7 +11,7 @@ import (
 
 func Producer(key string, c chan *ec.Event) context.CancelFunc {
 	ctx, cancel := context.WithCancel(context.Background())
-	nsqAddress := config.NSQ_PEODUCER
+	nsqAddress := config.NSQ_PRODUCER
 	topic := stringParse.Reform(key)
 	go func() {
 		config := nsq.NewConfig()

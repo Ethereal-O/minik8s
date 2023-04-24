@@ -121,10 +121,9 @@ type Service struct {
 }
 
 type ServiceSpec struct {
-	Type      string            `json:"type" yaml:"type"`
-	ClusterIp string            `json:"clusterIp" yaml:"clusterIp"`
-	Ports     []ServicePort     `json:"ports" yaml:"ports"`
-	Selector  map[string]string `json:"selector" yaml:"selector"`
+	Type     string            `json:"type" yaml:"type"`
+	Ports    []ServicePort     `json:"ports" yaml:"ports"`
+	Selector map[string]string `json:"selector" yaml:"selector"`
 }
 
 type ServicePort struct {

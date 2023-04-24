@@ -40,6 +40,9 @@ func dealNode(nodeChan chan string) {
 	for {
 		select {
 		case mes := <-nodeChan:
+			if mes=="hello" {
+				continue
+			}
 			// fmt.Println("[this]", mes)
 			var tarNode object.Node
 			err := json.Unmarshal([]byte(mes), &tarNode)
@@ -59,6 +62,9 @@ func dealPod(podChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
+			if mes=="hello" {
+				continue
+			}
 			// fmt.Println("[this]", mes)
 			var tarPod object.Pod
 			err := json.Unmarshal([]byte(mes), &tarPod)

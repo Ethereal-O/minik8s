@@ -65,7 +65,7 @@ func (dnsManager *DnsManager) transferGatewayToKubeProxy() {
 			continue
 		}
 		gateWayStatus.Status = GATEWAY_STATUS_DEPLOYING
-		gateWayStatus.ClusterIp = resList[0].Service.Spec.ClusterIp
+		gateWayStatus.ClusterIp = resList[0].Service.Runtime.ClusterIp
 		client.AddRuntimeGateway(gateWayStatus)
 		removes = append(removes, gatewayName)
 	}

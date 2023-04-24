@@ -1,37 +1,35 @@
-# Build k8s but not run
 BUILD=$(shell ./scripts/build.sh)
-
-# Build k8s and run testPod.sh
 TESTPOD=$(shell ./scripts/testPod.sh)
-
-# Stop k8s and clear etcd and containers
 CLEAN=$(shell ./scripts/clean.sh)
-
-# Build k8s and run, but no kubectl commands
-RUN=$(shell ./scripts/run.sh)
-
-# Prepare environment for running, only call it once after your VM startup!
-PREPARE=$(shell ./scripts/prepare.sh)
-
-# Stop everything, include k8s and environment
 STOP=$(shell ./scripts/stop.sh)
+MASTER=$(shell ./scripts/master.sh)
+WORKER=$(shell ./scripts/worker.sh)
 
-# Start nsq servic
+# Build k8s but not run
 build:
 	@echo $(BUILD)
-run:
-	@echo $(CLEAN)
-	@echo $(BUILD)
-	@echo $(RUN)
+# Build k8s, run a master, a worker and a Pod on one host
 testPod:
 	@echo $(CLEAN)
 	@echo $(BUILD)
-	@echo $(RUN)
+	@echo $(MASTER)
+	@echo $(WORKER)
 	@echo $(TESTPOD)
+# Build k8s and run as master and worker
+master:
+	@echo $(CLEAN)
+	@echo $(BUILD)
+	@echo $(MASTER)
+	@echo $(WORKER)
+# Build k8s and run as worker
+worker:
+	@echo $(CLEAN)
+	@echo $(BUILD)
+	@echo $(WORKER)
+# Stop k8s and clear etcd and containers
 clean:
 	@echo $(CLEAN)
-prepare:
-	@echo $(PREPARE)
+# Stop everything, include k8s and environment
 stop:
 	@echo $(STOP)
 

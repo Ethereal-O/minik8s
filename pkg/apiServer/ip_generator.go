@@ -14,8 +14,17 @@ var podIPGenerator = ipGenerator{
 	initIp: network.PodIPGeneratorInitIP,
 }
 
+var serviceIPGenerator = ipGenerator{
+	url:    network.ServiceIPGeneratorURL,
+	initIp: network.ServiceIPGeneratorInitIP,
+}
+
 func NewPodIP() string {
-	return podIPGenerator.AddAndFetch()
+	return podIPGenerator.FetchAndAdd()
+}
+
+func NewServiceIP() string {
+	return serviceIPGenerator.FetchAndAdd()
 }
 
 func deserialize(ip int64) string {
@@ -33,11 +42,11 @@ type ipGenerator struct {
 	initIp string
 }
 
-func (ig *ipGenerator) AddAndFetch() string {
+func (ig *ipGenerator) FetchAndAdd() string {
 	ret := etcd.Get_etcd(ig.url, false)
 	num, _ := strconv.Atoi(ret[0])
 	etcd.Set_etcd(ig.url, strconv.Itoa(num+1))
-	return deserialize(int64(num + 1))
+	return deserialize(int64(num))
 }
 
 func (ig *ipGenerator) Init() {

@@ -37,6 +37,9 @@ func dealGateway(gatewayChan chan string) {
 	for {
 		select {
 		case mes := <-gatewayChan:
+			if mes=="hello" {
+				continue
+			}
 			var tarGateway object.Gateway
 			err := json.Unmarshal([]byte(mes), &tarGateway)
 			if err != nil {

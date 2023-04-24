@@ -11,7 +11,7 @@ import (
 
 func Get_etcdClient() *ec.Client {
 	cli, err := ec.New(ec.Config{
-		Endpoints:   []string{config.ETCD_Endpoints},
+		Endpoints:   []string{config.ETCD_ENDPOINT},
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {

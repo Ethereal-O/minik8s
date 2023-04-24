@@ -1,8 +1,10 @@
 package kubelet
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/docker/go-connections/nat"
+	"io"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/network"
 	"strconv"
@@ -99,3 +101,27 @@ func ContainerFullName(containerName, podFullName, podUuid string) string {
 }
 
 // ------------------Image------------------
+
+func waitForPullComplete(events io.ReadCloser) {
+	d := json.NewDecoder(events)
+
+	type Event struct {
+		Status         string `json:"status"`
+		Progress       string `json:"progress"`
+		ProgressDetail struct {
+			Current int `json:"current"`
+			Total   int `json:"total"`
+		} `json:"progressDetail"`
+		Error string `json:"error"`
+	}
+
+	var event *Event
+	for {
+		if err := d.Decode(&event); err != nil {
+			if err == io.EOF {
+				break
+			}
+			panic(err)
+		}
+	}
+}
