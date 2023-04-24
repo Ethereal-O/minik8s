@@ -40,7 +40,10 @@ func createRuntimeService(runtimeService *object.RuntimeService) {
 			})
 		}
 		singleService := createSingleService(runtimeService, port, podsInfo)
-		singleService.initSingleService()
+		err := singleService.initSingleService()
+		if err != nil {
+			return
+		}
 		multiService[singleService.Name] = singleService
 	}
 	kubeProxyManager.RootMap[runtimeService.Service.Metadata.Name] = multiService

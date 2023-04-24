@@ -6,6 +6,7 @@ import (
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
+	"minik8s/pkg/util/iptables"
 	"sync"
 )
 
@@ -25,6 +26,7 @@ func createKubeProxyManager() *KubeProxyManager {
 
 func Start_proxy() {
 	fmt.Println("kube-proxy start")
+	initParentChain()
 	kubeProxyManager = createKubeProxyManager()
 	kubeProxyManager.initKubeProxyManager()
 }
@@ -54,8 +56,42 @@ func dealRuntimeService(runtimeServiceChan chan string) {
 			} else if tarRuntimeService.Service.Runtime.Status == config.RUNNING_STATUS {
 				dealRunningRuntimeService(&tarRuntimeService)
 			} else {
-				fmt.Println("runtime service status error\n")
+				fmt.Println("runtime service status error")
 			}
 		}
+	}
+}
+
+func initParentChain() {
+	ipt, err := iptables.New()
+	if err != nil {
+		fmt.Println("[chain] Boot error")
+		fmt.Println(err)
+	}
+	exist, err2 := ipt.ChainExists(PARENT_TABLE, PARENT_CHAIN)
+	if err2 != nil {
+		fmt.Println("boot error")
+		fmt.Println(err)
+	}
+	if exist {
+		return
+	}
+	err = ipt.NewChain(PARENT_TABLE, PARENT_CHAIN)
+	if err != nil {
+		fmt.Println("boot error")
+		fmt.Println(err)
+		return
+	}
+	err = ipt.Insert(PARENT_TABLE, OUTPUT_CHAIN, 1, "-j", PARENT_CHAIN, "-s", "0/0", "-d", "0/0", "-p", "all")
+	if err != nil {
+		fmt.Println("boot error")
+		fmt.Println(err)
+		return
+	}
+	err = ipt.Insert(PARENT_TABLE, PREROUTING_CHAIN, 1, "-j", PARENT_CHAIN, "-s", "0/0", "-d", "0/0", "-p", "all")
+	if err != nil {
+		fmt.Println("boot error")
+		fmt.Println(err)
+		return
 	}
 }
