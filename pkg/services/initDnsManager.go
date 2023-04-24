@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (dnsManager *DnsManager) InitDnsManager() {
+func (dnsManager *DnsManager) initDnsManager() {
 	dnsManager.Timer = *time.NewTicker(CHECK_DNS_TIME_INTERVAL)
 	dnsManager.InitDnsTemplate()
 	go dnsManager.checkDnsLoop()
@@ -38,7 +38,7 @@ func (dnsManager *DnsManager) checkDns() {
 	if len(nodeRes) == 0 {
 		return
 	}
-	dnsRes := client.GetServiceStatusByKey(config.DNS_TYPE)
+	dnsRes := client.GetRuntimeServiceByKey(config.DNS_TYPE)
 	// if existed, don't need to create
 	if dnsRes != nil {
 		return
@@ -60,13 +60,13 @@ func (dnsManager *DnsManager) transferGatewayToKubeProxy() {
 	// wait until service online and transfer to kube-proxy
 	var removes []string
 	for gatewayName, gateWayStatus := range dnsManager.GatewayMap {
-		resList := client.GetServiceStatusByKey(GATEWAY_SERVICE_PREFIX + gatewayName)
+		resList := client.GetRuntimeServiceByKey(GATEWAY_SERVICE_PREFIX + gatewayName)
 		if len(resList) == 0 {
 			continue
 		}
 		gateWayStatus.Status = GATEWAY_STATUS_DEPLOYING
 		gateWayStatus.ClusterIp = resList[0].Service.Spec.ClusterIp
-		client.AddGatewayStatus(gateWayStatus)
+		client.AddRuntimeGateway(gateWayStatus)
 		removes = append(removes, gatewayName)
 	}
 	for _, gateway := range removes {

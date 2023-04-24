@@ -18,7 +18,7 @@ func createGateway(gateway *object.Gateway) {
 	client.AddService(GetGateWayService(gateway.MetaData.Name))
 	dnsManager.Lock.Lock()
 	defer dnsManager.Lock.Unlock()
-	gatewayStatus := object.GatewayStatus{
+	gatewayStatus := object.RuntimeGateway{
 		Gateway: *gateway,
 		Status:  GATEWAY_STATUS_INIT,
 	}

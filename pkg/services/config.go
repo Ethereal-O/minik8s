@@ -32,7 +32,7 @@ const (
 // Service
 
 type ServiceManager struct {
-	ServiceMap map[string]object.ServiceStatus
+	ServiceMap map[string]object.RuntimeService
 	Lock       sync.Mutex
 }
 
@@ -41,7 +41,7 @@ type ServiceManager struct {
 type DnsManager struct {
 	Timer        time.Ticker
 	DnsTemplates DnsTemplate
-	GatewayMap   map[string]object.GatewayStatus
+	GatewayMap   map[string]object.RuntimeGateway
 	Lock         sync.Mutex
 }
 

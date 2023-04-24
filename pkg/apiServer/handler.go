@@ -243,7 +243,7 @@ func service_put(c echo.Context) error {
 		serviceObject.Runtime.Uuid = uuid
 	}
 	if serviceObject.Runtime.Status == "" {
-		serviceObject.Runtime.Status = config.CREATED_STATUS
+		serviceObject.Runtime.Status = config.RUNNING_STATUS
 	}
 	service, err := json.Marshal(serviceObject)
 	if err != nil {
@@ -295,15 +295,21 @@ func service_delete(c echo.Context) error {
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
-func serviceStatus_put(c echo.Context) error {
-	serviceStatusObject := new(object.ServiceStatus)
-	if err := c.Bind(serviceStatusObject); err != nil {
+func runtimeService_put(c echo.Context) error {
+	runtimeServiceObject := new(object.RuntimeService)
+	if err := c.Bind(runtimeServiceObject); err != nil {
 		return err
 	}
 	key := c.Request().RequestURI
-	// unlock to avoid some exception
-	serviceStatusObject.Lock.Unlock()
-	serviceStatus, err := json.Marshal(serviceStatusObject)
+	// create
+	if runtimeServiceObject.Service.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		runtimeServiceObject.Service.Runtime.Uuid = uuid
+	}
+	if runtimeServiceObject.Service.Runtime.Status == "" {
+		runtimeServiceObject.Service.Runtime.Status = config.RUNNING_STATUS
+	}
+	serviceStatus, err := json.Marshal(runtimeServiceObject)
 	if err != nil {
 		fmt.Println(err.Error())
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -314,7 +320,7 @@ func serviceStatus_put(c echo.Context) error {
 	return c.String(http.StatusOK, "ok")
 }
 
-func serviceStatus_get(c echo.Context) error {
+func runtimeService_get(c echo.Context) error {
 	key := c.Request().RequestURI
 	fmt.Println(key)
 	if c.Param("key") == config.EMPTY_FLAG {
@@ -326,26 +332,26 @@ func serviceStatus_get(c echo.Context) error {
 	}
 }
 
-func serviceStatus_delete(c echo.Context) error {
+func runtimeService_delete(c echo.Context) error {
 	key := c.Request().RequestURI
 	res := etcd.Get_etcd(key, false)
 	if len(res) != 1 {
 		return c.String(http.StatusInternalServerError, "not exist!")
 	}
-	var serviceStatusObject object.ServiceStatus
-	err := json.Unmarshal([]byte(res[0]), &serviceStatusObject)
+	var runtimeServiceObject object.RuntimeService
+	err := json.Unmarshal([]byte(res[0]), &runtimeServiceObject)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "unmarshal error!")
 	}
-	// because we unlock the lock in the serviceStatus_put, so we don't need to unlock it here
-	serviceStatus, err := json.Marshal(serviceStatusObject)
+	runtimeServiceObject.Service.Runtime.Status = config.EXIT_STATUS
+	// because we unlock the lock in the runtimeService_put, so we don't need to unlock it here
+	runtimeService, err := json.Marshal(runtimeServiceObject)
 	if err != nil {
 		fmt.Println(err.Error())
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	if err2 := etcd.Set_etcd(key, string(serviceStatus)); err2 != nil {
+	if err2 := etcd.Set_etcd(key, string(runtimeService)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-
 	return c.String(http.StatusOK, "delete successfully!")
 }

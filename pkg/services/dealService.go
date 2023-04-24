@@ -4,43 +4,49 @@ import (
 	"fmt"
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
+	"minik8s/pkg/util/tools"
 	"sync"
 )
 
 func dealRunningService(service *object.Service) {
-	_, ok := serviceManager.ServiceMap[service.Metadata.Name]
+	oldRuntimeService, ok := serviceManager.ServiceMap[service.Metadata.Name]
 	if !ok {
+		fmt.Printf("creating service %s\n", service.Metadata.Name)
 		createService(service)
-	} else {
+	} else if tools.MD5(oldRuntimeService.Service) != tools.MD5(*service) {
+		fmt.Printf("updating service %s\n", service.Metadata.Name)
 		updateService(service)
+	} else {
+		fmt.Printf("duplicated service %s\n", service.Metadata.Name)
 	}
 }
 
 func dealExitService(service *object.Service) {
+	fmt.Printf("deleting service %s\n", service.Metadata.Name)
 	deleteService(service)
 }
 
 func createService(service *object.Service) {
 	serviceManager.Lock.Lock()
 	defer serviceManager.Lock.Unlock()
-	serviceStatus := object.ServiceStatus{
+	runtimeService := object.RuntimeService{
 		Service: *service,
 		Lock:    sync.Mutex{},
 		Pods:    []object.Pod{},
 	}
-	InitServiceStatus(&serviceStatus)
-	serviceManager.ServiceMap[service.Metadata.Name] = serviceStatus
+	InitRuntimeService(&runtimeService)
+	serviceManager.ServiceMap[service.Metadata.Name] = runtimeService
 }
 
 func deleteService(service *object.Service) {
 	serviceManager.Lock.Lock()
 	defer serviceManager.Lock.Unlock()
-	serviceStatus, ok := serviceManager.ServiceMap[service.Metadata.Name]
+	runtimeService, ok := serviceManager.ServiceMap[service.Metadata.Name]
 	if !ok {
 		return
 	}
-	serviceStatus.Timer.Stop()
-	ret := client.DeleteServiceStatus(serviceStatus)
+	runtimeService.Timer.Stop()
+	ret := client.DeleteRuntimeService(runtimeService)
 	fmt.Println(ret)
 	delete(serviceManager.ServiceMap, service.Metadata.Name)
 }
