@@ -26,11 +26,11 @@ else
   curl -d "hello" "${pubUrl}Pod"
   curl -d "hello" "${pubUrl}Replicaset"
   curl -d "hello" "${pubUrl}Service"
-  curl -d "hello" "${pubUrl}ServiceStatus"
+  curl -d "hello" "${pubUrl}RuntimeService"
   curl -d "hello" "${pubUrl}Node"
   curl -d "hello" "${pubUrl}DNS"
   curl -d "hello" "${pubUrl}Gateway"
-  curl -d "hello" "${pubUrl}GatewayStatus"
+  curl -d "hello" "${pubUrl}RuntimeGateway"
 
   echo "[Master] NSQ producer+consumer started!" 1>&2
 fi

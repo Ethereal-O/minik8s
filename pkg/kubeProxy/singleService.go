@@ -13,7 +13,7 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 		// we can specify a single service by its name and port
 		Name:        SINGLE_SERVICE + runtimeService.Service.Metadata.Name + "-" + port.Port,
 		ClusterPort: port.Port,
-		ClusterIp:   runtimeService.Service.Spec.ClusterIp,
+		ClusterIp:   runtimeService.Service.Runtime.ClusterIp,
 		Protocol:    port.Protocol,
 	}
 	singleService.makeRuleCommand()

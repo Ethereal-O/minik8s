@@ -245,6 +245,9 @@ func service_put(c echo.Context) error {
 	if serviceObject.Runtime.Status == "" {
 		serviceObject.Runtime.Status = config.RUNNING_STATUS
 	}
+	if serviceObject.Runtime.ClusterIp == "" {
+		serviceObject.Runtime.ClusterIp = NewServiceIP()
+	}
 	service, err := json.Marshal(serviceObject)
 	if err != nil {
 		fmt.Println(err.Error())
