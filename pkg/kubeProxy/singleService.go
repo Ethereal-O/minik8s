@@ -8,8 +8,8 @@ import (
 
 func createSingleService(runtimeService *object.RuntimeService, port object.ServicePort, podsInfo []PodInfo) *SingleService {
 	singleService := &SingleService{
-		Table:  PARENT_TABLE,
-		Parent: PARENT_CHAIN,
+		Table:  ROOT_TABLE,
+		Parent: ROOT_CHAIN,
 		// we can specify a single service by its name and port
 		Name:        SINGLE_SERVICE + runtimeService.Service.Metadata.Name + "-" + port.Port,
 		ClusterPort: port.Port,
@@ -21,7 +21,7 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 	if err != nil {
 		fmt.Println("make new ipTable error")
 		fmt.Println(err.Error())
-		return nil
+		return singleService
 	}
 	err = ipt.NewChain(singleService.Table, singleService.Name)
 	i := 0
@@ -32,7 +32,6 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 		if err != nil {
 			fmt.Println("make singlePod error")
 			fmt.Println(err.Error())
-			return nil
 		}
 		singleService.SinglePodMap[podInfo.PodName] = singlePod
 		i++

@@ -19,13 +19,12 @@ func createSinglePod(singleService *SingleService, podInfo PodInfo, id int) *Sin
 	if err != nil {
 		fmt.Println("make new ipTable error")
 		fmt.Println(err.Error())
-		return nil
+		return singlePod
 	}
 	err = ipt.NewChain(singlePod.Table, singlePod.Name)
 	if err != nil {
 		fmt.Println("make new chain error")
 		fmt.Println(err.Error())
-		return nil
 	}
 	singlePod.Net = createSingleNet(singlePod, podInfo)
 	err = singlePod.Net.initSingleNet()
