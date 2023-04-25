@@ -1,23 +1,11 @@
-**Subnet Configuration:**
+**Prelaunch Configuration:**
 
-Example of `subnet.txt`:
-
-```
-master 192.168.29.128 10.10.0.1
-worker 192.168.29.129 10.10.0.2
-worker 192.168.29.130 10.10.0.3
-```
-
-Each row is a host.
-The first column refers to the role of the host, i.e., master or worker.
-The second column refers to the public IP of the host, which should be seen in `ifconfig`.
-The third column refers to the subnet IP of the host, which is valid only in the cluster.
-
-For example, if you test minik8s on a single host, and the public IP of the host is `192.168.1.1`, then you should configure `subnet.txt`:
-
-```
-master 192.168.1.1 10.10.0.1
-```
+1. Install Docker
+2. Install weave, see `scripts/helper/weave_setup.sh`
+3. Install ETCD, see `https://blog.csdn.net/qq_42874635/article/details/126906174`
+4. Install NSQ, see `https://nsq.io/overview/quick_start.html`
+5. Configure `master_ip.txt`, just input the **IP address of master node**
+6. Enjoy hacking!
 
 **Usage:**
 
