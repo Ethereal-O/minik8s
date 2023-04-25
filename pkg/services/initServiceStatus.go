@@ -25,6 +25,8 @@ func pollLoop(runtimeService *object.RuntimeService) {
 		select {
 		case <-runtimeService.Timer.C:
 			poll(runtimeService)
+		case <-serviceManagerToExit:
+			return
 		}
 	}
 }

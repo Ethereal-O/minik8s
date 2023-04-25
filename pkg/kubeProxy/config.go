@@ -20,6 +20,7 @@ type KubeProxyManager struct {
 	RootMap           map[string]map[string]*SingleService
 	RuntimeServiceMap map[string]object.RuntimeService
 	GatewayMap        map[string]object.Gateway
+	RootChain         RootChain
 	Lock              sync.Mutex
 }
 
@@ -30,6 +31,10 @@ type PodInfo struct {
 	PodIP string
 	// PodPort is the port of the pod
 	PodPort string
+}
+
+type RootChain struct {
+	RuleCommand []string
 }
 
 type SingleService struct {
