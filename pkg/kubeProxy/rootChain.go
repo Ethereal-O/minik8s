@@ -6,6 +6,7 @@ import (
 )
 
 func (kubeProxyManager *KubeProxyManager) initRootChain() {
+	fmt.Printf("prepare to init root chain\n")
 	ipt, err := iptables.New()
 	if err != nil {
 		fmt.Println("boot error")
@@ -18,6 +19,7 @@ func (kubeProxyManager *KubeProxyManager) initRootChain() {
 		fmt.Println(err)
 	}
 	if exist {
+		fmt.Printf("root chain exist")
 		return
 	}
 	err = ipt.NewChain(ROOT_TABLE, ROOT_CHAIN)
@@ -38,6 +40,7 @@ func (kubeProxyManager *KubeProxyManager) initRootChain() {
 }
 
 func (kubeProxyManager *KubeProxyManager) deleteRootChain() {
+	fmt.Printf("prepare to delete root chain!\n")
 	for multiServiceKey, multiService := range kubeProxyManager.RootMap {
 		for singleServiceKey, singleService := range multiService {
 			err := singleService.deleteSingleService()
@@ -48,4 +51,5 @@ func (kubeProxyManager *KubeProxyManager) deleteRootChain() {
 		}
 		delete(kubeProxyManager.RootMap, multiServiceKey)
 	}
+	fmt.Printf("delete root chain done!\n")
 }
