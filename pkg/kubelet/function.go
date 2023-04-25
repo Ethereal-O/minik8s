@@ -88,16 +88,16 @@ func addPortSet(portSet nat.PortSet, ports []object.Port) {
 	}
 }
 
-func pauseContainerFullName(podFullName string, podUuid string) string {
-	return ContainerFullName(pauseContainerName, podFullName, podUuid)
+func pauseContainerFullName(podName string, podUuid string) string {
+	return ContainerFullName(pauseContainerName, podName, podUuid)
 }
 
-func pauseContainerReference(podFullName string, podUuid string) string {
-	return "container:" + pauseContainerFullName(podFullName, podUuid)
+func pauseContainerReference(podName string, podUuid string) string {
+	return "container:" + pauseContainerFullName(podName, podUuid)
 }
 
-func ContainerFullName(containerName, podFullName, podUuid string) string {
-	return podFullName + "_" + podUuid + "_" + containerName
+func ContainerFullName(containerName, podName, podUuid string) string {
+	return podName + "_" + podUuid + "_" + containerName
 }
 
 // ------------------Image------------------

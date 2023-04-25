@@ -19,7 +19,7 @@ var proxyCmd = &cobra.Command{
 func doit(cmd *cobra.Command, args []string) {
 	// Receive Ctrl-C
 	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGINT)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
 	go kubeProxy.Start_proxy()
 	go kubelet.Start_kubelet()
@@ -27,7 +27,9 @@ func doit(cmd *cobra.Command, args []string) {
 	// Gracefully exit after Ctrl-C
 	<-c
 	kubelet.ToExit <- true
+	kubeProxy.ToExit <- true
 	<-kubelet.Exited
+	<-kubeProxy.Exited
 }
 
 func init() {

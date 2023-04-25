@@ -24,7 +24,8 @@ func doit(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	applyCmd.Flags().StringVarP(&file, "file", "f", "", "")
+	applyCmd.Flags().StringVarP(&file, "file", "f", "", "Path to yaml file")
+	applyCmd.MarkFlagRequired("file")
 }
 
 func Apply() *cobra.Command {

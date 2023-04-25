@@ -19,12 +19,21 @@ var serviceIPGenerator = ipGenerator{
 	initIp: network.ServiceIPGeneratorInitIP,
 }
 
+var nodeIPGenerator = ipGenerator{
+	url:    network.NodeIPGeneratorURL,
+	initIp: network.NodeIPGeneratorInitIP,
+}
+
 func NewPodIP() string {
 	return podIPGenerator.FetchAndAdd()
 }
 
 func NewServiceIP() string {
 	return serviceIPGenerator.FetchAndAdd()
+}
+
+func NewNodeIP() string {
+	return nodeIPGenerator.FetchAndAdd()
 }
 
 func deserialize(ip int64) string {

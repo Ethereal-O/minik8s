@@ -20,16 +20,16 @@ func Start_rsController() {
 	waitingRs.Init(1)
 	handleChan := make(chan string, 20)
 	rsChan, rsStop := messging.Watch("/"+config.REPLICASET_TYPE, true)
-	//podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
+	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
 	go dealRs(rsChan, handleChan)
-	//go dealPod(podChan, handleChan)
+	go dealPod(podChan, handleChan)
 	go handle(handleChan)
 	fmt.Println("Controller start")
 
 	// Wait until Ctrl-C
 	<-RSToExit
 	rsStop()
-	//podStop()
+	podStop()
 	RSExited <- true
 }
 
@@ -37,7 +37,7 @@ func dealRs(rsChan chan string, handleChan chan string) {
 	for {
 		select {
 		case mes := <-rsChan:
-			if mes=="hello" {
+			if mes == "hello" {
 				continue
 			}
 			//fmt.Println("[this]", mes)
@@ -48,35 +48,38 @@ func dealRs(rsChan chan string, handleChan chan string) {
 	}
 }
 
-//func dealPod(podChan chan string, handleChan chan string) {
-//	for {
-//		select {
-//		case mes := <-podChan:
-//			// fmt.Println("[this]", mes)
-//			var tarPod object.Pod
-//			err := json.Unmarshal([]byte(mes), &tarPod)
-//			if err != nil {
-//				fmt.Println(err.Error())
-//			}
-//			if tarPod.Runtime.Belong != "" {
-//				res := client.Get_object(tarPod.Runtime.Belong, config.REPLICASET_TYPE)
-//				if len(res) != 1 {
-//					fmt.Println("Cannot find the Rs which the pod belongs to!")
-//					continue
-//				}
-//				if waitingRs.Put(mes2rsName(res[0])) {
-//					handleChan <- res[0]
-//				}
-//			}
-//		}
-//	}
-//}
+func dealPod(podChan chan string, handleChan chan string) {
+	for {
+		select {
+		case mes := <-podChan:
+			if mes == "hello" {
+				continue
+			}
+			// fmt.Println("[this]", mes)
+			var tarPod object.Pod
+			err := json.Unmarshal([]byte(mes), &tarPod)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+			if tarPod.Runtime.Belong != "" {
+				res := client.Get_object(tarPod.Runtime.Belong, config.REPLICASET_TYPE)
+				if len(res) != 1 {
+					fmt.Println("Cannot find the Rs which the pod belongs to!")
+					continue
+				}
+				if waitingRs.Put(mes2rsName(res[0])) {
+					handleChan <- res[0]
+				}
+			}
+		}
+	}
+}
 
 func handle(handleChan chan string) {
 	for {
 		select {
 		case mes := <-handleChan:
-			if mes=="hello" {
+			if mes == "hello" {
 				continue
 			}
 			waitingRs.Get(mes2rsName(mes))
@@ -88,16 +91,8 @@ func handle(handleChan chan string) {
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			targetNum, actualNum := tarRs.Spec.Replicas, 0
-			podList := client.GetActivePods()
-			var rspodList []object.Pod
-			for _, pod := range podList {
-				if pod.Runtime.Belong == tarRs.Metadata.Name {
-					actualNum++
-					rspodList = append(rspodList, pod)
-				}
-			}
-			fmt.Println(targetNum, actualNum)
+			targetNum := tarRs.Spec.Replicas
+			rspodList, actualNum := object.GetPodsOfRS(&tarRs, client.GetActivePods())
 			if targetNum > actualNum {
 				for i := 0; i < targetNum-actualNum; i++ {
 					var newPod object.Pod
@@ -106,7 +101,7 @@ func handle(handleChan chan string) {
 					newPod.Kind = config.POD_TYPE
 					newPod.Runtime.Belong = tarRs.Metadata.Name
 					newPod.Metadata = tarRs.Spec.Template.Metadata
-					newPod.Metadata.Name = tarRs.Metadata.Name + "_" + uuid
+					newPod.Metadata.Name = object.RSPodFullName(&tarRs, &newPod)
 					newPod.Spec = tarRs.Spec.Template.Spec
 					client.AddPod(newPod)
 				}

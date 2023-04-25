@@ -1,9 +1,11 @@
 package network
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -41,19 +43,24 @@ func IsPortAvailable(port int) bool {
 	return true
 }
 
-func GetHostIp() {
-	addrs, err := net.InterfaceAddrs()
+func GetHostIp() (string, error) {
+	ifaces, err := net.Interfaces()
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
-	for _, address := range addrs {
-		if ipNet, ok := address.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-			if ipNet.IP.To4() != nil {
-				fmt.Println(ipNet.IP.String())
+	for _, iface := range ifaces {
+		addrs, err := iface.Addrs()
+		if err != nil {
+			return "", err
+		}
+		for _, addr := range addrs {
+			ipStr := addr.String()
+			if strings.HasPrefix(ipStr, "192.168") {
+				return strings.Split(ipStr, "/")[0], nil
 			}
 		}
 	}
+	return "", errors.New("cannot find IP address which has prefix 192.168")
 }
 
 func Hostname() string {

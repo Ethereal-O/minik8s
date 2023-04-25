@@ -6,15 +6,12 @@ import (
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 )
 
 var serviceManager *ServiceManager
-var serviceManagerExited = make(chan bool)
-var serviceManagerToExit = make(chan os.Signal)
+var Exited = make(chan bool)
+var ToExit = make(chan bool)
 
 func createServiceManager() *ServiceManager {
 	serviceManager := &ServiceManager{}
@@ -26,14 +23,13 @@ func createServiceManager() *ServiceManager {
 
 func StartServiceManager() {
 	serviceManager = createServiceManager()
-	signal.Notify(serviceManagerToExit, syscall.SIGINT, syscall.SIGTERM)
 	serviceChan, serviceStop := messging.Watch("/"+config.SERVICE_TYPE, true)
 	go dealService(serviceChan)
 
 	// Wait until Ctrl-C
-	<-serviceManagerToExit
+	<-ToExit
 	serviceStop()
-	serviceManagerExited <- true
+	Exited <- true
 }
 
 func dealService(serviceChan chan string) {

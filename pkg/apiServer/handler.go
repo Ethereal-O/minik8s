@@ -65,6 +65,7 @@ func pod_put(c echo.Context) error {
 	if podObject.Runtime.ClusterIp == "" {
 		podObject.Runtime.ClusterIp = NewPodIP()
 	}
+
 	pod, err := json.Marshal(podObject)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -181,7 +182,10 @@ func node_put(c echo.Context) error {
 		nodeObject.Runtime.Uuid = uuid
 	}
 	if nodeObject.Runtime.Status == "" {
-		nodeObject.Runtime.Status = config.RUNNING_STATUS
+		nodeObject.Runtime.Status = config.CREATED_STATUS
+	}
+	if nodeObject.Runtime.ClusterIp == "" {
+		nodeObject.Runtime.ClusterIp = NewNodeIP()
 	}
 	node, err := json.Marshal(nodeObject)
 	if err != nil {

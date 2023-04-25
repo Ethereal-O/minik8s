@@ -22,7 +22,7 @@ var apiCmd = &cobra.Command{
 func doit(cmd *cobra.Command, args []string) {
 	// Receive Ctrl-C
 	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGINT)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
 	apiServer.Init_server()
 	go apiServer.Start_server()
@@ -37,8 +37,11 @@ func doit(cmd *cobra.Command, args []string) {
 	<-c
 	controller.RSToExit <- true
 	scheduler.ToExit <- true
+	services.ToExit <- true
 	<-controller.RSExited
 	<-scheduler.Exited
+	<-services.Exited
+
 	// Wait for other components to exit
 	apiServer.ToExit <- true
 	<-apiServer.Exited

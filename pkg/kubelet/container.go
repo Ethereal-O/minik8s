@@ -45,7 +45,7 @@ func CreateContainer(name string, config *CreateConfig) (string, error) {
 }
 
 func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (string, string, error) {
-	podFullName := pod.FullName()
+	podName := pod.Metadata.Name
 	podUuid := pod.Runtime.Uuid
 
 	// Step 1: Prepare for labels
@@ -57,11 +57,11 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 	}
 
 	// Step 2: Prepare for CNI
-	pauseContainerFullName := pauseContainerFullName(podFullName, podUuid)
-	pauseContainerRef := pauseContainerReference(podFullName, podUuid)
+	pauseContainerFullName := pauseContainerFullName(podName, podUuid)
+	pauseContainerRef := pauseContainerReference(podName, podUuid)
 
 	// Step 3: Finally create the container!
-	name := ContainerFullName(myContainer.Name, podFullName, podUuid)
+	name := ContainerFullName(myContainer.Name, podName, podUuid)
 	ID, err := CreateContainer(name, &CreateConfig{
 		// Config
 		Image:      myContainer.Image,
@@ -114,7 +114,7 @@ func StartCommonContainer(pod *object.Pod, myContainer *object.Container) bool {
 }
 
 func CreatePauseContainer(pod *object.Pod) (string, string, error) {
-	podFullName := pod.FullName()
+	podName := pod.Metadata.Name
 	podUuid := pod.Runtime.Uuid
 
 	// Step 1: Prepare for labels
@@ -134,7 +134,7 @@ func CreatePauseContainer(pod *object.Pod) (string, string, error) {
 	}
 
 	// Step 3: Finally create the container!
-	name := pauseContainerFullName(podFullName, podUuid)
+	name := pauseContainerFullName(podName, podUuid)
 	ID, err := CreateContainer(name, &CreateConfig{
 		// Config
 		Image:        pauseImage,

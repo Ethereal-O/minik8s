@@ -6,9 +6,8 @@ type Labels map[string]string
 
 // Metadata take values from .yaml files
 type Metadata struct {
-	Name      string `yaml:"name" json:"name"`
-	Namespace string `yaml:"namespace" json:"namespace"`
-	Labels    Labels `yaml:"labels" json:"labels"`
+	Name   string `yaml:"name" json:"name"`
+	Labels Labels `yaml:"labels" json:"labels"`
 }
 
 // Runtime generate values from runtime (not in .yaml files)

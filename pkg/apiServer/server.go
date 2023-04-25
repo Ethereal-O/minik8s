@@ -42,6 +42,8 @@ func Start_server() {
 	go func() { e.Logger.Fatal(e.Start(":8080")) }()
 
 	podIPGenerator.Init()
+	serviceIPGenerator.Init()
+	nodeIPGenerator.Init()
 
 	fmt.Println("API Server start at " + config.APISERVER_URL)
 

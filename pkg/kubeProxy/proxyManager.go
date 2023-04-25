@@ -6,15 +6,12 @@ import (
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 )
 
 var kubeProxyManager *KubeProxyManager
-var kubeProxyManagerExited = make(chan bool)
-var kubeProxyManagerToExit = make(chan os.Signal)
+var Exited = make(chan bool)
+var ToExit = make(chan bool)
 
 func createKubeProxyManager() *KubeProxyManager {
 	kubeProxyManager := &KubeProxyManager{}
@@ -34,15 +31,14 @@ func Start_proxy() {
 }
 
 func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
-	signal.Notify(kubeProxyManagerToExit, syscall.SIGINT, syscall.SIGTERM)
 	runtimeServiceChan, runtimeServiceStop := messging.Watch("/"+config.RUNTIMESERVICE_TYPE, true)
 	go dealRuntimeService(runtimeServiceChan)
 
 	// Wait until Ctrl-C
-	<-kubeProxyManagerToExit
+	<-ToExit
 	runtimeServiceStop()
 	kubeProxyManager.deleteRootChain()
-	kubeProxyManagerExited <- true
+	Exited <- true
 }
 
 func dealRuntimeService(runtimeServiceChan chan string) {

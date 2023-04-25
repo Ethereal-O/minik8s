@@ -40,7 +40,7 @@ func dealNode(nodeChan chan string) {
 	for {
 		select {
 		case mes := <-nodeChan:
-			if mes=="hello" {
+			if mes == "hello" {
 				continue
 			}
 			// fmt.Println("[this]", mes)
@@ -62,7 +62,7 @@ func dealPod(podChan chan string) {
 	for {
 		select {
 		case mes := <-podChan:
-			if mes=="hello" {
+			if mes == "hello" {
 				continue
 			}
 			// fmt.Println("[this]", mes)
@@ -72,7 +72,6 @@ func dealPod(podChan chan string) {
 				fmt.Println(err.Error())
 			}
 			if tarPod.Runtime.Status == config.CREATED_STATUS {
-				fmt.Println("scheduler: created pod!!")
 				scheduleQueue.Push(mes)
 			}
 		}

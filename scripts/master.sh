@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sh ./scripts/helper/weave_start.sh "subnet.txt" "master"
+sh ./scripts/helper/weave_start.sh
 if [ "$?" = 1 ]; then
   echo "[Master] Failed to start weave subnet!" 1>&2
   exit 1
@@ -35,7 +35,7 @@ else
   echo "[Master] NSQ producer+consumer started!" 1>&2
 fi
 
-./kubectl master > master.log 2>&1 &
+sudo ./kubectl master > master.log 2>&1 &
 sleep 1
 echo "[Master] Control plane started!" 1>&2
 

@@ -6,6 +6,7 @@ require (
 	github.com/docker/docker v20.10.14+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/labstack/echo v3.3.10+incompatible
+	github.com/liushuochen/gotable v0.0.0-20221119160816-1113793e7092
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2

@@ -3,7 +3,6 @@ package del
 import (
 	"github.com/spf13/cobra"
 	"minik8s/pkg/client"
-	"minik8s/pkg/exeFile"
 	"minik8s/pkg/util/config"
 )
 
@@ -19,18 +18,13 @@ var delCmd = &cobra.Command{
 }
 
 func doit(cmd *cobra.Command, args []string) {
-	if file != "" {
-		_, keyy, tp := exeFile.ReadYaml(file)
-		client.Delete_object(keyy, tp)
-	} else {
-		client.Delete_object(key, tp)
-	}
+	client.Delete_object(key, tp)
 }
 
 func init() {
-	delCmd.Flags().StringVarP(&file, "file", "f", "", "")
-	delCmd.Flags().StringVarP(&tp, "type", "t", "", "")
-	delCmd.Flags().StringVarP(&key, "key", "k", config.EMPTY_FLAG, "")
+	delCmd.Flags().StringVarP(&tp, "type", "t", "", "Type of API object(s) to delete")
+	delCmd.MarkFlagRequired("type")
+	delCmd.Flags().StringVarP(&key, "key", "k", config.EMPTY_FLAG, "Name of API object to delete, refers to all API objects of specified type if not set")
 }
 
 func Delete() *cobra.Command {
