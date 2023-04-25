@@ -20,7 +20,7 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 	ipt, err := iptables.New()
 	if err != nil {
 		fmt.Println("make new ipTable error")
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return nil
 	}
 	err = ipt.NewChain(singleService.Table, singleService.Name)
@@ -31,7 +31,7 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 		err = singlePod.initSinglePod()
 		if err != nil {
 			fmt.Println("make singlePod error")
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return nil
 		}
 		singleService.SinglePodMap[podInfo.PodName] = singlePod

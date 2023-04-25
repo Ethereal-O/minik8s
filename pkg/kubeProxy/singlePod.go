@@ -18,20 +18,20 @@ func createSinglePod(singleService *SingleService, podInfo PodInfo, id int) *Sin
 	ipt, err := iptables.New()
 	if err != nil {
 		fmt.Println("make new ipTable error")
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return nil
 	}
 	err = ipt.NewChain(singlePod.Table, singlePod.Name)
 	if err != nil {
 		fmt.Println("make new chain error")
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return nil
 	}
 	singlePod.Net = createSingleNet(singlePod, podInfo)
 	err = singlePod.Net.initSingleNet()
 	if err != nil {
 		fmt.Println("init singleNet error")
-		fmt.Println(err)
+		fmt.Println(err.Error())
 	}
 	return singlePod
 }
