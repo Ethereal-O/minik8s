@@ -6,12 +6,15 @@ import (
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 )
 
 var dnsManager *DnsManager
 var dnsManagerExited = make(chan bool)
-var dnsManagerToExit = make(chan bool)
+var dnsManagerToExit = make(chan os.Signal)
 
 func createDnsManager() *DnsManager {
 	dnsManager := &DnsManager{}
@@ -24,6 +27,7 @@ func createDnsManager() *DnsManager {
 func StartDnsManager() {
 	dnsManager = createDnsManager()
 	dnsManager.initDnsManager()
+	signal.Notify(dnsManagerToExit, syscall.SIGINT, syscall.SIGTERM)
 	gatewayChan, dnsStop := messging.Watch("/"+config.GATEWAY_TYPE, true)
 	go dealGateway(gatewayChan)
 
@@ -37,7 +41,7 @@ func dealGateway(gatewayChan chan string) {
 	for {
 		select {
 		case mes := <-gatewayChan:
-			if mes=="hello" {
+			if mes == "hello" {
 				continue
 			}
 			var tarGateway object.Gateway
@@ -51,7 +55,7 @@ func dealGateway(gatewayChan chan string) {
 			} else if tarGateway.Runtime.Status == config.RUNNING_STATUS {
 				dealRunningGateway(&tarGateway)
 			} else {
-				fmt.Println("Gateway status error")
+				fmt.Println("Gateway status error!")
 			}
 		}
 	}

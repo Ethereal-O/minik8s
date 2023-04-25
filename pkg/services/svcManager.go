@@ -6,12 +6,15 @@ import (
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 )
 
 var serviceManager *ServiceManager
 var serviceManagerExited = make(chan bool)
-var serviceManagerToExit = make(chan bool)
+var serviceManagerToExit = make(chan os.Signal)
 
 func createServiceManager() *ServiceManager {
 	serviceManager := &ServiceManager{}
@@ -23,6 +26,7 @@ func createServiceManager() *ServiceManager {
 
 func StartServiceManager() {
 	serviceManager = createServiceManager()
+	signal.Notify(serviceManagerToExit, syscall.SIGINT, syscall.SIGTERM)
 	serviceChan, serviceStop := messging.Watch("/"+config.SERVICE_TYPE, true)
 	go dealService(serviceChan)
 
@@ -36,7 +40,7 @@ func dealService(serviceChan chan string) {
 	for {
 		select {
 		case mes := <-serviceChan:
-			if mes=="hello" {
+			if mes == "hello" {
 				continue
 			}
 			var tarService object.Service
@@ -50,7 +54,7 @@ func dealService(serviceChan chan string) {
 			} else if tarService.Runtime.Status == config.RUNNING_STATUS {
 				dealRunningService(&tarService)
 			} else {
-				fmt.Println("service status error\n")
+				fmt.Println("service status error!")
 			}
 		}
 	}

@@ -2,7 +2,7 @@ package config
 
 const (
 	// MASTER_IP is the IP address of master node
-	MASTER_IP = "192.168.29.128"
+	MASTER_IP = "192.168.31.68"
 	LOCALHOST = "localhost"
 
 	// ETCD_ENDPOINT / NSQ_PRODUCER are used by only master node
