@@ -45,8 +45,8 @@ func doit(cmd *cobra.Command, args []string) {
 				rows = append(rows, row)
 			}
 			table.AddRows(rows)
-			fmt.Println(table)
 		}
+		fmt.Println(table)
 	}
 
 	if tp == config.REPLICASET_TYPE {
@@ -68,8 +68,8 @@ func doit(cmd *cobra.Command, args []string) {
 				rows = append(rows, row)
 			}
 			table.AddRows(rows)
-			fmt.Println(table)
 		}
+		fmt.Println(table)
 	}
 	if tp == config.NODE_TYPE {
 		table, _ := gotable.Create("Name", "Uuid", "Status", "PublicIP", "ClusterIP")
@@ -87,8 +87,8 @@ func doit(cmd *cobra.Command, args []string) {
 				rows = append(rows, row)
 			}
 			table.AddRows(rows)
-			fmt.Println(table)
 		}
+		fmt.Println(table)
 	}
 }
 

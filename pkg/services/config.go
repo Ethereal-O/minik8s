@@ -15,7 +15,7 @@ const (
 	GATEWAY_STATUS_DEPLOYING               = "deploying"
 	GATEWAY_STATUS_RUNNING                 = "running"
 	GATEWAY_PREFIX                         = "$gateway-"
-	GATEWAY_REPLICASET_PREFIX              = "$gateWayReplicaset-"
+	GATEWAY_REPLICASET_PREFIX              = "$gateWayReplicaSet-"
 	GATEWAY_POD_PREFIX                     = "gateWayPod-"
 	GATEWAY_CONTAINER_PREFIX               = "gateWayContainer-"
 	GATEWAY_SERVICE_PREFIX                 = "gateWayService-"

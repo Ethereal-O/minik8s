@@ -23,7 +23,7 @@ var (
 
 const (
 	POD_TYPE            = "Pod"
-	REPLICASET_TYPE     = "Replicaset"
+	REPLICASET_TYPE     = "ReplicaSet"
 	SERVICE_TYPE        = "Service"
 	RUNTIMESERVICE_TYPE = "RuntimeService"
 	NODE_TYPE           = "Node"

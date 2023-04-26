@@ -16,7 +16,7 @@ func ReadYaml(file string) (string, string, string) {
 	}
 	if strings.Contains(string(yamlFile), "kind: Pod") {
 		return parsePod(yamlFile)
-	} else if strings.Contains(string(yamlFile), "kind: Replicaset") {
+	} else if strings.Contains(string(yamlFile), "kind: ReplicaSet") {
 		return parseRs(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: Node") {
 		return parseNode(yamlFile)
@@ -78,7 +78,7 @@ func parseRs(yamlFile []byte) (string, string, string) {
 	}
 	key = conf.Metadata.Name
 	inf, err = json.Marshal(&conf)
-	return string(inf), key, "Replicaset"
+	return string(inf), key, "ReplicaSet"
 }
 
 func parseNode(yamlFile []byte) (string, string, string) {
