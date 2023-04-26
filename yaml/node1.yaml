@@ -1,6 +1,6 @@
 kind: Node
 metadata:
-  name: node
+  name: Node1
   labels:
     os: linux
 spec:

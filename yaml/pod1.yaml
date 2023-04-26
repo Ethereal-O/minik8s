@@ -1,6 +1,6 @@
 kind: Pod
 metadata:
-  name: pod
+  name: Pod1
   labels:
     app: myApp
 spec:

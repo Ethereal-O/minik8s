@@ -1,6 +1,6 @@
 kind: ReplicaSet
 metadata:
-  name: rs
+  name: RS1
 spec:
   replicas: 3
   template:

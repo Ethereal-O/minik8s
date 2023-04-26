@@ -1,6 +1,6 @@
 kind: Service
 metadata:
-  name: testService
+  name: Service1
 spec:
   type: ClusterIp
   ports:
