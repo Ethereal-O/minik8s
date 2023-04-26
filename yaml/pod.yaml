@@ -1,7 +1,6 @@
 kind: Pod
 metadata:
-  name: pod2
-  namespace: default
+  name: pod
   labels:
     app: myApp
 spec:
@@ -13,7 +12,7 @@ spec:
         - containerPort: 80
           hostPort: 8888
       volumeMounts:
-        - name: volume
+        - name: upload
           mountPath: /usr/share/nginx/html/files
     - name: downloader
       image: dplsming/aria2ng-downloader:1.0
@@ -23,9 +22,12 @@ spec:
         - containerPort: 6880
           hostPort: 6880
       volumeMounts:
-        - name: volume
+        - name: download
           mountPath: /data
   volumes:
-    - name: volume
+    - name: upload
       type: hostPath
-      path: /home/os/minik8s/pod
+      path: /home/os/minik8s/upload
+    - name: download
+      type: hostPath
+      path: /home/os/minik8s/download

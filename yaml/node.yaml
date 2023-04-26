@@ -1,7 +1,7 @@
 kind: Node
 metadata:
-  name: node1
+  name: node
   labels:
-    key: test1
+    os: linux
 spec:
   ip: 192.168.31.68
