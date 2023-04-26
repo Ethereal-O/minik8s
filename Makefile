@@ -1,6 +1,7 @@
 BUILD=$(shell ./scripts/build.sh)
 TESTPOD=$(shell ./scripts/testPod.sh)
 TESTSERVICE=$(shell ./scripts/testService.sh)
+TESTRS=$(shell ./scripts/testRS.sh)
 CLEAN=$(shell ./scripts/clean.sh)
 STOP=$(shell ./scripts/stop.sh)
 MASTER=$(shell ./scripts/master.sh)
@@ -23,6 +24,13 @@ testService:
 	@echo $(MASTER)
 	@echo $(WORKER)
 	@echo $(TESTSERVICE)
+# Build k8s, run a master, a worker, a Pod and a RS on one host
+testRS:
+	@echo $(CLEAN)
+	@echo $(BUILD)
+	@echo $(MASTER)
+	@echo $(WORKER)
+	@echo $(TESTRS)
 # Build k8s and run as master and worker
 master:
 	@echo $(CLEAN)

@@ -1,7 +1,6 @@
 kind: Pod
 metadata:
-  name: pod1
-  namespace: default
+  name: Pod1
   labels:
     app: myApp
 spec:

@@ -67,7 +67,6 @@ type PodSpec struct {
 	RestartPolicy string      `yaml:"restartPolicy" json:"restartPolicy"`
 	Volumes       []Volume    `yaml:"volumes" json:"volumes"`
 	Containers    []Container `yaml:"containers" json:"containers"`
-	NodeSelector  Labels      `yaml:"nodeSelector" json:"nodeSelector"`
 }
 
 type Volume struct {

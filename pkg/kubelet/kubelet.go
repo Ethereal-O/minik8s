@@ -44,7 +44,8 @@ func dealPod(podChan chan string) {
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			if tarPod.Runtime.Status == config.BOUND_STATUS {
+			ip, _ := network.GetHostIp()
+			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
 				started := StartPod(&tarPod)
 				if started {
 					fmt.Printf("[Kubelet] Pod %v started!\n", tarPod.Metadata.Name)
