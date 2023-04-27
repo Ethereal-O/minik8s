@@ -40,6 +40,10 @@ func CreateContainer(name string, config *CreateConfig) (string, error) {
 		Links:        config.Links,
 		Binds:        config.Binds,
 		VolumesFrom:  config.VolumesFrom,
+		Resources: container.Resources{
+			Memory:   config.Memory,
+			NanoCPUs: config.NanoCPUs,
+		},
 	}, nil, nil, name)
 	return res.ID, err
 }
@@ -77,16 +81,19 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 		NetworkMode: container.NetworkMode(pauseContainerRef),
 		Binds:       getVolumeBinds(pod, myContainer),
 		VolumesFrom: []string{pauseContainerFullName},
+		Memory:      convertMemoryToBytes(myContainer.Limits.Memory),
+		NanoCPUs:    convertCpuToBytes(myContainer.Limits.Cpu),
 	})
+
 	return name, ID, err
 }
 
-func StartCommonContainer(pod *object.Pod, myContainer *object.Container) bool {
+func StartCommonContainer(pod *object.Pod, myContainer *object.Container) (bool, string) {
 	// Step 1: Prepare for image
 	err := PullImage(myContainer.Image)
 	if err != nil {
 		fmt.Printf("Failed to pull image %v! Reason: %v\n", myContainer.Image, err.Error())
-		return false
+		return false, ""
 	} else {
 		fmt.Printf("Image %v pulled!\n", myContainer.Image)
 	}
@@ -96,7 +103,7 @@ func StartCommonContainer(pod *object.Pod, myContainer *object.Container) bool {
 	fullName, ID, err = CreateCommonContainer(pod, myContainer)
 	if err != nil {
 		fmt.Printf("Failed to create container %v! Reason: %v\n", fullName, err.Error())
-		return false
+		return false, ""
 	} else {
 		fmt.Printf("Container %v created!\n", fullName)
 	}
@@ -105,12 +112,12 @@ func StartCommonContainer(pod *object.Pod, myContainer *object.Container) bool {
 	err = Client.ContainerStart(Ctx, ID, StartConfig{})
 	if err != nil {
 		fmt.Printf("Failed to start container %v (ID: %v)! Reason: %v\n", fullName, ID, err.Error())
-		return false
+		return false, ""
 	} else {
 		fmt.Printf("Container %v (ID: %v) started!\n", fullName, ID)
 	}
 
-	return true
+	return true, ID
 }
 
 func CreatePauseContainer(pod *object.Pod) (string, string, error) {
