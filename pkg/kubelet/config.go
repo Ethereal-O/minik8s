@@ -18,33 +18,21 @@ const (
 	StateUnknown State = "UNKNOWN"
 )
 
-type ResourcesUsage struct {
-	CpuPercent float64 `json:"cpu_percent"`
-	MemPercent float64 `json:"mem_percent"`
-}
-
 // Status represents the status of a container.
 type Status struct {
-	ID             string
-	Name           string
-	State          State
-	CreateTime     time.Time
-	StartTime      time.Time
-	FinishTime     time.Time
-	ExitCode       int
-	ImageID        string
-	RestartCount   int
-	Error          string
-	ResourcesUsage ResourcesUsage
-	PortBindings   nat.PortMap
-}
-
-type ContainerRuntime struct {
-	ID      string
-	Name    string
-	Image   string
-	ImageID string
-	State   State
+	ID           string
+	Name         string
+	State        State
+	CreatedAt    time.Time
+	StartedAt    time.Time
+	FinishedAt   time.Time
+	ExitCode     int
+	ImageID      string
+	RestartCount int
+	Error        string
+	PortBindings nat.PortMap
+	CpuPercent   float64
+	MemPercent   float64
 }
 
 // CreateConfig : arguments to create a container
@@ -72,5 +60,11 @@ type CreateConfig struct {
 
 // StartConfig : arguments to start a container
 type StartConfig = types.ContainerStartOptions
+
+// InspectInfo : results of inspecting a container
+type InspectInfo = types.ContainerJSON
+
+// StopConfig : arguments to stop a container
+type StopConfig = types.ContainerRemoveOptions
 
 // ------------------Image------------------

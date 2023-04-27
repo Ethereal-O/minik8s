@@ -13,6 +13,8 @@ import (
 
 var Exited = make(chan bool)
 var ToExit = make(chan bool)
+var PodToExit = make(map[string]chan bool)
+var PodExited = make(map[string]chan bool)
 
 func Start_kubelet() {
 	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
@@ -51,6 +53,13 @@ func dealPod(podChan chan string) {
 					fmt.Printf("[Kubelet] Pod %v started!\n", tarPod.Metadata.Name)
 				} else {
 					fmt.Printf("[Kubelet] Failed to start pod %v!\n", tarPod.Metadata.Name)
+				}
+			} else if tarPod.Runtime.Status == config.EXIT_STATUS {
+				deleted := DeletePod(&tarPod)
+				if deleted {
+					fmt.Printf("[Kubelet] Pod %v deleted!\n", tarPod.Metadata.Name)
+				} else {
+					fmt.Printf("[Kubelet] Failed to delete pod %v!\n", tarPod.Metadata.Name)
 				}
 			}
 		}

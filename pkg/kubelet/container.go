@@ -161,12 +161,12 @@ func CreatePauseContainer(pod *object.Pod) (string, string, error) {
 	return name, ID, err
 }
 
-func StartPauseContainer(pod *object.Pod) bool {
+func StartPauseContainer(pod *object.Pod) (bool, string) {
 	// Step 1: Prepare for image
 	err := PullImage(pauseImage)
 	if err != nil {
 		fmt.Printf("Failed to pull pause image %v! Reason: %v\n", pauseImage, err.Error())
-		return false
+		return false, ""
 	} else {
 		fmt.Printf("Pause image %v pulled!\n", pauseImage)
 	}
@@ -176,7 +176,7 @@ func StartPauseContainer(pod *object.Pod) bool {
 	fullName, ID, err = CreatePauseContainer(pod)
 	if err != nil {
 		fmt.Printf("Failed to create pause container %v! Reason: %v\n", fullName, err.Error())
-		return false
+		return false, ""
 	} else {
 		fmt.Printf("Pause container %v created!\n", fullName)
 	}
@@ -185,7 +185,7 @@ func StartPauseContainer(pod *object.Pod) bool {
 	err = Client.ContainerStart(Ctx, ID, StartConfig{})
 	if err != nil {
 		fmt.Printf("Failed to start pause container %v (ID: %v)! Reason: %v\n", fullName, ID, err.Error())
-		return false
+		return false, ""
 	} else {
 		fmt.Printf("Pause container %v (ID: %v) started!\n", fullName, ID)
 	}
@@ -194,10 +194,10 @@ func StartPauseContainer(pod *object.Pod) bool {
 	err = weave.Attach(ID, pod.Runtime.ClusterIp+network.Mask)
 	if err != nil {
 		fmt.Printf("Failed to attach pause container %v (ID: %v) to subnet! Reason: %v\n", fullName, ID, err.Error())
-		return false
+		return false, ""
 	} else {
 		fmt.Printf("Pause Container %v (ID: %v) attached to subnet!\n", fullName, ID)
 	}
 
-	return true
+	return true, ID
 }

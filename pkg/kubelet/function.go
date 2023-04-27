@@ -11,9 +11,10 @@ import (
 	"minik8s/pkg/util/network"
 	"strconv"
 	"strings"
+	"time"
 )
 
-// ------------------Container------------------
+// ------------------Container Start------------------
 
 // getVolumeBinds returns the binds of volumes
 func getVolumeBinds(pod *object.Pod, target *object.Container) []string {
@@ -199,4 +200,60 @@ func waitForPullComplete(events io.ReadCloser) {
 			panic(err)
 		}
 	}
+}
+
+// -------------Container Inspection-------------
+func inspectionToContainerRuntime(inspection *InspectInfo) (*Status, error) {
+	state := StateUnknown
+	switch inspection.State.Status {
+	case "running":
+		state = StateRunning
+	case "created":
+		state = StateCreated
+	case "exited":
+		state = StateExited
+	}
+
+	createdAt, err := time.Parse(time.RFC3339Nano, inspection.Created)
+	if err != nil {
+		return nil, err
+	}
+
+	startedAt, err := time.Parse(time.RFC3339Nano, inspection.State.StartedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	finishedAt, err := time.Parse(time.RFC3339Nano, inspection.State.FinishedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	containerStats, err := Client.ContainerStats(Ctx, inspection.ID, false)
+	if err != nil {
+		panic(err)
+	}
+	var stats types.StatsJSON
+	dec := json.NewDecoder(containerStats.Body)
+	if err := dec.Decode(&stats); err != nil {
+		panic(err)
+	}
+	cpuPercent := calculateCPUPercent(stats)
+	memPercent := calculateMemPercent(stats)
+
+	return &Status{
+		ID:           inspection.ID,
+		Name:         inspection.Name,
+		State:        state,
+		CreatedAt:    createdAt,
+		StartedAt:    startedAt,
+		FinishedAt:   finishedAt,
+		ExitCode:     inspection.State.ExitCode,
+		ImageID:      inspection.Image,
+		RestartCount: inspection.RestartCount,
+		Error:        inspection.State.Error,
+		PortBindings: inspection.HostConfig.PortBindings,
+		CpuPercent:   cpuPercent,
+		MemPercent:   memPercent,
+	}, nil
 }
