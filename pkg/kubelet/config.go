@@ -65,6 +65,9 @@ type StartConfig = types.ContainerStartOptions
 type InspectInfo = types.ContainerJSON
 
 // StopConfig : arguments to stop a container
-type StopConfig = types.ContainerRemoveOptions
+type StopConfig = time.Duration
+
+// RemoveConfig : arguments to remove a container
+type RemoveConfig = types.ContainerRemoveOptions
 
 // ------------------Image------------------

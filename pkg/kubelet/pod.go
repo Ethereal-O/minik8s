@@ -45,8 +45,16 @@ func DeletePod(pod *object.Pod) bool {
 
 	// Step 2: Delete all containers
 	for _, containerId := range pod.Runtime.Containers {
-		err := Client.ContainerRemove(Ctx, containerId, StopConfig{})
+		var stopConfig = 1 * time.Second
+		err := Client.ContainerStop(Ctx, containerId, &stopConfig)
 		if err != nil {
+			fmt.Println(err.Error())
+			continue // Ignore errors, may happen when container does not exist
+		}
+		var removeConfig = RemoveConfig{}
+		err = Client.ContainerRemove(Ctx, containerId, removeConfig)
+		if err != nil {
+			fmt.Println(err.Error())
 			continue // Ignore errors, may happen when container does not exist
 		}
 	}
@@ -54,6 +62,8 @@ func DeletePod(pod *object.Pod) bool {
 	// Step 3: If pod needs restart, change its status to CREATED
 	if pod.Runtime.NeedRestart {
 		pod.Runtime.Status = config.CREATED_STATUS
+		// Clear NeedRestart bit, unless the pod will always restart after delete
+		pod.Runtime.NeedRestart = false
 		client.AddPod(*pod)
 	}
 	return true
@@ -105,5 +115,8 @@ func PodException(pod *object.Pod) {
 	pod.Runtime.NeedRestart = pod.Runtime.Belong == ""
 	pod.Runtime.Status = config.EXIT_STATUS
 	client.AddPod(*pod)
+
+	// Wait for DeletePod()
+	<-PodToExit[pod.Runtime.Uuid]
 	PodExited[pod.Runtime.Uuid] <- true
 }

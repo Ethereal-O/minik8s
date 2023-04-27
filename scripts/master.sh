@@ -36,7 +36,7 @@ else
 fi
 
 sudo ./kubectl master > master.log 2>&1 &
-sleep 2
+sleep 5
 echo "[Master] Control plane started!" 1>&2
 
 echo "[Master] Init finished!" 1>&2

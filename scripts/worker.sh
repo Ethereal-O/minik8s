@@ -20,7 +20,7 @@ else
 fi
 
 sudo ./kubectl worker > worker.log 2>&1 &
-sleep 2
+sleep 5
 echo "[Worker] Worker node started!" 1>&2
 
 echo "[Worker] Init finished!" 1>&2
