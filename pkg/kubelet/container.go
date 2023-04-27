@@ -9,7 +9,6 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/weave"
-	"strconv"
 )
 
 var Ctx = context.Background()
@@ -33,10 +32,10 @@ func CreateContainer(name string, config *CreateConfig) (string, error) {
 		Links:        config.Links,
 		Binds:        config.Binds,
 		VolumesFrom:  config.VolumesFrom,
-		Resources: 	  container.Resources{
+		Resources: container.Resources{
 			Memory:   config.Memory,
 			NanoCPUs: config.NanoCPUs,
-		}
+		},
 	}
 
 	var containerConfig = container.Config{

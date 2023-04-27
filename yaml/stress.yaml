@@ -7,7 +7,7 @@ spec:
   restartPolicy: Always
   containers:
     - name: stress
-      image: polinux/stress stress:1.0.4
+      image: polinux/stress:1.0.4
       limits:
         cpu: "0.5" # 0.5 CPU core
         memory: "200" # 200 MiB Memory

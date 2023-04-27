@@ -103,7 +103,7 @@ func ContainerFullName(containerName, podName, podUuid string) string {
 	return podName + "_" + podUuid + "_" + containerName
 }
 
-// -------------container resource-------------
+// -------------Container Resource-------------
 func convertMemoryToBytes(memoryStr string) int64 {
 	var bytes int64 = 1024 * 1024 * 200
 	memoryStr = strings.TrimSpace(memoryStr)
