@@ -24,7 +24,7 @@ else
   
   pubUrl="http://127.0.0.1:4151/pub?topic="
   curl -d "hello" "${pubUrl}Pod"
-  curl -d "hello" "${pubUrl}Replicaset"
+  curl -d "hello" "${pubUrl}ReplicaSet"
   curl -d "hello" "${pubUrl}Service"
   curl -d "hello" "${pubUrl}RuntimeService"
   curl -d "hello" "${pubUrl}Node"
@@ -36,7 +36,7 @@ else
 fi
 
 sudo ./kubectl master > master.log 2>&1 &
-sleep 1
+sleep 2
 echo "[Master] Control plane started!" 1>&2
 
 echo "[Master] Init finished!" 1>&2

@@ -103,7 +103,7 @@ func ContainerFullName(containerName, podName, podUuid string) string {
 	return podName + "_" + podUuid + "_" + containerName
 }
 
-// -------------container resource-------------
+// -------------Container Resource-------------
 func convertMemoryToBytes(memoryStr string) int64 {
 	var bytes int64 = 1024 * 1024 * 200
 	memoryStr = strings.TrimSpace(memoryStr)
@@ -162,16 +162,29 @@ func convertCpuToBytes(cpuStr string) int64 {
 
 func calculateCPUPercent(stats types.StatsJSON) float64 {
 	cpuPercent := 0.0
-	cpuDelta := float64(stats.CPUStats.CPUUsage.TotalUsage) - float64(stats.PreCPUStats.CPUUsage.TotalUsage)
+	//total time period which has passed
 	systemDelta := float64(stats.CPUStats.SystemUsage) - float64(stats.PreCPUStats.SystemUsage)
-	if systemDelta > 0.0 && cpuDelta > 0.0 {
-		cpuPercent = (cpuDelta / systemDelta) * float64(len(stats.CPUStats.CPUUsage.PercpuUsage)) * 100.0
+	//the time period which is used by the container
+	cpuDelta := float64(stats.CPUStats.CPUUsage.TotalUsage) - float64(stats.PreCPUStats.CPUUsage.TotalUsage)
+	if systemDelta > 0.0 {
+		//the result should be multipled by the available core nums
+		cpuPercent = (cpuDelta / systemDelta) * float64(stats.CPUStats.OnlineCPUs) * 100.0
 	}
+
+	//fmt.Printf("[cpu] cpuUse:%.5f\tcpupreUse%.5f\tsysUse:%.5f\tsyspreUse:%.5f\n",
+	//	float64(stats.CPUStats.CPUUsage.TotalUsage)/1e9,
+	//	float64(stats.PreCPUStats.CPUUsage.TotalUsage)/1e9,
+	//	float64(stats.CPUStats.SystemUsage)/1e9, float64(stats.PreCPUStats.SystemUsage)/1e9)
+
 	return cpuPercent
 }
 
 func calculateMemPercent(stats types.StatsJSON) float64 {
 	memPercent := float64(stats.MemoryStats.Usage) / float64(stats.MemoryStats.Limit) * 100.0
+
+	//fmt.Printf("[memory] use:%.10f\tlimit%.10f\n",
+	//	float64(stats.MemoryStats.Usage), float64(stats.MemoryStats.Limit))
+
 	return memPercent
 }
 

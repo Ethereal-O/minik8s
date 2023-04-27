@@ -24,15 +24,7 @@ func newClient() *client.Client {
 }
 
 func CreateContainer(name string, config *CreateConfig) (string, error) {
-	res, err := Client.ContainerCreate(Ctx, &container.Config{
-		Image:        config.Image,
-		Labels:       config.Labels,
-		Entrypoint:   config.Entrypoint,
-		Cmd:          config.Cmd,
-		Env:          config.Env,
-		Volumes:      config.Volumes,
-		ExposedPorts: config.ExposedPorts,
-	}, &container.HostConfig{
+	var hostConfig = container.HostConfig{
 		IpcMode:      config.IpcMode,
 		PidMode:      config.PidMode,
 		NetworkMode:  config.NetworkMode,
@@ -44,7 +36,19 @@ func CreateContainer(name string, config *CreateConfig) (string, error) {
 			Memory:   config.Memory,
 			NanoCPUs: config.NanoCPUs,
 		},
-	}, nil, nil, name)
+	}
+
+	var containerConfig = container.Config{
+		Image:        config.Image,
+		Labels:       config.Labels,
+		Entrypoint:   config.Entrypoint,
+		Cmd:          config.Cmd,
+		Env:          config.Env,
+		Volumes:      config.Volumes,
+		ExposedPorts: config.ExposedPorts,
+	}
+
+	res, err := Client.ContainerCreate(Ctx, &containerConfig, &hostConfig, nil, nil, name)
 	return res.ID, err
 }
 

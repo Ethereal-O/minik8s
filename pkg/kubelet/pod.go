@@ -33,6 +33,8 @@ func StartPod(pod *object.Pod) bool {
 	return true
 }
 
+// ProbeCycle Send the resource usage of the current pod at intervals
+// Not the final version for hpa(strategy is also to be decided)
 func ProbeCycle(pod *object.Pod, containerIdList []string) {
 	ctx := context.Background()
 	for {

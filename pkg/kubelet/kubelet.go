@@ -9,7 +9,6 @@ import (
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/weave"
-	"time"
 )
 
 var Exited = make(chan bool)
@@ -19,13 +18,12 @@ func Start_kubelet() {
 	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
 	nodeChan, nodeStop := messging.Watch("/"+config.NODE_TYPE, true)
 
+	autoAddNode()
+	fmt.Println("Kubelet start")
+
 	go dealPod(podChan)
 	go dealNode(nodeChan)
 	go start_monitor()
-
-	time.Sleep(5 * time.Second)
-	autoAddNode()
-	fmt.Println("Kubelet start")
 
 	// Wait until Ctrl-C
 	<-ToExit
