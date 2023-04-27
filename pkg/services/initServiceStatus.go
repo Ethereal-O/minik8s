@@ -47,11 +47,11 @@ func selectPods(runtimeService *object.RuntimeService) {
 		}
 		for k, v := range selector {
 			podLabel, ok := pod.Metadata.Labels[k]
-			if ok && v == podLabel {
-				return true
+			if !ok || v != podLabel {
+				return false
 			}
 		}
-		return false
+		return true
 	})
 
 	// apply filter to get broken pods

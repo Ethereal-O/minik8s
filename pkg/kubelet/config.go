@@ -67,7 +67,8 @@ type CreateConfig struct {
 	Links        []string              // List of links (name:alias)
 	Binds        []string              // List of volume bindings of the container
 	VolumesFrom  []string              // List of volumes to take from other containers
-	Limits       object.Limits         // CPU/Memory Limits of container
+	Memory       int64                 // Memory Limit of the container(in bytes)
+	NanoCPUs     int64                 // CPU Limit of the container(in units of 10<sup>-9</sup> CPUs)
 }
 
 // StartConfig : arguments to start a container

@@ -3,11 +3,14 @@ package kubelet
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 	"io"
+	"math"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/network"
 	"strconv"
+	"strings"
 )
 
 // ------------------Container------------------
@@ -98,6 +101,78 @@ func pauseContainerReference(podName string, podUuid string) string {
 
 func ContainerFullName(containerName, podName, podUuid string) string {
 	return podName + "_" + podUuid + "_" + containerName
+}
+
+// -------------container resource-------------
+func convertMemoryToBytes(memoryStr string) int64 {
+	var bytes int64 = 1024 * 1024 * 200
+	memoryStr = strings.TrimSpace(memoryStr)
+	if memoryStr == "" {
+		return bytes //default 200 MB
+	}
+	memoryStr = strings.ToLower(memoryStr)
+	if memoryStr[len(memoryStr)-2:] == "gi" {
+		val, err := strconv.ParseFloat(memoryStr[:len(memoryStr)-2], 64)
+		if err != nil {
+			fmt.Println(err.Error())
+			return bytes
+		}
+		bytes = int64(math.Round(val * math.Pow(1024, 3)))
+	} else if memoryStr[len(memoryStr)-2:] == "mi" {
+		val, err := strconv.ParseFloat(memoryStr[:len(memoryStr)-2], 64)
+		if err != nil {
+			fmt.Println(err.Error())
+			return bytes
+		}
+		bytes = int64(math.Round(val * math.Pow(1024, 2)))
+	} else if memoryStr[len(memoryStr)-1:] == "k" {
+		val, err := strconv.ParseInt(memoryStr[:len(memoryStr)-1], 10, 64)
+		if err != nil {
+			fmt.Println(err.Error())
+			return bytes
+		}
+		bytes = val * 1024
+	} else if memoryStr[len(memoryStr)-1:] == "b" {
+		val, err := strconv.ParseInt(memoryStr[:len(memoryStr)-1], 10, 64)
+		if err != nil {
+			fmt.Println(err.Error())
+			return bytes
+		}
+		bytes = val
+	} else {
+		return bytes
+	}
+	return bytes
+}
+
+func convertCpuToBytes(cpuStr string) int64 {
+	cpuStr = strings.TrimSpace(cpuStr)
+	if len(cpuStr) == 0 {
+		return 1 * 1e9 //default 1 core
+	} else {
+		cpuLimit, err := strconv.ParseFloat(cpuStr, 64)
+		if err != nil {
+			fmt.Println(err.Error())
+			return -1
+		}
+		NanoCPU := (int64)(cpuLimit * 1e9)
+		return NanoCPU
+	}
+}
+
+func calculateCPUPercent(stats types.StatsJSON) float64 {
+	cpuPercent := 0.0
+	cpuDelta := float64(stats.CPUStats.CPUUsage.TotalUsage) - float64(stats.PreCPUStats.CPUUsage.TotalUsage)
+	systemDelta := float64(stats.CPUStats.SystemUsage) - float64(stats.PreCPUStats.SystemUsage)
+	if systemDelta > 0.0 && cpuDelta > 0.0 {
+		cpuPercent = (cpuDelta / systemDelta) * float64(len(stats.CPUStats.CPUUsage.PercpuUsage)) * 100.0
+	}
+	return cpuPercent
+}
+
+func calculateMemPercent(stats types.StatsJSON) float64 {
+	memPercent := float64(stats.MemoryStats.Usage) / float64(stats.MemoryStats.Limit) * 100.0
+	return memPercent
 }
 
 // ------------------Image------------------

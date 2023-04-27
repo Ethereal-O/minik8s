@@ -22,12 +22,17 @@ var getCmd = &cobra.Command{
 }
 
 func doit(cmd *cobra.Command, args []string) {
-	res := client.Get_object(key, tp)
 	fmt.Printf("Type: %v\n", tp)
+	if tp == config.SERVICE_TYPE {
+		tp = config.RUNTIMESERVICE_TYPE
+	}
+	if tp == config.GATEWAY_TYPE {
+		tp = config.RUNTIMEGATEWAY_TYPE
+	}
+	res := client.Get_object(key, tp)
 	if key != config.EMPTY_FLAG {
 		fmt.Printf("Key: %v\n", key)
 	}
-
 	if tp == config.POD_TYPE {
 		table, _ := gotable.Create("Name", "Uuid", "Status", "Belong", "Bind", "ClusterIP")
 		for _, pod := range res {
@@ -84,6 +89,28 @@ func doit(cmd *cobra.Command, args []string) {
 				row["Status"] = nodeObject.Runtime.Status
 				row["PublicIP"] = nodeObject.Spec.Ip
 				row["ClusterIP"] = nodeObject.Runtime.ClusterIp
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
+	if tp == config.RUNTIMESERVICE_TYPE {
+		table, _ := gotable.Create("Name", "Uuid", "Status", "Selector", "Type", "IP", "Port", "Endpoints")
+		for _, service := range res {
+			var runtimeServiceObject object.RuntimeService
+			json.Unmarshal([]byte(service), &runtimeServiceObject)
+			rows := make([]map[string]string, 0)
+			if runtimeServiceObject.Service.Runtime.Status != config.EXIT_STATUS {
+				row := make(map[string]string)
+				row["Name"] = runtimeServiceObject.Service.Metadata.Name
+				row["Uuid"] = runtimeServiceObject.Service.Runtime.Uuid
+				row["Status"] = runtimeServiceObject.Service.Runtime.Status
+				row["Selector"] = object.SerializeSelectorList(runtimeServiceObject.Service.Spec.Selector)
+				row["Type"] = runtimeServiceObject.Service.Spec.Type
+				row["IP"] = runtimeServiceObject.Service.Runtime.ClusterIp
+				row["Port"] = object.SerializeEndPortsList(runtimeServiceObject.Service.Spec.Ports)
+				row["Endpoints"] = object.SerializeEndPointsList(runtimeServiceObject.Pods)
 				rows = append(rows, row)
 			}
 			table.AddRows(rows)
