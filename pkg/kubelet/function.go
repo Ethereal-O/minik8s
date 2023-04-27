@@ -175,6 +175,14 @@ func calculateMemPercent(stats types.StatsJSON) float64 {
 	return memPercent
 }
 
+func avg(arr []float64) float64 {
+	sum := 0.0
+	for _, x := range arr {
+		sum += x
+	}
+	return sum / float64(len(arr))
+}
+
 // ------------------Image------------------
 
 func waitForPullComplete(events io.ReadCloser) {

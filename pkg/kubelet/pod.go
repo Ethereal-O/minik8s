@@ -3,8 +3,8 @@ package kubelet
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/docker/docker/api/types"
+	"github.com/prometheus/client_golang/prometheus"
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
@@ -37,6 +37,10 @@ func ProbeCycle(pod *object.Pod, containerIdList []string) {
 	ctx := context.Background()
 	for {
 		time.Sleep(5 * time.Second)
+
+		var containerMemoryPercentageList []float64
+		var containerCpuPercentageList []float64
+
 		for _, containerId := range containerIdList {
 			containerStats, err := Client.ContainerStats(ctx, containerId, false)
 			if err != nil {
@@ -49,9 +53,16 @@ func ProbeCycle(pod *object.Pod, containerIdList []string) {
 			}
 			cpuPercent := calculateCPUPercent(stats)
 			memPercent := calculateMemPercent(stats)
-			//this can be viewed in worker.log now
-			fmt.Printf("[container:%s] (cpuPercent:%.10f),(memPercent:%.10f)\n",
-				containerId, cpuPercent, memPercent)
+			//fmt.Printf("[container:%s] (cpuPercent:%.10f),(memPercent:%.10f)\n",
+			//	containerId, cpuPercent, memPercent)
+			containerMemoryPercentageList = append(containerMemoryPercentageList, memPercent)
+			containerCpuPercentageList = append(containerCpuPercentageList, cpuPercent)
 		}
+
+		podAvgMemoryPrecentage := avg(containerMemoryPercentageList)
+		podAvgCpuPrecentage := avg(containerCpuPercentageList)
+		memoryPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgMemoryPrecentage)
+		cpuPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgCpuPrecentage)
+
 	}
 }

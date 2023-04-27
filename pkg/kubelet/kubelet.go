@@ -9,6 +9,7 @@ import (
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/weave"
+	"time"
 )
 
 var Exited = make(chan bool)
@@ -18,11 +19,13 @@ func Start_kubelet() {
 	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
 	nodeChan, nodeStop := messging.Watch("/"+config.NODE_TYPE, true)
 
-	autoAddNode()
-	fmt.Println("Kubelet start")
-
 	go dealPod(podChan)
 	go dealNode(nodeChan)
+	go start_monitor()
+
+	time.Sleep(5 * time.Second)
+	autoAddNode()
+	fmt.Println("Kubelet start")
 
 	// Wait until Ctrl-C
 	<-ToExit
@@ -64,14 +67,16 @@ func dealNode(nodeChan chan string) {
 			if mes == "hello" {
 				continue
 			}
-			// fmt.Println("[this]", mes)
+			fmt.Println("[this]", mes)
 			var tarNode object.Node
 			err := json.Unmarshal([]byte(mes), &tarNode)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
 			if tarNode.Runtime.Status == config.CREATED_STATUS {
+				fmt.Println("[weave.Expose start]")
 				err = weave.Expose(tarNode.Runtime.ClusterIp + network.Mask)
+				fmt.Println("[weave.Expose end]")
 				if err != nil {
 					fmt.Println("[Kubelet] Failed to start node!")
 					fmt.Println(err.Error())
