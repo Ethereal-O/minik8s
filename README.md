@@ -4,8 +4,9 @@
 2. Install weave, see `scripts/helper/weave_setup.sh`
 3. Install ETCD, see `https://blog.csdn.net/qq_42874635/article/details/126906174`
 4. Install NSQ, see `https://nsq.io/overview/quick_start.html`
-5. Configure `master_ip.txt`, just input the **IP address of master node**
-6. Enjoy hacking!
+5. Install Prometheus, see `https://blog.csdn.net/qzcsu/article/details/124770699` (version:2.43.0)
+6. Configure `master_ip.txt`, just input the **IP address of master node**
+7. Enjoy hacking!
 
 **Usage:**
 

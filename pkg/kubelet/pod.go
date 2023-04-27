@@ -2,6 +2,7 @@ package kubelet
 
 import (
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
@@ -66,6 +67,9 @@ func ProbeCycle(pod *object.Pod) {
 			return
 		default:
 			time.Sleep(1 * time.Second)
+			var containerMemoryPercentageList []float64
+			var containerCpuPercentageList []float64
+
 			for _, containerId := range pod.Runtime.Containers {
 				inspection, err := Client.ContainerInspect(Ctx, containerId)
 				if err != nil {
@@ -85,7 +89,13 @@ func ProbeCycle(pod *object.Pod) {
 				//this can be viewed in worker.log now
 				fmt.Printf("[container:%s] (cpuPercent:%.10f),(memPercent:%.10f)\n",
 					containerId, status.CpuPercent, status.MemPercent)
+				containerMemoryPercentageList = append(containerMemoryPercentageList, status.MemPercent)
+				containerCpuPercentageList = append(containerCpuPercentageList, status.CpuPercent)
 			}
+			podAvgMemoryPrecentage := avg(containerMemoryPercentageList)
+			podAvgCpuPrecentage := avg(containerCpuPercentageList)
+			memoryPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgMemoryPrecentage)
+			cpuPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgCpuPrecentage)
 		}
 	}
 }
