@@ -9,7 +9,7 @@ func createSinglePod(singleService *SingleService, podInfo PodInfo, id int) *Sin
 	singlePod := &SinglePod{
 		Table:    singleService.Table,
 		Parent:   singleService.Name,
-		Name:     SINGLE_POD + podInfo.PodName + podInfo.PodPort,
+		Name:     SINGLE_POD + "-" + podInfo.PodName + "-" + podInfo.PodPort,
 		Protocol: singleService.Protocol,
 		PodName:  podInfo.PodName,
 		Id:       id,

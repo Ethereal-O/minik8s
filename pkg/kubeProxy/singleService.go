@@ -11,7 +11,7 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 		Table:  ROOT_TABLE,
 		Parent: ROOT_CHAIN,
 		// we can specify a single service by its name and port
-		Name:        SINGLE_SERVICE + runtimeService.Service.Metadata.Name + "-" + port.Port,
+		Name:        SINGLE_SERVICE + "-" + runtimeService.Service.Metadata.Name + "-" + port.Port,
 		ClusterPort: port.Port,
 		ClusterIp:   runtimeService.Service.Runtime.ClusterIp,
 		Protocol:    port.Protocol,
