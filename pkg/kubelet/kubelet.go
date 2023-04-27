@@ -24,7 +24,7 @@ func Start_kubelet() {
 	go dealPod(podChan)
 	go dealNode(nodeChan)
 	go start_monitor()
-	
+
 	time.Sleep(5 * time.Second)
 	autoAddNode()
 	fmt.Println("Kubelet start")
@@ -57,7 +57,7 @@ func dealPod(podChan chan string) {
 				} else {
 					fmt.Printf("[Kubelet] Failed to start pod %v!\n", tarPod.Metadata.Name)
 				}
-			} else if tarPod.Runtime.Status == config.EXIT_STATUS {
+			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
 				deleted := DeletePod(&tarPod)
 				if deleted {
 					fmt.Printf("[Kubelet] Pod %v deleted!\n", tarPod.Metadata.Name)
