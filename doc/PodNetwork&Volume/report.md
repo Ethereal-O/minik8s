@@ -42,18 +42,23 @@ spec:
 ```
 
 可见该 Pod 包含两个容器：
-- `nginx-fileserver` 是一个基于 nginx 的文件服务器，监听在 80 端口上，映射到主机的 8888 端口，同时其 `/usr/share/nginx/html/files` 目录挂载在主机的 `/home/os/minik8s/upload` 目录下。
-- `aria2ng-downloader` 是一个文件下载器，监听在 6880 端口上，映射到主机的 6880 端口，同时其 `/data` 目录挂载在主机的 `/home/os/minik8s/download` 目录下。
+
+- `nginx-fileserver` 是一个基于 nginx 的文件服务器，监听在 80 端口上，映射到主机的 8888
+  端口，同时其 `/usr/share/nginx/html/files` 目录挂载在主机的 `/home/os/minik8s/upload` 目录下。
+- `aria2ng-downloader` 是一个文件下载器，监听在 6880 端口上，映射到主机的 6880 端口，同时其 `/data`
+  目录挂载在主机的 `/home/os/minik8s/download` 目录下。
 
 ### 2. 启动
-   
-在项目根目录（`/home/os/minik8s`）下运行 `make prepare`（仅在虚拟机启动后第一次运行前需要执行）和 `make testPod`，再输入 `docker ps`，可见该 Pod 的容器（包括 Pause 容器）已经启动。
+
+在项目根目录（`/home/os/minik8s`）下运行 `make prepare`（仅在虚拟机启动后第一次运行前需要执行）和 `make testPod`
+，再输入 `docker ps`，可见该 Pod 的容器（包括 Pause 容器）已经启动。
 
 ![](image/1.jpg)
 
 ### 3. 上传文件
 
-在主机的 `/home/os/minik8s/upload` 目录下新建文件 `hello`，然后访问 `nginx-fileserver`，即 `http://localhost:8888`，可见文件 `hello` 已经上传。
+在主机的 `/home/os/minik8s/upload` 目录下新建文件 `hello`，然后访问 `nginx-fileserver`，即 `http://localhost:8888`
+，可见文件 `hello` 已经上传。
 
 ![](image/2.jpg)
 
@@ -63,7 +68,8 @@ spec:
 
 ### 4. 下载文件
 
-访问 `aria2ng-downloader`，即 `http://localhost:6880`，下载文件 `http://localhost:80/files/hello`， 可见文件 `hello` 可以正常下载，且在主机的 `/home/os/minik8s/download` 目录下也能访问到文件 `hello`。
+访问 `aria2ng-downloader`，即 `http://localhost:6880`，下载文件 `http://localhost:80/files/hello`， 可见文件 `
+hello` 可以正常下载，且在主机的 `/home/os/minik8s/download` 目录下也能访问到文件 `hello`。
 
 ![](image/4.jpg)
 

@@ -4,6 +4,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
+	"minik8s/pkg/object"
 	"time"
 )
 
@@ -66,6 +67,7 @@ type CreateConfig struct {
 	Links        []string              // List of links (name:alias)
 	Binds        []string              // List of volume bindings of the container
 	VolumesFrom  []string              // List of volumes to take from other containers
+	Limits       object.Limits         // CPU/Memory Limits of container
 }
 
 // StartConfig : arguments to start a container

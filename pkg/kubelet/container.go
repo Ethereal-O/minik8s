@@ -9,6 +9,7 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/weave"
+	"strconv"
 )
 
 var Ctx = context.Background()
@@ -24,15 +25,7 @@ func newClient() *client.Client {
 }
 
 func CreateContainer(name string, config *CreateConfig) (string, error) {
-	res, err := Client.ContainerCreate(Ctx, &container.Config{
-		Image:        config.Image,
-		Labels:       config.Labels,
-		Entrypoint:   config.Entrypoint,
-		Cmd:          config.Cmd,
-		Env:          config.Env,
-		Volumes:      config.Volumes,
-		ExposedPorts: config.ExposedPorts,
-	}, &container.HostConfig{
+	var hostConfig = container.HostConfig{
 		IpcMode:      config.IpcMode,
 		PidMode:      config.PidMode,
 		NetworkMode:  config.NetworkMode,
@@ -40,7 +33,24 @@ func CreateContainer(name string, config *CreateConfig) (string, error) {
 		Links:        config.Links,
 		Binds:        config.Binds,
 		VolumesFrom:  config.VolumesFrom,
-	}, nil, nil, name)
+	}
+	CPUs, err := strconv.ParseFloat(config.Limits.Cpu, 64)
+	MiB, err := strconv.ParseFloat(config.Limits.Memory, 64)
+	hostConfig.CPUPeriod = CPUPeriod
+	hostConfig.CPUQuota = int64(float64(CPUPeriod) * CPUs)
+	hostConfig.Memory = int64(MiB * 1024 * 1024)
+
+	var containerConfig = container.Config{
+		Image:        config.Image,
+		Labels:       config.Labels,
+		Entrypoint:   config.Entrypoint,
+		Cmd:          config.Cmd,
+		Env:          config.Env,
+		Volumes:      config.Volumes,
+		ExposedPorts: config.ExposedPorts,
+	}
+
+	res, err := Client.ContainerCreate(Ctx, &containerConfig, &hostConfig, nil, nil, name)
 	return res.ID, err
 }
 
@@ -77,6 +87,7 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 		NetworkMode: container.NetworkMode(pauseContainerRef),
 		Binds:       getVolumeBinds(pod, myContainer),
 		VolumesFrom: []string{pauseContainerFullName},
+		Limits:      myContainer.Limits,
 	})
 	return name, ID, err
 }
