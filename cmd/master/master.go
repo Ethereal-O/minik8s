@@ -29,6 +29,7 @@ func doit(cmd *cobra.Command, args []string) {
 	// Wait for API Server to start
 	time.Sleep(1 * time.Second)
 	go controller.Start_rsController()
+	go controller.Start_hpaController()
 	go scheduler.Start_scheduler()
 	go services.StartServiceManager()
 	//go services.StartDnsManager()
@@ -36,9 +37,11 @@ func doit(cmd *cobra.Command, args []string) {
 	// Gracefully exit after Ctrl-C
 	<-c
 	controller.RSToExit <- true
+	controller.HpaToExit <- true
 	scheduler.ToExit <- true
 	services.ToExit <- true
 	<-controller.RSExited
+	<-controller.HpaExited
 	<-scheduler.Exited
 	<-services.Exited
 

@@ -10,23 +10,24 @@ import (
 )
 
 const (
-	namePrefix = "pod"
-	subSys     = "pod_resource"
-	nameSpace  = "minik8s"
+	NAME_PRIFIX = "pod"
+	SUBSYS      = "podResource"
+	NAMESPACE   = "minik8s"
+	JOBNAME     = "resource_usage"
 )
 
 var memoryPrecentage = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Subsystem: subSys,
-		Namespace: nameSpace,
-		Name:      fmt.Sprintf("%s:%s", namePrefix, "memory"),
+		Subsystem: SUBSYS,
+		Namespace: NAMESPACE,
+		Name:      fmt.Sprintf("%s:%s", NAME_PRIFIX, "memory"),
 	}, []string{"uuid", "podName"})
 
 var cpuPrecentage = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Subsystem: subSys,
-		Namespace: nameSpace,
-		Name:      fmt.Sprintf("%s:%s", namePrefix, "cpu"),
+		Subsystem: SUBSYS,
+		Namespace: NAMESPACE,
+		Name:      fmt.Sprintf("%s:%s", NAME_PRIFIX, "cpu"),
 	}, []string{"uuid", "podName"})
 
 func start_monitor() {

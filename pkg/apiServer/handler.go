@@ -14,6 +14,8 @@ import (
 	"net/http"
 )
 
+//--------------------- Basic Post Handler ---------------------------
+
 func basic_post(c2 echo.Context) error {
 	key := c2.FormValue("key")
 	prix := c2.FormValue("prix")
@@ -48,6 +50,8 @@ func basic_post(c2 echo.Context) error {
 		return c2.String(http.StatusOK, "")
 	}
 }
+
+//--------------------- Pod Handler ---------------------------
 
 func pod_put(c echo.Context) error {
 	podObject := new(object.Pod)
@@ -112,6 +116,8 @@ func pod_delete(c echo.Context) error {
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
+//--------------------- ReplicaSet Handler ---------------------------
+
 func replicaset_put(c echo.Context) error {
 	rsObject := new(object.ReplicaSet)
 	if err := c.Bind(rsObject); err != nil {
@@ -170,6 +176,68 @@ func replicaset_delete(c echo.Context) error {
 	unbind(rsObject.Metadata.Name)
 	return c.String(http.StatusOK, "delete successfully!")
 }
+
+//--------------------- AutoScaler Handler ---------------------------
+
+func autoscaler_put(c echo.Context) error {
+	hpaObject := new(object.AutoScaler)
+	if err := c.Bind(hpaObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if hpaObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		hpaObject.Runtime.Uuid = uuid
+	}
+	if hpaObject.Runtime.Status == "" {
+		hpaObject.Runtime.Status = config.CREATED_STATUS
+	}
+	hpa, err := json.Marshal(hpaObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(hpa)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func autoscaler_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func autoscaler_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var hpaObject object.AutoScaler
+	err := json.Unmarshal([]byte(res[0]), &hpaObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	hpaObject.Runtime.Status = config.EXIT_STATUS
+	hpa, err := json.Marshal(hpaObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(hpa)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+//--------------------- Node Handler ---------------------------
 
 func node_put(c echo.Context) error {
 	nodeObject := new(object.Node)
@@ -233,7 +301,7 @@ func node_delete(c echo.Context) error {
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
-// Service
+//--------------------- Service Handler ---------------------------
 
 func service_put(c echo.Context) error {
 	serviceObject := new(object.Service)
@@ -301,6 +369,8 @@ func service_delete(c echo.Context) error {
 
 	return c.String(http.StatusOK, "delete successfully!")
 }
+
+//--------------------- Runtime Service Handler ---------------------------
 
 func runtimeService_put(c echo.Context) error {
 	runtimeServiceObject := new(object.RuntimeService)

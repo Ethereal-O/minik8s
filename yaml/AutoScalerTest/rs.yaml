@@ -1,0 +1,15 @@
+kind: ReplicaSet
+metadata:
+  name: RS2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: HpaTest
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80

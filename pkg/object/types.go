@@ -79,6 +79,7 @@ type HpaSpec struct {
 	TargetMemoryUtilizationStrategy   string    `yaml:"targetMemoryUtilizationStrategy" json:"targetMemoryUtilizationStrategy"`
 }
 
+// TargetRef Kind only support ReplicaSet type currently
 type TargetRef struct {
 	Kind string `yaml:"kind" json:"kind"`
 	Name string `yaml:"name" json:"name"`

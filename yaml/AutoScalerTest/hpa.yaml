@@ -1,0 +1,14 @@
+kind: AutoScaler
+metadata:
+  name: HpaTest
+spec:
+  minReplicas: 1
+  maxReplicas: 5
+  interval: 5
+  scaleTargetRef:
+    kind: Replicaset
+    name: RS2
+  targetCPUUtilizationPercentage: 1
+  targetCPUUtilizationStrategy: max
+  targetMemoryUtilizationPercentage: 10
+  targetMemoryUtilizationStrategy: average

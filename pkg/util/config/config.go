@@ -9,9 +9,10 @@ var (
 	MASTER_IP string
 	LOCALHOST string
 
-	// ETCD_ENDPOINT / NSQ_PRODUCER are used by only master node
-	ETCD_ENDPOINT string
-	NSQ_PRODUCER  string
+	// ETCD_ENDPOINT / NSQ_PRODUCER / PROMETHEUS_URL are used by only master node
+	ETCD_ENDPOINT  string
+	NSQ_PRODUCER   string
+	PROMETHEUS_URL string
 
 	// APISERVER_URL / NSQ_CONSUMER are used by every worker node
 	APISERVER_URL string
@@ -24,6 +25,7 @@ var (
 const (
 	POD_TYPE            = "Pod"
 	REPLICASET_TYPE     = "ReplicaSet"
+	AUTOSCALER_TYPE     = "AutoScaler"
 	SERVICE_TYPE        = "Service"
 	RUNTIMESERVICE_TYPE = "RuntimeService"
 	NODE_TYPE           = "Node"
@@ -32,7 +34,7 @@ const (
 	RUNTIMEGATEWAY_TYPE = "RuntimeGateway"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE}
+var TP = []string{POD_TYPE, REPLICASET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE}
 
 const EMPTY_FLAG = "none"
 
@@ -57,6 +59,7 @@ func init() {
 
 	ETCD_ENDPOINT = LOCALHOST + ":2379"
 	NSQ_PRODUCER = LOCALHOST + ":4150"
+	PROMETHEUS_URL = "http://" + LOCALHOST + ":9090"
 
 	APISERVER_URL = "http://" + MASTER_IP + ":8080"
 	NSQ_CONSUMER = MASTER_IP + ":4161"

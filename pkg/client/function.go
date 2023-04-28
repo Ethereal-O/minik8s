@@ -231,6 +231,31 @@ func DeleteReplicaSet(replicaSet object.ReplicaSet) string {
 	return Delete_object(replicaSet.Metadata.Name, config.REPLICASET_TYPE)
 }
 
+// --------------------------- AutoScaler ---------------------------
+
+func AddAutoScaler(autoScaler object.AutoScaler) string {
+	autoScalerValue, err := json.Marshal(autoScaler)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(autoScaler.Metadata.Name, string(autoScalerValue), config.AUTOSCALER_TYPE)
+}
+
+func GetAllAutoScalers() []object.AutoScaler {
+	hpaList := Get_object(config.EMPTY_FLAG, config.AUTOSCALER_TYPE)
+	var resList []object.AutoScaler
+	for _, hpa := range hpaList {
+		var hpaObject object.AutoScaler
+		json.Unmarshal([]byte(hpa), &hpaObject)
+		resList = append(resList, hpaObject)
+	}
+	return resList
+}
+
+func DeleteAutoScaler(autoScaler object.AutoScaler) string {
+	return Delete_object(autoScaler.Metadata.Name, config.AUTOSCALER_TYPE)
+}
+
 // --------------------------- Nodes ---------------------------
 
 // TODO: add Node

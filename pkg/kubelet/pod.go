@@ -80,7 +80,8 @@ func ProbeCycle(pod *object.Pod) {
 			var containerMemoryPercentageList []float64
 			var containerCpuPercentageList []float64
 
-			for _, containerId := range pod.Runtime.Containers {
+			//The pause container should not be calculated and is supposed to be with no error
+			for _, containerId := range pod.Runtime.Containers[1:] {
 				inspection, err := Client.ContainerInspect(Ctx, containerId)
 				if err != nil {
 					// Container does not exist, restart the pod!

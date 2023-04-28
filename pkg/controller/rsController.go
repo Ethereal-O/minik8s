@@ -24,7 +24,7 @@ func Start_rsController() {
 	go dealRs(rsChan, handleChan)
 	go dealPod(podChan, handleChan)
 	go handle(handleChan)
-	fmt.Println("Controller start")
+	fmt.Println("Replicaset Controller start")
 
 	// Wait until Ctrl-C
 	<-RSToExit
