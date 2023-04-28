@@ -64,7 +64,7 @@ type Template struct {
 type AutoScaler struct {
 	Kind     string   `yaml:"kind" json:"kind"`
 	Metadata Metadata `yaml:"metadata" json:"metadata"`
-	Spec     RsSpec   `yaml:"spec" json:"spec"`
+	Spec     HpaSpec  `yaml:"spec" json:"spec"`
 	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
 }
 
