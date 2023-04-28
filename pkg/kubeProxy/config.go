@@ -13,6 +13,7 @@ const (
 	ROOT_CHAIN       = "KUBE_PROXY_PARENT_CHAIN"
 	OUTPUT_CHAIN     = "OUTPUT"
 	PREROUTING_CHAIN = "PREROUTING"
+	NODE_PORT        = "NodePort"
 )
 
 type KubeProxyManager struct {
@@ -38,14 +39,17 @@ type RootChain struct {
 }
 
 type SingleService struct {
-	Table        string
-	Parent       string
-	Name         string
-	ClusterIp    string
-	ClusterPort  string
-	Protocol     string
-	SinglePodMap map[string]*SinglePod
-	RuleCommand  []string
+	Table                string
+	Parent               string
+	Name                 string
+	ClusterIp            string
+	ClusterPort          string
+	IsNodePort           bool
+	NodePort             string
+	Protocol             string
+	SinglePodMap         map[string]*SinglePod
+	RuleCommandClusterIp []string
+	RuleCommandNodePort  []string
 }
 
 type SinglePod struct {

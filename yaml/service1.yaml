@@ -2,10 +2,11 @@ kind: Service
 metadata:
   name: Service1
 spec:
-  type: ClusterIp
+  type: NodePort
   ports:
     - port: 80
       targetPort: 80
+      nodePort: 30080
       protocol: TCP
       name: http
   selector:
