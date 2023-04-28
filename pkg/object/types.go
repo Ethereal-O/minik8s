@@ -58,6 +58,32 @@ type Template struct {
 	Spec     PodSpec  `yaml:"spec" json:"spec"`
 }
 
+// --------------------------- Auto Scaler ---------------------------
+
+// AutoScaler only support the ReplicaSet type currently
+type AutoScaler struct {
+	Kind     string   `yaml:"kind" json:"kind"`
+	Metadata Metadata `yaml:"metadata" json:"metadata"`
+	Spec     RsSpec   `yaml:"spec" json:"spec"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
+}
+
+type HpaSpec struct {
+	MinReplicas                       int       `yaml:"minReplicas" json:"minReplicas"`
+	MaxReplicas                       int       `yaml:"maxReplicas" json:"maxReplicas"`
+	Interval                          int       `yaml:"interval" json:"interval"`
+	ScaleTargetRef                    TargetRef `yaml:"scaleTargetRef" json:"scaleTargetRef"`
+	TargetCPUUtilizationPercentage    int       `yaml:"targetCPUUtilizationPercentage" json:"targetCPUUtilizationPercentage"`
+	TargetCPUUtilizationStrategy      string    `yaml:"targetCPUUtilizationStrategy" json:"targetCPUUtilizationStrategy"`
+	TargetMemoryUtilizationPercentage int       `yaml:"targetMemoryUtilizationPercentage" json:"targetMemoryUtilizationPercentage"`
+	TargetMemoryUtilizationStrategy   string    `yaml:"targetMemoryUtilizationStrategy" json:"targetMemoryUtilizationStrategy"`
+}
+
+type TargetRef struct {
+	Kind string `yaml:"kind" json:"kind"`
+	Name string `yaml:"name" json:"name"`
+}
+
 // --------------------------- Pod ---------------------------
 
 type Pod struct {

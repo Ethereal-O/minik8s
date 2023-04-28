@@ -18,6 +18,8 @@ func ReadYaml(file string) (string, string, string) {
 		return parsePod(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: ReplicaSet") {
 		return parseRs(yamlFile)
+	} else if strings.Contains(string(yamlFile), "kind: AutoScaler") {
+		return parseAutoScaler(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: Node") {
 		return parseNode(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: Service") {
@@ -79,6 +81,19 @@ func parseRs(yamlFile []byte) (string, string, string) {
 	key = conf.Metadata.Name
 	inf, err = json.Marshal(&conf)
 	return string(inf), key, "ReplicaSet"
+}
+
+func parseAutoScaler(yamlFile []byte) (string, string, string) {
+	var conf object.AutoScaler
+	var inf []byte
+	var key string
+	err := yaml.Unmarshal(yamlFile, &conf)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	key = conf.Metadata.Name
+	inf, err = json.Marshal(&conf)
+	return string(inf), key, "AutoScaler"
 }
 
 func parseNode(yamlFile []byte) (string, string, string) {
