@@ -47,6 +47,7 @@ func Start_server() {
 	podIPGenerator.Init()
 	serviceIPGenerator.Init()
 	nodeIPGenerator.Init()
+	nodePortGenerator.Init()
 
 	fmt.Println("API Server start at " + config.APISERVER_URL)
 

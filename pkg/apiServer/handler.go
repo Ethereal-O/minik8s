@@ -320,6 +320,13 @@ func service_put(c echo.Context) error {
 	if serviceObject.Runtime.ClusterIp == "" {
 		serviceObject.Runtime.ClusterIp = NewServiceIP()
 	}
+	if serviceObject.Spec.Type == config.SERVICE_TYPE_NODEPORT {
+		for i := 0; i < len(serviceObject.Spec.Ports); i++ {
+			if serviceObject.Spec.Ports[i].NodePort == "" {
+				serviceObject.Spec.Ports[i].NodePort = NewNodePort()
+			}
+		}
+	}
 	service, err := json.Marshal(serviceObject)
 	if err != nil {
 		fmt.Println(err.Error())

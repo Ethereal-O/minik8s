@@ -3,8 +3,8 @@ package kubeProxy
 import (
 	"fmt"
 	"minik8s/pkg/object"
+	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/iptables"
-	"minik8s/pkg/util/network"
 )
 
 func createSingleService(runtimeService *object.RuntimeService, port object.ServicePort, podsInfo []PodInfo) *SingleService {
@@ -15,7 +15,7 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 		Name:        SINGLE_SERVICE + "-" + runtimeService.Service.Metadata.Name + "-" + port.Port,
 		ClusterPort: port.Port,
 		ClusterIp:   runtimeService.Service.Runtime.ClusterIp,
-		IsNodePort:  runtimeService.Service.Spec.Type == NODE_PORT,
+		IsNodePort:  runtimeService.Service.Spec.Type == config.SERVICE_TYPE_NODEPORT,
 		NodePort:    port.NodePort,
 		Protocol:    port.Protocol,
 	}
@@ -44,8 +44,7 @@ func createSingleService(runtimeService *object.RuntimeService, port object.Serv
 
 func (singleService *SingleService) makeRuleCommand() {
 	singleService.RuleCommandClusterIp = []string{"-s", "0/0", "-d", singleService.ClusterIp, "-p", singleService.Protocol, "--dport", singleService.ClusterPort, "-j", singleService.Name}
-	innerIp, _ := network.GetHostIp()
-	singleService.RuleCommandNodePort = []string{"-s", "0/0", "-d", innerIp, "-p", singleService.Protocol, "--dport", singleService.NodePort, "-j", singleService.Name}
+	singleService.RuleCommandNodePort = []string{"-s", "0/0", "-p", singleService.Protocol, "--dport", singleService.NodePort, "-j", singleService.Name}
 }
 
 func (singleService *SingleService) initSingleService() error {

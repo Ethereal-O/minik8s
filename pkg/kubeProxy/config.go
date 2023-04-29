@@ -13,7 +13,6 @@ const (
 	ROOT_CHAIN       = "KUBE_PROXY_PARENT_CHAIN"
 	OUTPUT_CHAIN     = "OUTPUT"
 	PREROUTING_CHAIN = "PREROUTING"
-	NODE_PORT        = "NodePort"
 )
 
 type KubeProxyManager struct {

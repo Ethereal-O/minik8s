@@ -109,7 +109,7 @@ func doit(cmd *cobra.Command, args []string) {
 				row["Selector"] = object.SerializeSelectorList(runtimeServiceObject.Service.Spec.Selector)
 				row["Type"] = runtimeServiceObject.Service.Spec.Type
 				row["IP"] = runtimeServiceObject.Service.Runtime.ClusterIp
-				row["Port"] = object.SerializeEndPortsList(runtimeServiceObject.Service.Spec.Ports)
+				row["Port"] = object.SerializeEndPortsList(runtimeServiceObject.Service.Spec.Ports, runtimeServiceObject.Service.Spec.Type)
 				row["Endpoints"] = object.SerializeEndPointsList(runtimeServiceObject.Pods)
 				rows = append(rows, row)
 			}

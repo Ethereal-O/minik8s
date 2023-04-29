@@ -1,5 +1,7 @@
 package object
 
+import "minik8s/pkg/util/config"
+
 func GetPodsOfRS(rs *ReplicaSet, activePods []Pod) ([]Pod, int) {
 	actualNum := 0
 	var rspodList []Pod
@@ -40,10 +42,14 @@ func SerializeSelectorList(selectorList map[string]string) string {
 	return serialized
 }
 
-func SerializeEndPortsList(servicePortList []ServicePort) string {
+func SerializeEndPortsList(servicePortList []ServicePort, tp string) string {
 	serialized := ""
 	for idx, port := range servicePortList {
-		serialized += port.Port + "->" + port.TargetPort
+		if tp == config.SERVICE_TYPE_NODEPORT {
+			serialized += port.NodePort + ":" + port.Port + "->" + port.TargetPort
+		} else {
+			serialized += port.Port + "->" + port.TargetPort
+		}
 		if idx < len(servicePortList)-1 {
 			serialized += ", "
 		}

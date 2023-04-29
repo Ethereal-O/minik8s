@@ -48,6 +48,11 @@ const (
 	EXIT_STATUS    = "EXIT"
 )
 
+const (
+	SERVICE_TYPE_NODEPORT  = "NodePort"
+	SERVICE_TYPE_CLUSTERIP = "ClusterIP"
+)
+
 func init() {
 	data, err := ioutil.ReadFile("master_ip.txt")
 	if err != nil {
