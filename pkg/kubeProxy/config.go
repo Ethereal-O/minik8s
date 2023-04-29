@@ -6,20 +6,21 @@ import (
 )
 
 const (
-	SINGLE_SERVICE   = "SINGLE_SERVICE"
-	SINGLE_POD       = "SINGLE_POD"
-	SINGLE_NET       = "SINGLE_NET"
-	ROOT_TABLE       = "nat"
-	ROOT_CHAIN       = "KUBE_PROXY_PARENT_CHAIN"
-	OUTPUT_CHAIN     = "OUTPUT"
-	PREROUTING_CHAIN = "PREROUTING"
+	SINGLE_SERVICE    = "Svc"
+	SINGLE_POD        = "POD"
+	SINGLE_NET        = "NET"
+	ROOT_TABLE        = "nat"
+	ROOT_CHAIN        = "KUBE_PROXY_PARENT_CHAIN"
+	OUTPUT_CHAIN      = "OUTPUT"
+	PREROUTING_CHAIN  = "PREROUTING"
+	POSTROUTING_CHAIN = "POSTROUTING"
 )
 
 type KubeProxyManager struct {
 	// RootMap is a map of map, the first key is the service name, the second key is the pod port, and the value is a single service
 	RootMap           map[string]map[string]*SingleService
-	RuntimeServiceMap map[string]object.RuntimeService
-	GatewayMap        map[string]object.Gateway
+	RuntimeServiceMap map[string]*object.RuntimeService
+	RuntimeGatewayMap map[string]*object.RuntimeGateway
 	RootChain         RootChain
 	Lock              sync.Mutex
 }

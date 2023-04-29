@@ -167,7 +167,7 @@ type ServicePort struct {
 
 type Gateway struct {
 	Kind     string      `yaml:"kind" json:"kind"`
-	MetaData Metadata    `json:"metadata" yaml:"metadata"`
+	Metadata Metadata    `json:"metadata" yaml:"metadata"`
 	Spec     GatewaySpec `json:"spec" yaml:"spec"`
 	Runtime  Runtime     `yaml:"runtime" json:"runtime"`
 }
@@ -178,8 +178,8 @@ type GatewaySpec struct {
 }
 
 type Path struct {
-	Name    string  `yaml:"name" json:"name"`
-	Service Service `yaml:"service" json:"service"`
-	IP      string  `yaml:"ip" json:"ip"`
-	Port    string  `yaml:"port" json:"port"`
+	Name    string `yaml:"name" json:"name"`
+	Service string `yaml:"service" json:"service"`
+	IP      string `yaml:"ip" json:"ip"`
+	Port    string `yaml:"port" json:"port"`
 }

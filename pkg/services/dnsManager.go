@@ -6,19 +6,15 @@ import (
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 )
 
 var dnsManager *DnsManager
-var dnsManagerExited = make(chan bool)
-var dnsManagerToExit = make(chan os.Signal)
 
 func createDnsManager() *DnsManager {
 	dnsManager := &DnsManager{}
-	dnsManager.GatewayMap = make(map[string]object.RuntimeGateway)
+	dnsManager.ToBeDoneGatewayMap = make(map[string]object.RuntimeGateway)
+	dnsManager.GatewayMap = make(map[string]*object.RuntimeGateway)
 	var lock sync.Mutex
 	dnsManager.Lock = lock
 	return dnsManager
@@ -27,14 +23,15 @@ func createDnsManager() *DnsManager {
 func StartDnsManager() {
 	dnsManager = createDnsManager()
 	dnsManager.initDnsManager()
-	signal.Notify(dnsManagerToExit, syscall.SIGINT, syscall.SIGTERM)
 	gatewayChan, dnsStop := messging.Watch("/"+config.GATEWAY_TYPE, true)
 	go dealGateway(gatewayChan)
 
 	// Wait until Ctrl-C
-	<-dnsManagerToExit
+	<-ToExit
+	// please note: dnsManager is not have duty to delete dns service and replica set, otherwise it will cause double delete
+	// serviceManager and replicaSetManager will manage the lifecycle of dns service and replica set
 	dnsStop()
-	dnsManagerExited <- true
+	Exited <- true
 }
 
 func dealGateway(gatewayChan chan string) {

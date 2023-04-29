@@ -3,10 +3,12 @@ package kubelet
 import (
 	"context"
 	"fmt"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"minik8s/pkg/object"
+	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/weave"
 )
@@ -36,6 +38,7 @@ func CreateContainer(name string, config *CreateConfig) (string, error) {
 			Memory:   config.Memory,
 			NanoCPUs: config.NanoCPUs,
 		},
+		DNS: config.DNS,
 	}
 
 	var containerConfig = container.Config{
@@ -157,6 +160,7 @@ func CreatePauseContainer(pod *object.Pod) (string, string, error) {
 		IpcMode:      "shareable",
 		PortBindings: portBindings,
 		Binds:        nil,
+		DNS:          []string{config.DNS_SERVER},
 	})
 	return name, ID, err
 }
@@ -200,4 +204,8 @@ func StartPauseContainer(pod *object.Pod) (bool, string) {
 	}
 
 	return true, ID
+}
+
+func GetAllRunningContainers() ([]types.Container, error) {
+	return Client.ContainerList(Ctx, types.ContainerListOptions{})
 }

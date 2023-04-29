@@ -51,6 +51,7 @@ const (
 const (
 	SERVICE_TYPE_NODEPORT  = "NodePort"
 	SERVICE_TYPE_CLUSTERIP = "ClusterIP"
+	DNS_SERVICE_NAME       = "DNS-Svc"
 )
 
 func init() {

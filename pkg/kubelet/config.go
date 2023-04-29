@@ -56,6 +56,7 @@ type CreateConfig struct {
 	VolumesFrom  []string              // List of volumes to take from other containers
 	Memory       int64                 // Memory Limit of the container(in bytes)
 	NanoCPUs     int64                 // CPU Limit of the container(in units of 10<sup>-9</sup> CPUs)
+	DNS          []string              // List of DNS server to lookup
 }
 
 // StartConfig : arguments to start a container

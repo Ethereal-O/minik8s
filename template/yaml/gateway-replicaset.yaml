@@ -1,0 +1,26 @@
+kind: ReplicaSet
+metadata:
+  name: Gtw-RS
+  labels:
+    bound: Gateway
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: Gtw-Pod
+      labels:
+        bound: Gateway
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: Gtw-Cont
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: Gtw-Volume
+              mountPath: /etc/nginx
+      volumes:
+        - name: Gtw-Volume
+          type: hostPath
+          path: /home/os/minik8s/Gateway

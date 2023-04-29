@@ -5,6 +5,7 @@ WORKER=$(shell ./scripts/worker.sh)
 
 TESTPOD=$(shell ./scripts/testPod.sh)
 TESTSERVICE=$(shell ./scripts/testService.sh)
+TESTGATEWAY=$(shell ./scripts/testGateway.sh)
 TESTRS=$(shell ./scripts/testRS.sh)
 TESTSTRESS=$(shell ./scripts/testStress.sh)
 
@@ -37,6 +38,11 @@ testPod: master
 .PHONY:testService
 testService: master
 	@echo $(TESTSERVICE)
+
+# Build k8s, run a master, a worker, a Pod, a Service, a Gateway on one host
+.PHONY:testGateway
+testGateway: master
+	@echo $(TESTGATEWAY)
 
 # Build k8s, run a master, a worker, a RS, a Service on one host
 .PHONY:testRS

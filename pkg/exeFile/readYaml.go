@@ -65,7 +65,7 @@ func parseGateway(yamlFile []byte) (string, string, string) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	key = conf.MetaData.Name
+	key = conf.Metadata.Name
 	inf, err = json.Marshal(&conf)
 	return string(inf), key, "Gateway"
 }

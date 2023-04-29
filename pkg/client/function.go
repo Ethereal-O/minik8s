@@ -172,11 +172,11 @@ func AddGateway(gateway object.Gateway) string {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	return Put_object(gateway.MetaData.Name, string(gatewayValue), config.GATEWAY_TYPE)
+	return Put_object(gateway.Metadata.Name, string(gatewayValue), config.GATEWAY_TYPE)
 }
 
 func DeleteGateway(gateway object.Gateway) string {
-	return Delete_object(gateway.MetaData.Name, config.GATEWAY_TYPE)
+	return Delete_object(gateway.Metadata.Name, config.GATEWAY_TYPE)
 }
 
 // --------------------------- RuntimeGateway ---------------------------
@@ -197,11 +197,11 @@ func AddRuntimeGateway(runtimeGateway object.RuntimeGateway) string {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	return Put_object(runtimeGateway.Gateway.MetaData.Name, string(gatewayStatusValue), config.RUNTIMEGATEWAY_TYPE)
+	return Put_object(runtimeGateway.Gateway.Metadata.Name, string(gatewayStatusValue), config.RUNTIMEGATEWAY_TYPE)
 }
 
 func DeleteRuntimeGateway(runtimeGateway object.RuntimeGateway) string {
-	return Delete_object(runtimeGateway.Gateway.MetaData.Name, config.RUNTIMEGATEWAY_TYPE)
+	return Delete_object(runtimeGateway.Gateway.Metadata.Name, config.RUNTIMEGATEWAY_TYPE)
 }
 
 // --------------------------- ReplicaSet ---------------------------

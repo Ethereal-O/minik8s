@@ -1,0 +1,5 @@
+.:53 {
+        hosts {
+          import hosts.conf
+        }
+}

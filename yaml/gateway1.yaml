@@ -1,0 +1,11 @@
+kind: Gateway
+metadata:
+  name: gateway1
+  labels:
+    app: myApp
+spec:
+  host: minik8s.com
+  paths:
+    - name: /service/
+      service: Service1
+      port: 80

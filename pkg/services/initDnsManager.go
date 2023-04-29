@@ -1,8 +1,8 @@
 package services
 
 import (
+	"fmt"
 	"minik8s/pkg/client"
-	"minik8s/pkg/util/config"
 	"time"
 )
 
@@ -38,9 +38,10 @@ func (dnsManager *DnsManager) checkDns() {
 	if len(nodeRes) == 0 {
 		return
 	}
-	dnsRes := client.GetRuntimeServiceByKey(config.DNS_TYPE)
+	dnsRes := client.GetServiceByKey(DNS_SERVICE_NAME)
 	// if existed, don't need to create
 	if dnsRes != nil {
+		fmt.Printf(dnsRes[0].Metadata.Name + " existed\n")
 		return
 	}
 	// create dns replica set
@@ -59,17 +60,25 @@ func (dnsManager *DnsManager) checkGateway() {
 func (dnsManager *DnsManager) transferGatewayToKubeProxy() {
 	// wait until service online and transfer to kube-proxy
 	var removes []string
-	for gatewayName, gateWayStatus := range dnsManager.GatewayMap {
+	for gatewayName, runtimeGateWay := range dnsManager.ToBeDoneGatewayMap {
 		resList := client.GetRuntimeServiceByKey(GATEWAY_SERVICE_PREFIX + gatewayName)
 		if len(resList) == 0 {
 			continue
 		}
-		gateWayStatus.Status = GATEWAY_STATUS_DEPLOYING
-		gateWayStatus.ClusterIp = resList[0].Service.Runtime.ClusterIp
-		client.AddRuntimeGateway(gateWayStatus)
+		runtimeGateWay.Status = GATEWAY_STATUS_DEPLOYING
+		runtimeGateWay.ClusterIp = resList[0].Service.Runtime.ClusterIp
+		for key, path := range runtimeGateWay.Gateway.Spec.Paths {
+			runtimeService, ok := serviceManager.ServiceMap[path.Service]
+			if !ok {
+				fmt.Printf("service %s not found\n", path.Service)
+				continue
+			}
+			runtimeGateWay.Gateway.Spec.Paths[key].IP = runtimeService.Service.Runtime.ClusterIp
+		}
+		client.AddRuntimeGateway(runtimeGateWay)
 		removes = append(removes, gatewayName)
 	}
 	for _, gateway := range removes {
-		delete(dnsManager.GatewayMap, gateway)
+		delete(dnsManager.ToBeDoneGatewayMap, gateway)
 	}
 }

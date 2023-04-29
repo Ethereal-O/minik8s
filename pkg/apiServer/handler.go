@@ -318,7 +318,11 @@ func service_put(c echo.Context) error {
 		serviceObject.Runtime.Status = config.RUNNING_STATUS
 	}
 	if serviceObject.Runtime.ClusterIp == "" {
-		serviceObject.Runtime.ClusterIp = NewServiceIP()
+		if serviceObject.Metadata.Name == config.DNS_SERVICE_NAME {
+			serviceObject.Runtime.ClusterIp = config.DNS_SERVER
+		} else {
+			serviceObject.Runtime.ClusterIp = NewServiceIP()
+		}
 	}
 	if serviceObject.Spec.Type == config.SERVICE_TYPE_NODEPORT {
 		for i := 0; i < len(serviceObject.Spec.Ports); i++ {
@@ -393,12 +397,12 @@ func runtimeService_put(c echo.Context) error {
 	if runtimeServiceObject.Service.Runtime.Status == "" {
 		runtimeServiceObject.Service.Runtime.Status = config.RUNNING_STATUS
 	}
-	serviceStatus, err := json.Marshal(runtimeServiceObject)
+	runtimeService, err := json.Marshal(runtimeServiceObject)
 	if err != nil {
 		fmt.Println(err.Error())
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	if err2 := etcd.Set_etcd(key, string(serviceStatus)); err2 != nil {
+	if err2 := etcd.Set_etcd(key, string(runtimeService)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.String(http.StatusOK, "ok")
@@ -435,6 +439,135 @@ func runtimeService_delete(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	if err2 := etcd.Set_etcd(key, string(runtimeService)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+//--------------------- Gateway Handler ---------------------------
+
+func gateway_put(c echo.Context) error {
+	gatewayObject := new(object.Gateway)
+	if err := c.Bind(gatewayObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	// create
+	if gatewayObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		gatewayObject.Runtime.Uuid = uuid
+	}
+	if gatewayObject.Runtime.Status == "" {
+		gatewayObject.Runtime.Status = config.RUNNING_STATUS
+	}
+	gateway, err := json.Marshal(gatewayObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gateway)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func gateway_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func gateway_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	//err := etcd.Del_etcd(key)
+	//if err != nil {
+	//	return c.String(http.StatusInternalServerError, "delete failed!")
+	//}
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var gatewayObject object.Gateway
+	err := json.Unmarshal([]byte(res[0]), &gatewayObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	gatewayObject.Runtime.Status = config.EXIT_STATUS
+	gateway, err := json.Marshal(gatewayObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gateway)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+//--------------------- Runtime Gateway Handler ---------------------------
+
+func runtimeGateway_put(c echo.Context) error {
+	runtimeGatewayObject := new(object.RuntimeGateway)
+	if err := c.Bind(runtimeGatewayObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	// create
+	if runtimeGatewayObject.Gateway.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		runtimeGatewayObject.Gateway.Runtime.Uuid = uuid
+	}
+	if runtimeGatewayObject.Gateway.Runtime.Status == "" {
+		runtimeGatewayObject.Gateway.Runtime.Status = config.RUNNING_STATUS
+	}
+	runtimeGateway, err := json.Marshal(runtimeGatewayObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(runtimeGateway)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func runtimeGateway_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	fmt.Println(key)
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func runtimeGateway_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var runtimeGatewayObject object.RuntimeGateway
+	err := json.Unmarshal([]byte(res[0]), &runtimeGatewayObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	runtimeGatewayObject.Gateway.Runtime.Status = config.EXIT_STATUS
+	// because we unlock the lock in the runtimeService_put, so we don't need to unlock it here
+	runtimeGateway, err := json.Marshal(runtimeGatewayObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(runtimeGateway)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.String(http.StatusOK, "delete successfully!")

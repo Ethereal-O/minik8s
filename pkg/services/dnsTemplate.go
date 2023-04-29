@@ -58,13 +58,8 @@ func (dnsManager *DnsManager) initGateWayServiceTemplate() {
 	dnsManager.DnsTemplates.GateWayServiceTemplate = serviceObject
 }
 
-func GetGateWayReplicaSet(gatewayName string) object.ReplicaSet {
-	template := dnsManager.DnsTemplates.GateWayReplicaSetTemplate
-	template.Metadata.Name = GATEWAY_REPLICASET_PREFIX + gatewayName
-	template.Spec.Template.Metadata.Labels[DNS_GATEWAY_SELECTOR] = gatewayName
-	template.Spec.Template.Metadata.Name = GATEWAY_POD_PREFIX + gatewayName
-	template.Spec.Template.Spec.Volumes[0].Path = NGINX_PATH_PREFIX + "/" + gatewayName
-	template.Spec.Template.Spec.Containers[0].Name = GATEWAY_CONTAINER_PREFIX + gatewayName
+func GetDnsReplicaSet() object.ReplicaSet {
+	template := dnsManager.DnsTemplates.DnsReplicaSetTemplate
 	return template
 }
 
@@ -73,8 +68,13 @@ func GetDnsService() object.Service {
 	return template
 }
 
-func GetDnsReplicaSet() object.ReplicaSet {
-	template := dnsManager.DnsTemplates.DnsReplicaSetTemplate
+func GetGateWayReplicaSet(gatewayName string) object.ReplicaSet {
+	template := dnsManager.DnsTemplates.GateWayReplicaSetTemplate
+	template.Metadata.Name = GATEWAY_REPLICASET_PREFIX + gatewayName
+	template.Spec.Template.Metadata.Labels[DNS_GATEWAY_SELECTOR] = gatewayName
+	template.Spec.Template.Metadata.Name = GATEWAY_POD_PREFIX + gatewayName
+	template.Spec.Template.Spec.Volumes[0].Path = NGINX_PATH_PREFIX + "/" + gatewayName
+	template.Spec.Template.Spec.Containers[0].Name = GATEWAY_CONTAINER_PREFIX + gatewayName
 	return template
 }
 

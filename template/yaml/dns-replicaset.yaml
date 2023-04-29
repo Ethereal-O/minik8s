@@ -1,0 +1,27 @@
+kind: ReplicaSet
+metadata:
+  name: DNS-RS
+  labels:
+    bound: DNS
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: DNS-Pod
+      labels:
+        bound: DNS
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: DNS-Cont
+          image: coredns/coredns:latest
+          ports:
+            - containerPort: 53
+          volumeMounts:
+            - name: DNS-Volume
+              mountPath: /etc/dns
+          args: ["-conf", "/etc/dns/corefile" ]
+      volumes:
+        - name: DNS-Volume
+          type: hostPath
+          path: /home/os/minik8s/DNS

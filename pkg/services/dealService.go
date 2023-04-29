@@ -29,12 +29,12 @@ func dealExitService(service *object.Service) {
 func createService(service *object.Service) {
 	serviceManager.Lock.Lock()
 	defer serviceManager.Lock.Unlock()
-	runtimeService := object.RuntimeService{
+	runtimeService := &object.RuntimeService{
 		Service: *service,
 		Lock:    sync.Mutex{},
 		Pods:    []object.Pod{},
 	}
-	InitRuntimeService(&runtimeService)
+	InitRuntimeService(runtimeService)
 	serviceManager.ServiceMap[service.Metadata.Name] = runtimeService
 }
 
@@ -46,7 +46,7 @@ func deleteService(service *object.Service) {
 		return
 	}
 	runtimeService.Timer.Stop()
-	ret := client.DeleteRuntimeService(runtimeService)
+	ret := client.DeleteRuntimeService(*runtimeService)
 	fmt.Println(ret)
 	delete(serviceManager.ServiceMap, service.Metadata.Name)
 }

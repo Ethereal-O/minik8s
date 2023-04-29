@@ -32,7 +32,7 @@ func doit(cmd *cobra.Command, args []string) {
 	go controller.Start_hpaController()
 	go scheduler.Start_scheduler()
 	go services.StartServiceManager()
-	//go services.StartDnsManager()
+	go services.StartDnsManager()
 
 	// Gracefully exit after Ctrl-C
 	<-c
