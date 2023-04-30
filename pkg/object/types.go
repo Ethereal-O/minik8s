@@ -14,6 +14,9 @@ type Metadata struct {
 type Runtime struct {
 	Uuid   string `yaml:"uuid" json:"uuid"`
 	Status string `yaml:"status" json:"status"`
+	// When a pod is deleted, PreStatus is used to decide whether the docker should stop the contianer
+	// Because the bound status is also seen as activePod but hasn't run its containers
+	PreStatus string `yaml:"preStatus" json:"preStatus"`
 	// When a pod belongs to a replica set, Belong refers to the Name of the replica set
 	Belong string `yaml:"belong" json:"belong"`
 	// When a pod is bound to a node, Bind refers to the Name of the node
