@@ -97,9 +97,8 @@ func ProbeCycle(pod *object.Pod) {
 					PodException(pod)
 					return
 				}
-				//this can be viewed in worker.log now
-				fmt.Printf("[container:%s] (cpuPercent:%.10f),(memPercent:%.10f)\n",
-					containerId, status.CpuPercent, status.MemPercent)
+				//fmt.Printf("[container:%s] (cpuPercent:%.10f),(memPercent:%.10f)\n",
+				//	containerId, status.CpuPercent, status.MemPercent)
 				containerMemoryPercentageList = append(containerMemoryPercentageList, status.MemPercent)
 				containerCpuPercentageList = append(containerCpuPercentageList, status.CpuPercent)
 			}
