@@ -58,16 +58,11 @@ func dealPod(podChan chan string) {
 					fmt.Printf("[Kubelet] Failed to start pod %v!\n", tarPod.Metadata.Name)
 				}
 			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
-				if tarPod.Runtime.PreStatus == config.RUNNING_STATUS {
-					deleted := DeletePod(&tarPod)
-					if deleted {
-						fmt.Printf("[Kubelet] Pod %v deleted!(running->exit)\n", tarPod.Metadata.Name)
-					} else {
-						fmt.Printf("[Kubelet] Failed to delete pod %v!\n", tarPod.Metadata.Name)
-					}
+				deleted := DeletePod(&tarPod)
+				if deleted {
+					fmt.Printf("[Kubelet] Pod %v deleted!\n", tarPod.Metadata.Name)
 				} else {
-					// The bound status hasn't even run its containers!
-					fmt.Printf("[Kubelet] Pod %v deleted!(bound->exit)\n", tarPod.Metadata.Name)
+					fmt.Printf("[Kubelet] Failed to delete pod %v!\n", tarPod.Metadata.Name)
 				}
 			}
 		}
