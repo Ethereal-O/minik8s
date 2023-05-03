@@ -39,8 +39,8 @@ fi
 # here to copy file to /home/os/minik8s/DNS, so that we can use it in minik8s
 sudo rm -rf /home/os/minik8s/DNS > /dev/null 2>&1
 sudo rm -rf /home/os/minik8s/Gateway > /dev/null 2>&1
-sudo mkdir /home/os/minik8s/DNS > /dev/null 2>&1
-sudo mkdir /home/os/minik8s/Gateway > /dev/null 2>&1
+sudo mkdir -p /home/os/minik8s/DNS > /dev/null 2>&1
+sudo mkdir -p /home/os/minik8s/Gateway > /dev/null 2>&1
 sudo cp ./template/config/CORE_DNS_CONFIG/* /home/os/minik8s/DNS > /dev/null 2>&1
 echo "[Master] DNS config created!" 1>&2
 
