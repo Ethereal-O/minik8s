@@ -4,7 +4,7 @@ const (
 	PodIPGeneratorURL         = "/ip_generator/pod"
 	PodIPGeneratorInitIP      = "10.10.1.1"
 	ServiceIPGeneratorURL     = "/ip_generator/service"
-	ServiceIPGeneratorInitIP  = "10.10.20.1"
+	ServiceIPGeneratorInitIP  = "100.10.1.1"
 	NodeIPGeneratorURL        = "/ip_generator/node"
 	NodeIPGeneratorInitIP     = "10.10.0.1"
 	NodePortGeneratorURL      = "/port_generator/node"

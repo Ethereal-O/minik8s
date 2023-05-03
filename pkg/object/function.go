@@ -46,9 +46,9 @@ func SerializeEndPortsList(servicePortList []ServicePort, tp string) string {
 	serialized := ""
 	for idx, port := range servicePortList {
 		if tp == config.SERVICE_TYPE_NODEPORT {
-			serialized += port.NodePort + ":" + port.Port + "->" + port.TargetPort
+			serialized += port.NodePort + ":" + port.Port + "->" + port.TargetPort + "(" + port.Protocol + ")"
 		} else {
-			serialized += port.Port + "->" + port.TargetPort
+			serialized += port.Port + "->" + port.TargetPort + "(" + port.Protocol + ")"
 		}
 		if idx < len(servicePortList)-1 {
 			serialized += ", "
