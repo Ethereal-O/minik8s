@@ -42,6 +42,11 @@ func StartPod(pod *object.Pod) bool {
 }
 
 func DeletePod(pod *object.Pod) bool {
+	// Step 0: If the pod has not run its containers, just return
+	if len(pod.Runtime.Containers) == 0 {
+		return true
+	}
+
 	// Step 1: Stop probe cycle
 	PodToExit[pod.Runtime.Uuid] <- true
 	<-PodExited[pod.Runtime.Uuid]

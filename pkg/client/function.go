@@ -71,8 +71,6 @@ func GetActivePods() []object.Pod {
 }
 
 func AddPod(pod object.Pod) string {
-	// Set the PreStatus the same as Status because the PreStatus is used and only used in delete
-	pod.Runtime.PreStatus = pod.Runtime.Status
 	podValue, err := json.Marshal(pod)
 	if err != nil {
 		fmt.Println(err.Error())
