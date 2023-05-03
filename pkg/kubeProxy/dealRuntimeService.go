@@ -35,7 +35,7 @@ func createRuntimeService(runtimeService *object.RuntimeService) {
 		for _, pod := range runtimeService.Pods {
 			podsInfo = append(podsInfo, PodInfo{
 				PodName: pod.Metadata.Name,
-				PodIP:   pod.Runtime.ClusterIp,
+				PodIP:   pod.Runtime.PodIp,
 				PodPort: port.TargetPort,
 			})
 		}

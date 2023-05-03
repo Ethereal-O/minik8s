@@ -107,7 +107,7 @@ func makeConfig(runtimeGateway *object.RuntimeGateway) []string {
 	result = append(result, fmt.Sprintf("        server_name %s;", runtimeGateway.Gateway.Spec.Host))
 	for _, path := range runtimeGateway.Gateway.Spec.Paths {
 		result = append(result, fmt.Sprintf("        location %s {", path.Name))
-		result = append(result, fmt.Sprintf("            proxy_pass http://%s:%s;", path.IP, path.Port))
+		result = append(result, fmt.Sprintf("            proxy_pass http://%s:%s/;", path.IP, path.Port))
 		result = append(result, "        }")
 	}
 	result = append(result, "       }")
