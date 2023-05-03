@@ -276,6 +276,7 @@ func inspectionToContainerRuntime(inspection *InspectInfo) (*Status, error) {
 		PortBindings: inspection.HostConfig.PortBindings,
 		CpuPercent:   cpuPercent,
 		MemPercent:   memPercent,
-		IP:           inspection.NetworkSettings.IPAddress + "/" + strconv.Itoa(inspection.NetworkSettings.IPPrefixLen),
+		IP:           inspection.NetworkSettings.IPAddress,
+		//IP:           inspection.NetworkSettings.IPAddress + "/" + strconv.Itoa(inspection.NetworkSettings.IPPrefixLen),
 	}, nil
 }

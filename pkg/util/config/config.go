@@ -70,5 +70,5 @@ func init() {
 	APISERVER_URL = "http://" + MASTER_IP + ":8080"
 	NSQ_CONSUMER = MASTER_IP + ":4161"
 
-	DNS_SERVER = "11.11.11.11"
+	DNS_SERVER = "100.100.100.100"
 }
