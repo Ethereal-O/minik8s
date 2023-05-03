@@ -76,6 +76,30 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
+	if tp == config.AUTOSCALER_TYPE {
+		table, _ := gotable.Create("Name", "Uuid", "Status", "MinReplicas", "MaxReplicas", "ActualReplicas")
+		for _, hpa := range res {
+			var hpaObject object.AutoScaler
+			json.Unmarshal([]byte(hpa), &hpaObject)
+			rows := make([]map[string]string, 0)
+			if hpaObject.Runtime.Status != config.EXIT_STATUS {
+				rsList := client.GetReplicaSetByKey(hpaObject.Spec.ScaleTargetRef.Name)
+				tarRs := rsList[0]
+				_, actualNum := object.GetPodsOfRS(&tarRs, client.GetActivePods())
+
+				row := make(map[string]string)
+				row["Name"] = hpaObject.Metadata.Name
+				row["Uuid"] = hpaObject.Runtime.Uuid
+				row["Status"] = hpaObject.Runtime.Status
+				row["MinReplicas"] = strconv.Itoa(hpaObject.Spec.MinReplicas)
+				row["MaxReplicas"] = strconv.Itoa(hpaObject.Spec.MaxReplicas)
+				row["ActualReplicas"] = strconv.Itoa(actualNum)
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
 	if tp == config.NODE_TYPE {
 		table, _ := gotable.Create("Name", "Uuid", "Status", "PublicIP", "ClusterIP")
 		for _, node := range res {

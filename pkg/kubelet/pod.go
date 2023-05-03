@@ -18,7 +18,12 @@ func StartPod(pod *object.Pod) bool {
 	}
 	containersIdList = append(containersIdList, ID)
 
-	// Step 2: Start common containers
+	// Step 2: Get pod IP from pause container
+	inspection, _ := Client.ContainerInspect(Ctx, ID)
+	status, _ := inspectionToContainerRuntime(&inspection)
+	pod.Runtime.PodIp = status.IP
+
+	// Step 3: Start common containers
 	for _, myContainer := range pod.Spec.Containers {
 		result, ID := StartCommonContainer(pod, &myContainer)
 		if !result {
@@ -97,9 +102,6 @@ func ProbeCycle(pod *object.Pod) {
 					PodException(pod)
 					return
 				}
-				//this can be viewed in worker.log now
-				fmt.Printf("[container:%s] (cpuPercent:%.10f),(memPercent:%.10f)\n",
-					containerId, status.CpuPercent, status.MemPercent)
 				containerMemoryPercentageList = append(containerMemoryPercentageList, status.MemPercent)
 				containerCpuPercentageList = append(containerCpuPercentageList, status.CpuPercent)
 			}

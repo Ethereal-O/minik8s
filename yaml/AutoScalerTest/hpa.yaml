@@ -3,7 +3,7 @@ metadata:
   name: HpaTest
 spec:
   minReplicas: 1
-  maxReplicas: 5
+  maxReplicas: 3
   interval: 5
   scaleTargetRef:
     kind: Replicaset
