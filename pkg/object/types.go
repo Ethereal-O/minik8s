@@ -23,6 +23,8 @@ type Runtime struct {
 	Bind string `yaml:"bind" json:"bind"`
 	// When a pod is created, it should have a cluster IP so that the containers of the pod share network namespace
 	ClusterIp string `yaml:"clusterIp" json:"clusterIp"`
+	// PodIp is the IP address of the pod in docker (172.xx.xx.xx)
+	PodIp string `yaml:"podIp" json:"podIp"`
 	// When a pod is created, it should have a list of container ID
 	Containers []string `yaml:"containers" json:"containers"`
 	// Whether the pod should be restarted

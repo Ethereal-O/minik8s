@@ -33,6 +33,7 @@ type Status struct {
 	PortBindings nat.PortMap
 	CpuPercent   float64
 	MemPercent   float64
+	IP           string
 }
 
 // CreateConfig : arguments to create a container
