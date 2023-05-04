@@ -270,3 +270,31 @@ func GetAllNodes() []object.Node {
 	}
 	return resList
 }
+
+func GetActiveNodes() []object.Node {
+	nodeList := Get_object(config.EMPTY_FLAG, config.NODE_TYPE)
+	var resList []object.Node
+	for _, node := range nodeList {
+		var nodeObject object.Node
+		json.Unmarshal([]byte(node), &nodeObject)
+		if nodeObject.Runtime.Status != config.EXIT_STATUS {
+			resList = append(resList, nodeObject)
+		}
+	}
+	return resList
+}
+
+func GetNode(ip string) object.Node {
+	nodeList := Get_object("Node_"+ip, config.NODE_TYPE)
+	var nodeObject object.Node
+	json.Unmarshal([]byte(nodeList[0]), &nodeObject)
+	return nodeObject
+}
+
+func AddNode(node object.Node) string {
+	nodeValue, err := json.Marshal(node)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(node.Metadata.Name, string(nodeValue), config.NODE_TYPE)
+}

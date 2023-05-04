@@ -9,6 +9,8 @@ import (
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/weave"
+	"runtime"
+	"syscall"
 	"time"
 )
 
@@ -50,15 +52,16 @@ func dealPod(podChan chan string) {
 				fmt.Println(err.Error())
 			}
 			ip, _ := network.GetHostIp()
-			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
-				started := StartPod(&tarPod)
+			node := client.GetNode(ip)
+			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == node.Metadata.Name {
+				started := StartPod(&tarPod, &node)
 				if started {
 					fmt.Printf("[Kubelet] Pod %v started!\n", tarPod.Metadata.Name)
 				} else {
 					fmt.Printf("[Kubelet] Failed to start pod %v!\n", tarPod.Metadata.Name)
 				}
-			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
-				deleted := DeletePod(&tarPod)
+			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == node.Metadata.Name {
+				deleted := DeletePod(&tarPod, &node)
 				if deleted {
 					fmt.Printf("[Kubelet] Pod %v deleted!\n", tarPod.Metadata.Name)
 				} else {
@@ -91,8 +94,7 @@ func dealNode(nodeChan chan string) {
 					fmt.Println(err.Error())
 				} else {
 					tarNode.Runtime.Status = config.RUNNING_STATUS
-					inf, _ := json.Marshal(&tarNode)
-					client.Put_object(tarNode.Metadata.Name, string(inf), "Node")
+					client.AddNode(tarNode)
 					fmt.Println("[Kubelet] Node started!")
 				}
 			}
@@ -113,6 +115,20 @@ func autoAddNode() {
 	node.Kind = "Node"
 	node.Metadata.Name = "Node_" + ip
 	node.Spec.Ip = ip
-	inf, _ := json.Marshal(&node)
-	client.Put_object(node.Metadata.Name, string(inf), "Node")
+	var cpu = int64(runtime.NumCPU()) * 1e9 / 100 * NodeResourceUsage // NanoCPU
+	node.Runtime.Available.Cpu = cpu
+	node.Spec.Capacity.Cpu = cpu
+
+	// Sysinfo is only for linux!!
+	sysInfo := new(syscall.Sysinfo_t)
+	err = syscall.Sysinfo(sysInfo)
+	if err != nil {
+		fmt.Println("[Kubelet] Cannot obtain host Memory!")
+		panic(err)
+	}
+	var mem = int64(sysInfo.Totalram) / 100 * NodeResourceUsage // Bytes
+	node.Runtime.Available.Memory = mem
+	node.Spec.Capacity.Memory = mem
+
+	client.AddNode(node)
 }

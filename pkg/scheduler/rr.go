@@ -1,20 +1,17 @@
 package scheduler
 
 import (
+	"minik8s/pkg/object"
 	"minik8s/pkg/util/counter"
 )
 
 type RRPolicy struct {
 }
 
-func (policy RRPolicy) selectNode() string {
-	availNodeList := availNode.GetAll()
-	if len(availNodeList) == 0 {
+func (policy RRPolicy) selectNode(pod *object.Pod, nodes []*object.Node) string {
+	// No optional nodes
+	if len(nodes) == 0 {
 		return ""
 	}
-	if node, ok := availNodeList[counter.GetRRPolicy()%len(availNodeList)].(string); ok {
-		return node
-	} else {
-		return ""
-	}
+	return nodes[counter.GetRRPolicy()%len(nodes)].Metadata.Name
 }

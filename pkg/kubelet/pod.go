@@ -6,10 +6,11 @@ import (
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
+	"minik8s/pkg/util/resource"
 	"time"
 )
 
-func StartPod(pod *object.Pod) bool {
+func StartPod(pod *object.Pod, node *object.Node) bool {
 	var containersIdList []string
 	// Step 1: Start pause container
 	result, ID := StartPauseContainer(pod)
@@ -32,16 +33,29 @@ func StartPod(pod *object.Pod) bool {
 		containersIdList = append(containersIdList, ID)
 	}
 
+	// Step 4: Sync pod with API server
 	pod.Runtime.Status = config.RUNNING_STATUS
 	pod.Runtime.Containers = containersIdList
 	PodToExit[pod.Runtime.Uuid] = make(chan bool)
 	PodExited[pod.Runtime.Uuid] = make(chan bool)
 	client.AddPod(*pod)
+
+	// Step 5: Sync node with API server
+	cpu := node.Runtime.Available.Cpu
+	mem := node.Runtime.Available.Memory
+	for _, container := range pod.Spec.Containers {
+		cpu -= resource.ConvertCpuToBytes(container.Limits.Cpu)
+		mem -= resource.ConvertMemoryToBytes(container.Limits.Memory)
+	}
+	node.Runtime.Available.Cpu = cpu
+	node.Runtime.Available.Memory = mem
+	client.AddNode(*node)
+
 	go ProbeCycle(pod)
 	return true
 }
 
-func DeletePod(pod *object.Pod) bool {
+func DeletePod(pod *object.Pod, node *object.Node) bool {
 	// Step 0: If the pod has not run its containers, just return
 	if len(pod.Runtime.Containers) == 0 {
 		return true
@@ -76,6 +90,18 @@ func DeletePod(pod *object.Pod) bool {
 		pod.Runtime.NeedRestart = false
 		client.AddPod(*pod)
 	}
+
+	// Step 4: Sync node with API server
+	cpu := node.Runtime.Available.Cpu
+	mem := node.Runtime.Available.Memory
+	for _, container := range pod.Spec.Containers {
+		cpu += resource.ConvertCpuToBytes(container.Limits.Cpu)
+		mem += resource.ConvertMemoryToBytes(container.Limits.Memory)
+	}
+	node.Runtime.Available.Cpu = cpu
+	node.Runtime.Available.Memory = mem
+	client.AddNode(*node)
+
 	return true
 }
 
