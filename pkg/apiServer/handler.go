@@ -572,3 +572,93 @@ func runtimeGateway_delete(c echo.Context) error {
 	}
 	return c.String(http.StatusOK, "delete successfully!")
 }
+
+//--------------------- GpuJob Handler ---------------------------
+
+func gpujob_put(c echo.Context) error {
+	gpujobObject := new(object.GpuJob)
+	if err := c.Bind(gpujobObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if gpujobObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		gpujobObject.Runtime.Uuid = uuid
+	}
+	if gpujobObject.Runtime.Status == "" {
+		gpujobObject.Runtime.Status = config.CREATED_STATUS
+	}
+	gpujob, err := json.Marshal(gpujobObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gpujob)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func gpujob_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func gpujob_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var gpujobObject object.GpuJob
+	err := json.Unmarshal([]byte(res[0]), &gpujobObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	gpujobObject.Runtime.Status = config.EXIT_STATUS
+	gpujob, err := json.Marshal(gpujobObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gpujob)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+//--------------------- GpuFile Handler ---------------------------
+
+func gpufile_put(c echo.Context) error {
+	gpufileObject := new(object.GpuFile)
+	if err := c.Bind(gpufileObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	gpufile, err := json.Marshal(gpufileObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gpufile)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func gpufile_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}

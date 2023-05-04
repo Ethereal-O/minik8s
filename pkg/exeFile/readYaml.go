@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"minik8s/pkg/fileServer"
 	"minik8s/pkg/object"
 	"strings"
 )
@@ -26,6 +27,8 @@ func ReadYaml(file string) (string, string, string) {
 		return parseService(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: Gateway") {
 		return parseGateway(yamlFile)
+	} else if strings.Contains(string(yamlFile), "kind: GpuJob") {
+		return parseGpuJob(yamlFile)
 	} else {
 		return "", "", ""
 	}
@@ -107,4 +110,21 @@ func parseNode(yamlFile []byte) (string, string, string) {
 	key = conf.Metadata.Name
 	inf, err = json.Marshal(&conf)
 	return string(inf), key, "Node"
+}
+
+func parseGpuJob(yamlFile []byte) (string, string, string) {
+	var conf object.GpuJob
+	var inf []byte
+	var key string
+	err := yaml.Unmarshal(yamlFile, &conf)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	// the yaml only contains the filepath,the actual file data should be transmitted
+	key = conf.Metadata.Name
+	path := conf.Spec.Path
+	fileServer.UploadFile(path, key)
+	inf, err = json.Marshal(&conf)
+	return string(inf), key, "GpuJob"
 }

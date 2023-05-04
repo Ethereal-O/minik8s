@@ -270,3 +270,28 @@ func GetAllNodes() []object.Node {
 	}
 	return resList
 }
+
+// --------------------------- GpuJob ---------------------------
+
+func AddGpuJob(gpuJob object.GpuJob) string {
+	gpuJobValue, err := json.Marshal(gpuJob)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(gpuJob.Metadata.Name, string(gpuJobValue), config.GPUJOB_TYPE)
+}
+
+func GetAllGpuJob() []object.GpuJob {
+	gpuJobList := Get_object(config.EMPTY_FLAG, config.GPUJOB_TYPE)
+	var resList []object.GpuJob
+	for _, gpuJob := range gpuJobList {
+		var gpuJobObject object.GpuJob
+		json.Unmarshal([]byte(gpuJob), &gpuJobObject)
+		resList = append(resList, gpuJobObject)
+	}
+	return resList
+}
+
+func DeleteGpuJob(gpuJob object.GpuJob) string {
+	return Delete_object(gpuJob.Metadata.Name, config.GPUJOB_TYPE)
+}
