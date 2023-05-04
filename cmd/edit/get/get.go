@@ -141,6 +141,25 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
+	if tp == config.RUNTIMEGATEWAY_TYPE {
+		table, _ := gotable.Create("Name", "Uuid", "Status", "Host", "Path")
+		for _, gateway := range res {
+			var runtimeGatewayObject object.RuntimeGateway
+			json.Unmarshal([]byte(gateway), &runtimeGatewayObject)
+			rows := make([]map[string]string, 0)
+			if runtimeGatewayObject.Gateway.Runtime.Status != config.EXIT_STATUS {
+				row := make(map[string]string)
+				row["Name"] = runtimeGatewayObject.Gateway.Metadata.Name
+				row["Uuid"] = runtimeGatewayObject.Gateway.Runtime.Uuid
+				row["Status"] = runtimeGatewayObject.Gateway.Runtime.Status
+				row["Host"] = runtimeGatewayObject.Gateway.Spec.Host
+				row["Path"] = object.SerializePathList(runtimeGatewayObject.Gateway.Spec.Paths)
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
 }
 
 func init() {
