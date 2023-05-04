@@ -103,12 +103,12 @@ func ProbeCycle(pod *object.Pod) {
 				if err != nil {
 					panic(err)
 				}
-				//if status.State == StateExited {
-				//	// Container has exited, restart the pod!
-				//	fmt.Println("[delete because exited]")
-				//	PodException(pod)
-				//	return
-				//}
+				if status.State == StateExited {
+					// Container has exited, restart the pod!
+					fmt.Println("[delete because exited]")
+					PodException(pod)
+					return
+				}
 				containerMemoryPercentageList = append(containerMemoryPercentageList, status.MemPercent)
 				containerCpuPercentageList = append(containerCpuPercentageList, status.CpuPercent)
 			}
