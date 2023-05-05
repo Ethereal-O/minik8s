@@ -295,6 +295,7 @@ func AddNode(node object.Node) string {
 		fmt.Println(err.Error())
 	}
 	return Put_object(node.Metadata.Name, string(nodeValue), config.NODE_TYPE)
+}
 	
 // --------------------------- GpuJob ---------------------------
 
