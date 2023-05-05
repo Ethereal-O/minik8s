@@ -67,3 +67,14 @@ func SerializeEndPointsList(podList []Pod) string {
 	}
 	return serialized
 }
+
+func SerializePathList(pathList []Path) string {
+	serialized := ""
+	for idx, path := range pathList {
+		serialized += path.Name + "->" + path.Service
+		if idx < len(pathList)-1 {
+			serialized += ", "
+		}
+	}
+	return serialized
+}
