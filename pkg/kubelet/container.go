@@ -10,6 +10,7 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/network"
+	"minik8s/pkg/util/resource"
 	"minik8s/pkg/util/weave"
 )
 
@@ -88,8 +89,8 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 		NetworkMode: container.NetworkMode(pauseContainerRef),
 		Binds:       getVolumeBinds(pod, myContainer),
 		VolumesFrom: []string{pauseContainerFullName},
-		Memory:      convertMemoryToBytes(myContainer.Limits.Memory),
-		NanoCPUs:    convertCpuToBytes(myContainer.Limits.Cpu),
+		Memory:      resource.ConvertMemoryToBytes(myContainer.Limits.Memory),
+		NanoCPUs:    resource.ConvertCpuToBytes(myContainer.Limits.Cpu),
 	})
 
 	return name, ID, err

@@ -12,8 +12,11 @@ type Metadata struct {
 
 // Runtime generate values from runtime (not in .yaml files)
 type Runtime struct {
+	// --- Common ---
 	Uuid   string `yaml:"uuid" json:"uuid"`
 	Status string `yaml:"status" json:"status"`
+
+	// --- Pod ---
 	// When a pod belongs to a replica set, Belong refers to the Name of the replica set
 	Belong string `yaml:"belong" json:"belong"`
 	// When a pod is bound to a node, Bind refers to the Name of the node
@@ -26,6 +29,10 @@ type Runtime struct {
 	Containers []string `yaml:"containers" json:"containers"`
 	// Whether the pod should be restarted
 	NeedRestart bool `yaml:"needRestart" json:"needRestart"`
+
+	// --- Node ---
+	// Available resources of the node
+	Available Resources `yaml:"available" json:"available"`
 }
 
 // --------------------------- Node ---------------------------
@@ -39,6 +46,13 @@ type Node struct {
 
 type NodeSpec struct {
 	Ip string `yaml:"ip" json:"ip"`
+	// Total resources of the node
+	Capacity Resources `yaml:"capacity" json:"capacity"`
+}
+
+type Resources struct {
+	Cpu    int64 `yaml:"cpu" json:"cpu"`
+	Memory int64 `yaml:"memory" json:"memory"`
 }
 
 // --------------------------- Replica Set ---------------------------

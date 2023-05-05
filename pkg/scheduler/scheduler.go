@@ -10,52 +10,25 @@ import (
 	"time"
 )
 
-var availNode structure.Set
 var scheduleQueue structure.Queue
 
 var Exited = make(chan bool)
 var ToExit = make(chan bool)
 
 func Start_scheduler() {
-	availNode.Init()
 	scheduleQueue.Init()
-	var policy SchedulePolicy = RRPolicy{}
+	var policy SchedulePolicy = ScoringPolicy{}
 
 	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
-	nodeChan, nodeStop := messging.Watch("/"+config.NODE_TYPE, true)
 
 	go dealPod(podChan)
-	go dealNode(nodeChan)
 	go mainLoop(policy)
 	fmt.Println("Scheduler start")
 
 	// Wait until Ctrl-C
 	<-ToExit
 	podStop()
-	nodeStop()
 	Exited <- true
-}
-
-func dealNode(nodeChan chan string) {
-	for {
-		select {
-		case mes := <-nodeChan:
-			if mes == "hello" {
-				continue
-			}
-			// fmt.Println("[this]", mes)
-			var tarNode object.Node
-			err := json.Unmarshal([]byte(mes), &tarNode)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-			if tarNode.Runtime.Status == config.RUNNING_STATUS {
-				availNode.Put(tarNode.Metadata.Name)
-			} else if tarNode.Runtime.Status == config.EXIT_STATUS {
-				availNode.Del(tarNode.Metadata.Name)
-			}
-		}
-	}
 }
 
 func dealPod(podChan chan string) {
@@ -84,7 +57,7 @@ func mainLoop(policy SchedulePolicy) {
 		if idle {
 			time.Sleep(1 * time.Second)
 		}
-		mes := scheduleQueue.Front()
+		mes := scheduleQueue.Pop()
 		if mes == nil {
 			// scheduleQueue is empty now
 			idle = true
@@ -94,24 +67,23 @@ func mainLoop(policy SchedulePolicy) {
 			err := json.Unmarshal([]byte(mes_str), &tarPod)
 			if err != nil {
 				// Cannot unmarshal, discard it
-				scheduleQueue.Pop()
 				idle = false
 				continue
 			}
 			bound := BindPod(&tarPod, policy)
 			if bound {
 				// Bind pod success!
-				scheduleQueue.Pop()
 				idle = false
 				continue
 			} else {
-				// No available node now
+				// No optional node now
 				idle = true
+				scheduleQueue.Push(mes_str)
+				fmt.Printf("[Scheduler] No optional node for pod %v\n", tarPod.Metadata.Name)
 				continue
 			}
 		} else {
 			// Cannot unmarshal, discard it
-			scheduleQueue.Pop()
 			idle = false
 			continue
 		}

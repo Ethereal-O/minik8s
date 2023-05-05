@@ -72,4 +72,7 @@ type StopConfig = time.Duration
 // RemoveConfig : arguments to remove a container
 type RemoveConfig = types.ContainerRemoveOptions
 
-// ------------------Image------------------
+// ------------------Node------------------
+
+// NodeResourceUsage : Pod can use 80% resources, while reserving 20% resources for other threads
+const NodeResourceUsage = 80
