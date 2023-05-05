@@ -129,7 +129,7 @@ func replicaset_put(c echo.Context) error {
 		rsObject.Runtime.Uuid = uuid
 	}
 	if rsObject.Runtime.Status == "" {
-		rsObject.Runtime.Status = config.RUNNING_STATUS
+		rsObject.Runtime.Status = config.CREATED_STATUS
 	}
 	rs, err := json.Marshal(rsObject)
 	if err != nil {
@@ -173,7 +173,7 @@ func replicaset_delete(c echo.Context) error {
 	if err2 := etcd.Set_etcd(key, string(rs)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	unbind(rsObject.Metadata.Name)
+
 	return c.String(http.StatusOK, "delete successfully!")
 }
 

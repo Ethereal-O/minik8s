@@ -8,101 +8,79 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/counter"
-	"minik8s/pkg/util/structure"
+	"time"
 )
 
-var waitingRs structure.Cmap
+var RSControllerExited = make(chan bool)
+var RSControllerToExit = make(chan bool)
 
-var RSExited = make(chan bool)
-var RSToExit = make(chan bool)
+var RSExited = make(map[string]chan bool)
+var RSToExit = make(map[string]chan bool)
 
 func Start_rsController() {
-	waitingRs.Init(1)
-	handleChan := make(chan string, 20)
 	rsChan, rsStop := messging.Watch("/"+config.REPLICASET_TYPE, true)
-	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
-	go dealRs(rsChan, handleChan)
-	go dealPod(podChan, handleChan)
-	go handle(handleChan)
+	go dealRs(rsChan)
 	fmt.Println("Replicaset Controller start")
 
 	// Wait until Ctrl-C
-	<-RSToExit
+	<-RSControllerToExit
 	rsStop()
-	podStop()
-	RSExited <- true
+	RSControllerExited <- true
 }
 
-func dealRs(rsChan chan string, handleChan chan string) {
+func dealRs(rsChan chan string) {
 	for {
 		select {
 		case mes := <-rsChan:
 			if mes == "hello" {
 				continue
 			}
-			//fmt.Println("[this]", mes)
-			if waitingRs.Put(mes2rsName(mes)) {
-				handleChan <- mes
-			}
-		}
-	}
-}
-
-func dealPod(podChan chan string, handleChan chan string) {
-	for {
-		select {
-		case mes := <-podChan:
-			if mes == "hello" {
-				continue
-			}
-			// fmt.Println("[this]", mes)
-			var tarPod object.Pod
-			err := json.Unmarshal([]byte(mes), &tarPod)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-			if tarPod.Runtime.Belong != "" {
-				res := client.Get_object(tarPod.Runtime.Belong, config.REPLICASET_TYPE)
-				if len(res) != 1 {
-					fmt.Println("Cannot find the Rs which the pod belongs to!")
-					continue
-				}
-				if waitingRs.Put(mes2rsName(res[0])) {
-					handleChan <- res[0]
-				}
-			}
-		}
-	}
-}
-
-func handle(handleChan chan string) {
-	for {
-		select {
-		case mes := <-handleChan:
-			if mes == "hello" {
-				continue
-			}
-			waitingRs.Get(mes2rsName(mes))
 			var tarRs object.ReplicaSet
 			err := json.Unmarshal([]byte(mes), &tarRs)
-			if tarRs.Runtime.Status != config.RUNNING_STATUS {
-				continue
-			}
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			targetNum := tarRs.Spec.Replicas
-			rspodList, actualNum := object.GetPodsOfRS(&tarRs, client.GetActivePods())
+			if tarRs.Runtime.Status == config.CREATED_STATUS {
+				tarRs.Runtime.Status = config.RUNNING_STATUS
+				client.AddReplicaSet(tarRs)
+				RSExited[tarRs.Metadata.Name] = make(chan bool)
+				RSToExit[tarRs.Metadata.Name] = make(chan bool)
+				go RSCycle(tarRs)
+			} else if tarRs.Runtime.Status == config.EXIT_STATUS {
+				RSToExit[tarRs.Metadata.Name] <- true
+				<-RSExited[tarRs.Metadata.Name]
+				delete(RSToExit, tarRs.Metadata.Name)
+				delete(RSExited, tarRs.Metadata.Name)
+
+				rspodList, actualNum := object.GetPodsOfRS(&tarRs, client.GetActivePods())
+				for i := 0; i < actualNum; i++ {
+					client.DeletePod(rspodList[i])
+				}
+			}
+		}
+	}
+}
+
+func RSCycle(rs object.ReplicaSet) {
+	for {
+		select {
+		case <-RSToExit[rs.Metadata.Name]:
+			RSExited[rs.Metadata.Name] <- true
+			return
+		default:
+			time.Sleep(1 * time.Second)
+			targetNum := rs.Spec.Replicas
+			rspodList, actualNum := object.GetPodsOfRS(&rs, client.GetActivePods())
 			if targetNum > actualNum {
 				for i := 0; i < targetNum-actualNum; i++ {
 					var newPod object.Pod
 					uuid := counter.GetUuid()
 					newPod.Runtime.Uuid = uuid
 					newPod.Kind = config.POD_TYPE
-					newPod.Runtime.Belong = tarRs.Metadata.Name
-					newPod.Metadata = tarRs.Spec.Template.Metadata
-					newPod.Metadata.Name = object.RSPodFullName(&tarRs, &newPod)
-					newPod.Spec = tarRs.Spec.Template.Spec
+					newPod.Runtime.Belong = rs.Metadata.Name
+					newPod.Metadata = rs.Spec.Template.Metadata
+					newPod.Metadata.Name = object.RSPodFullName(&rs, &newPod)
+					newPod.Spec = rs.Spec.Template.Spec
 					client.AddPod(newPod)
 				}
 			} else if targetNum < actualNum {
@@ -112,14 +90,4 @@ func handle(handleChan chan string) {
 			}
 		}
 	}
-}
-
-func mes2rsName(mes string) string {
-	var rsObject object.ReplicaSet
-	err := json.Unmarshal([]byte(mes), &rsObject)
-	if err != nil {
-		fmt.Println(err.Error())
-		return "error"
-	}
-	return rsObject.Metadata.Name
 }
