@@ -67,7 +67,7 @@ func pod_put(c echo.Context) error {
 		podObject.Runtime.Status = config.CREATED_STATUS
 	}
 	if podObject.Runtime.ClusterIp == "" {
-		podObject.Runtime.ClusterIp = NewPodIP()
+		podObject.Runtime.ClusterIp = counter.NewPodIP()
 	}
 
 	pod, err := json.Marshal(podObject)
@@ -253,7 +253,7 @@ func node_put(c echo.Context) error {
 		nodeObject.Runtime.Status = config.CREATED_STATUS
 	}
 	if nodeObject.Runtime.ClusterIp == "" {
-		nodeObject.Runtime.ClusterIp = NewNodeIP()
+		nodeObject.Runtime.ClusterIp = counter.NewNodeIP()
 	}
 	node, err := json.Marshal(nodeObject)
 	if err != nil {
@@ -321,13 +321,13 @@ func service_put(c echo.Context) error {
 		if serviceObject.Metadata.Name == config.DNS_SERVICE_NAME {
 			serviceObject.Runtime.ClusterIp = config.DNS_SERVER
 		} else {
-			serviceObject.Runtime.ClusterIp = NewServiceIP()
+			serviceObject.Runtime.ClusterIp = counter.NewServiceIP()
 		}
 	}
 	if serviceObject.Spec.Type == config.SERVICE_TYPE_NODEPORT {
 		for i := 0; i < len(serviceObject.Spec.Ports); i++ {
 			if serviceObject.Spec.Ports[i].NodePort == "" {
-				serviceObject.Spec.Ports[i].NodePort = NewNodePort()
+				serviceObject.Spec.Ports[i].NodePort = counter.NewNodePort()
 			}
 		}
 	}
