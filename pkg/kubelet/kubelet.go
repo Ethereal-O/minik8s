@@ -79,7 +79,7 @@ func dealNode(nodeChan chan string) {
 			if mes == "hello" {
 				continue
 			}
-			fmt.Println("[this]", mes)
+			//fmt.Println("[this]", mes)
 			var tarNode object.Node
 			err := json.Unmarshal([]byte(mes), &tarNode)
 			if err != nil {
