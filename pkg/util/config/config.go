@@ -32,9 +32,11 @@ const (
 	DNS_TYPE            = "DNS"
 	GATEWAY_TYPE        = "Gateway"
 	RUNTIMEGATEWAY_TYPE = "RuntimeGateway"
+	GPUJOB_TYPE         = "GpuJob"
+	GPUFILE_TYPE        = "GpuFile"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE}
+var TP = []string{POD_TYPE, REPLICASET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE, GPUJOB_TYPE, GPUFILE_TYPE}
 
 const EMPTY_FLAG = "none"
 
@@ -52,6 +54,15 @@ const (
 	SERVICE_TYPE_NODEPORT  = "NodePort"
 	SERVICE_TYPE_CLUSTERIP = "ClusterIP"
 	DNS_SERVICE_NAME       = "DNS-Svc"
+)
+
+// Some const for GPU
+const (
+	NODE_DIR_PATH      = "/home/shareDir"
+	CONTAINER_DIR_PATH = "/home/shareDir"
+	GPU_JOB_NAME       = "gpujob"
+	GPU_JOB_IMAGE      = "henry35/zsh-gpu-server:4.0"
+	GPU_JOB_COMMAND    = "/home/server.sh"
 )
 
 func init() {

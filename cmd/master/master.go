@@ -30,18 +30,21 @@ func doit(cmd *cobra.Command, args []string) {
 	time.Sleep(1 * time.Second)
 	go controller.Start_rsController()
 	go controller.Start_hpaController()
+	go controller.Start_GpuJobController()
 	go scheduler.Start_scheduler()
 	go services.StartServiceManager()
 	go services.StartDnsManager()
 
 	// Gracefully exit after Ctrl-C
 	<-c
-	controller.RSToExit <- true
+	controller.RSControllerToExit <- true
 	controller.HpaToExit <- true
+	controller.GpuJobToExit <- true
 	scheduler.ToExit <- true
 	services.ToExit <- true
-	<-controller.RSExited
+	<-controller.RSControllerExited
 	<-controller.HpaExited
+	<-controller.GpuJobExited
 	<-scheduler.Exited
 	<-services.Exited
 

@@ -32,6 +32,8 @@ else
   curl -d "hello" "${pubUrl}DNS"
   curl -d "hello" "${pubUrl}Gateway"
   curl -d "hello" "${pubUrl}RuntimeGateway"
+  curl -d "hello" "${pubUrl}GpuJob"
+  curl -d "hello" "${pubUrl}GpuFile"
 
   echo "[Master] NSQ producer+consumer started!" 1>&2
 fi

@@ -199,3 +199,23 @@ type Path struct {
 	IP      string `yaml:"ip" json:"ip"`
 	Port    string `yaml:"port" json:"port"`
 }
+
+// --------------------------- GpuJob ---------------------------
+
+type GpuJob struct {
+	Kind     string     `yaml:"kind" json:"kind"`
+	Metadata Metadata   `yaml:"metadata" json:"metadata"`
+	Spec     GpuJobSpec `yaml:"spec" json:"spec"`
+	Runtime  Runtime    `yaml:"runtime" json:"runtime"`
+}
+
+type GpuJobSpec struct {
+	Path string `json:"path" yaml:"path"`
+}
+
+// --------------------------- GpuFile ---------------------------
+
+type GpuFile struct {
+	Dirname string `json:"dirname" yaml:"dirname"`
+	Data    string `json:"data" yaml:"data"`
+}

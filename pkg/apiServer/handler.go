@@ -67,7 +67,7 @@ func pod_put(c echo.Context) error {
 		podObject.Runtime.Status = config.CREATED_STATUS
 	}
 	if podObject.Runtime.ClusterIp == "" {
-		podObject.Runtime.ClusterIp = NewPodIP()
+		podObject.Runtime.ClusterIp = counter.NewPodIP()
 	}
 
 	pod, err := json.Marshal(podObject)
@@ -129,7 +129,7 @@ func replicaset_put(c echo.Context) error {
 		rsObject.Runtime.Uuid = uuid
 	}
 	if rsObject.Runtime.Status == "" {
-		rsObject.Runtime.Status = config.RUNNING_STATUS
+		rsObject.Runtime.Status = config.CREATED_STATUS
 	}
 	rs, err := json.Marshal(rsObject)
 	if err != nil {
@@ -173,7 +173,7 @@ func replicaset_delete(c echo.Context) error {
 	if err2 := etcd.Set_etcd(key, string(rs)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	unbind(rsObject.Metadata.Name)
+
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
@@ -253,7 +253,7 @@ func node_put(c echo.Context) error {
 		nodeObject.Runtime.Status = config.CREATED_STATUS
 	}
 	if nodeObject.Runtime.ClusterIp == "" {
-		nodeObject.Runtime.ClusterIp = NewNodeIP()
+		nodeObject.Runtime.ClusterIp = counter.NewNodeIP()
 	}
 	node, err := json.Marshal(nodeObject)
 	if err != nil {
@@ -321,13 +321,13 @@ func service_put(c echo.Context) error {
 		if serviceObject.Metadata.Name == config.DNS_SERVICE_NAME {
 			serviceObject.Runtime.ClusterIp = config.DNS_SERVER
 		} else {
-			serviceObject.Runtime.ClusterIp = NewServiceIP()
+			serviceObject.Runtime.ClusterIp = counter.NewServiceIP()
 		}
 	}
 	if serviceObject.Spec.Type == config.SERVICE_TYPE_NODEPORT {
 		for i := 0; i < len(serviceObject.Spec.Ports); i++ {
 			if serviceObject.Spec.Ports[i].NodePort == "" {
-				serviceObject.Spec.Ports[i].NodePort = NewNodePort()
+				serviceObject.Spec.Ports[i].NodePort = counter.NewNodePort()
 			}
 		}
 	}
@@ -571,4 +571,94 @@ func runtimeGateway_delete(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.String(http.StatusOK, "delete successfully!")
+}
+
+//--------------------- GpuJob Handler ---------------------------
+
+func gpujob_put(c echo.Context) error {
+	gpujobObject := new(object.GpuJob)
+	if err := c.Bind(gpujobObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if gpujobObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		gpujobObject.Runtime.Uuid = uuid
+	}
+	if gpujobObject.Runtime.Status == "" {
+		gpujobObject.Runtime.Status = config.CREATED_STATUS
+	}
+	gpujob, err := json.Marshal(gpujobObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gpujob)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func gpujob_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func gpujob_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var gpujobObject object.GpuJob
+	err := json.Unmarshal([]byte(res[0]), &gpujobObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	gpujobObject.Runtime.Status = config.EXIT_STATUS
+	gpujob, err := json.Marshal(gpujobObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gpujob)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
+//--------------------- GpuFile Handler ---------------------------
+
+func gpufile_put(c echo.Context) error {
+	gpufileObject := new(object.GpuFile)
+	if err := c.Bind(gpufileObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	gpufile, err := json.Marshal(gpufileObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gpufile)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func gpufile_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
 }

@@ -48,12 +48,12 @@ func Start_server() {
 	e.PUT("/RuntimeGateway/:key", runtimeGateway_put)
 	e.GET("/RuntimeGateway/:key", runtimeGateway_get)
 	e.DELETE("RuntimeGateway/:key", runtimeGateway_delete)
+	e.PUT("/GpuJob/:key", gpujob_put)
+	e.GET("/GpuJob/:key", gpujob_get)
+	e.DELETE("/GpuJob/:key", gpujob_delete)
+	e.PUT("/GpuFile/:key", gpufile_put)
+	e.GET("/GpuFile/:key", gpufile_get)
 	go func() { e.Logger.Fatal(e.Start(":8080")) }()
-
-	podIPGenerator.Init()
-	serviceIPGenerator.Init()
-	nodeIPGenerator.Init()
-	nodePortGenerator.Init()
 
 	fmt.Println("API Server start at " + config.APISERVER_URL)
 

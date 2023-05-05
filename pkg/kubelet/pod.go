@@ -121,6 +121,7 @@ func ProbeCycle(pod *object.Pod) {
 				inspection, err := Client.ContainerInspect(Ctx, containerId)
 				if err != nil {
 					// Container does not exist, restart the pod!
+					fmt.Println("[delete because not exist]")
 					PodException(pod)
 					return
 				}
@@ -130,6 +131,7 @@ func ProbeCycle(pod *object.Pod) {
 				}
 				if status.State == StateExited {
 					// Container has exited, restart the pod!
+					fmt.Println("[delete because exited]")
 					PodException(pod)
 					return
 				}

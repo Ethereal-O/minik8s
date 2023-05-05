@@ -85,10 +85,10 @@ func dealNode(nodeChan chan string) {
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			if tarNode.Runtime.Status == config.CREATED_STATUS {
-				fmt.Println("[weave.Expose start]")
+			ip, _ := network.GetHostIp()
+			node := client.GetNode(ip)
+			if tarNode.Runtime.Status == config.CREATED_STATUS && tarNode.Metadata.Name == node.Metadata.Name {
 				err = weave.Expose(tarNode.Runtime.ClusterIp + network.Mask)
-				fmt.Println("[weave.Expose end]")
 				if err != nil {
 					fmt.Println("[Kubelet] Failed to start node!")
 					fmt.Println(err.Error())

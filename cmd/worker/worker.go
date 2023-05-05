@@ -2,6 +2,7 @@ package worker
 
 import (
 	"github.com/spf13/cobra"
+	"minik8s/pkg/fileServer"
 	"minik8s/pkg/kubeProxy"
 	"minik8s/pkg/kubelet"
 	"os"
@@ -23,13 +24,16 @@ func doit(cmd *cobra.Command, args []string) {
 
 	go kubeProxy.Start_proxy()
 	go kubelet.Start_kubelet()
+	go fileServer.Start_Fileserver()
 
 	// Gracefully exit after Ctrl-C
 	<-c
 	kubelet.ToExit <- true
 	kubeProxy.ToExit <- true
+	fileServer.FileServerToExit <- true
 	<-kubelet.Exited
 	<-kubeProxy.Exited
+	<-fileServer.FileServerExited
 }
 
 func init() {
