@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"minik8s/pkg/fileServer"
 	"minik8s/pkg/object"
+	"os"
 	"strings"
 )
 
@@ -124,7 +125,12 @@ func parseGpuJob(yamlFile []byte) (string, string, string) {
 	// the yaml only contains the filepath,the actual file data should be transmitted
 	key = conf.Metadata.Name
 	path := conf.Spec.Path
-	fileServer.UploadFile(path, key)
+	dir, err := os.Getwd()
+	conf.Spec.Path = dir + path
+	//fmt.Println("[=========================================]")
+	//fmt.Println(dir + path)
+	//fmt.Println("[=========================================]")
+	fileServer.UploadFile(dir+path, key)
 	inf, err = json.Marshal(&conf)
 	return string(inf), key, "GpuJob"
 }

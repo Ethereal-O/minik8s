@@ -8,6 +8,7 @@ TESTSERVICE=$(shell ./scripts/testService.sh)
 TESTGATEWAY=$(shell ./scripts/testGateway.sh)
 TESTRS=$(shell ./scripts/testRS.sh)
 TESTSTRESS=$(shell ./scripts/testStress.sh)
+TESTGPU=$(shell ./scripts/testGpu.sh)
 
 # Build k8s but not run
 .PHONY:build
@@ -53,6 +54,11 @@ testRS: master
 .PHONY:testStress
 testStress: master
 	@echo $(TESTSTRESS)
+
+# Build k8s, run a master, a worker, a Gpu Job on one host
+.PHONY:testGpu
+testGpu: master
+	@echo $(TESTGPU)
 
 # Stop k8s and clear k8s states
 .PHONY:clean

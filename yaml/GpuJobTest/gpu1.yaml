@@ -2,4 +2,4 @@ kind: GpuJob
 metadata:
   name: simple_change
 spec:
-  path: /home/reins/goWorkStation/minik8s/yaml/GpuJobTest/simple_change
+  path: /yaml/GpuJobTest/simple_change
