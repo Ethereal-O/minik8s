@@ -258,8 +258,6 @@ func DeleteAutoScaler(autoScaler object.AutoScaler) string {
 
 // --------------------------- Nodes ---------------------------
 
-// TODO: add Node
-
 func GetAllNodes() []object.Node {
 	nodeList := Get_object(config.EMPTY_FLAG, config.NODE_TYPE)
 	var resList []object.Node
@@ -297,4 +295,28 @@ func AddNode(node object.Node) string {
 		fmt.Println(err.Error())
 	}
 	return Put_object(node.Metadata.Name, string(nodeValue), config.NODE_TYPE)
+	
+// --------------------------- GpuJob ---------------------------
+
+func AddGpuJob(gpuJob object.GpuJob) string {
+	gpuJobValue, err := json.Marshal(gpuJob)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(gpuJob.Metadata.Name, string(gpuJobValue), config.GPUJOB_TYPE)
+}
+
+func GetAllGpuJob() []object.GpuJob {
+	gpuJobList := Get_object(config.EMPTY_FLAG, config.GPUJOB_TYPE)
+	var resList []object.GpuJob
+	for _, gpuJob := range gpuJobList {
+		var gpuJobObject object.GpuJob
+		json.Unmarshal([]byte(gpuJob), &gpuJobObject)
+		resList = append(resList, gpuJobObject)
+	}
+	return resList
+}
+
+func DeleteGpuJob(gpuJob object.GpuJob) string {
+	return Delete_object(gpuJob.Metadata.Name, config.GPUJOB_TYPE)
 }

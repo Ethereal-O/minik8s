@@ -45,6 +45,11 @@ make testRS
 make testStress
 ```
 
+- Build k8s, run a master, a worker, a Gpu Job on one host
+```
+make testGpu
+```
+
 - Stop k8s and clear k8s states
 ```
 make clean

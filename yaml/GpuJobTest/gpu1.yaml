@@ -1,0 +1,5 @@
+kind: GpuJob
+metadata:
+  name: simple_change
+spec:
+  path: /yaml/GpuJobTest/simple_change
