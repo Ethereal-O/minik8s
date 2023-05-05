@@ -10,11 +10,11 @@ import (
 	"time"
 )
 
-var HpaExited = make(chan bool)
-var HpaToExit = make(chan bool)
+var HpaControllerExited = make(chan bool)
+var HpaControllerToExit = make(chan bool)
 
-var DealingExited = make(map[string]chan bool)
-var DealingToExit = make(map[string]chan bool)
+var HpaExited = make(map[string]chan bool)
+var HpaToExit = make(map[string]chan bool)
 
 func Start_hpaController() {
 	hpaChan, stopFunc := messging.Watch("/"+config.AUTOSCALER_TYPE, true)
@@ -22,9 +22,9 @@ func Start_hpaController() {
 	fmt.Println("Autoscaler Controller start")
 
 	// Wait until Ctrl-C
-	<-HpaToExit
+	<-HpaControllerToExit
 	stopFunc()
-	HpaExited <- true
+	HpaControllerExited <- true
 }
 
 func dealHpa(hpaChan chan string) {
@@ -34,28 +34,28 @@ func dealHpa(hpaChan chan string) {
 			if mes == "hello" {
 				continue
 			}
-			fmt.Println("[this]", mes)
+			// fmt.Println("[this]", mes)
 			var tarAutoScaler object.AutoScaler
 			json.Unmarshal([]byte(mes), &tarAutoScaler)
 			if tarAutoScaler.Runtime.Status == config.CREATED_STATUS {
 				tarAutoScaler.Runtime.Status = config.RUNNING_STATUS
 				client.AddAutoScaler(tarAutoScaler)
-				DealingExited[tarAutoScaler.Metadata.Name] = make(chan bool)
-				DealingToExit[tarAutoScaler.Metadata.Name] = make(chan bool)
-				go dealingCycle(tarAutoScaler)
+				HpaExited[tarAutoScaler.Metadata.Name] = make(chan bool)
+				HpaToExit[tarAutoScaler.Metadata.Name] = make(chan bool)
+				go HpaCycle(tarAutoScaler)
 
 			} else if tarAutoScaler.Runtime.Status == config.EXIT_STATUS {
 				client.DeleteAutoScaler(tarAutoScaler)
-				DealingToExit[tarAutoScaler.Metadata.Name] <- true
-				<-DealingExited[tarAutoScaler.Metadata.Name]
-				delete(DealingToExit, tarAutoScaler.Metadata.Name)
-				delete(DealingExited, tarAutoScaler.Metadata.Name)
+				HpaToExit[tarAutoScaler.Metadata.Name] <- true
+				<-HpaExited[tarAutoScaler.Metadata.Name]
+				delete(HpaToExit, tarAutoScaler.Metadata.Name)
+				delete(HpaExited, tarAutoScaler.Metadata.Name)
 			}
 		}
 	}
 }
 
-func dealingCycle(autoScaler object.AutoScaler) {
+func HpaCycle(autoScaler object.AutoScaler) {
 	var t = autoScaler.Spec.Interval
 	ticker := time.NewTicker(time.Duration(t) * time.Second)
 
@@ -66,8 +66,8 @@ func dealingCycle(autoScaler object.AutoScaler) {
 
 	for {
 		select {
-		case <-DealingToExit[autoScaler.Metadata.Name]:
-			DealingExited[autoScaler.Metadata.Name] <- true
+		case <-HpaToExit[autoScaler.Metadata.Name]:
+			HpaExited[autoScaler.Metadata.Name] <- true
 			return
 		case <-ticker.C:
 			rsList := client.GetReplicaSetByKey(autoScaler.Spec.ScaleTargetRef.Name)

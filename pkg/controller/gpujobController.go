@@ -9,8 +9,8 @@ import (
 	"minik8s/pkg/util/config"
 )
 
-var GpuJobExited = make(chan bool)
-var GpuJobToExit = make(chan bool)
+var GpuJobControllerExited = make(chan bool)
+var GpuJobControllerToExit = make(chan bool)
 
 func Start_GpuJobController() {
 	gpujobChan, stopFunc := messging.Watch("/"+config.GPUJOB_TYPE, true)
@@ -18,9 +18,9 @@ func Start_GpuJobController() {
 	fmt.Println("GpuJob Controller start")
 
 	// Wait until Ctrl-C
-	<-GpuJobToExit
+	<-GpuJobControllerToExit
 	stopFunc()
-	GpuJobExited <- true
+	GpuJobControllerExited <- true
 }
 
 func dealJob(gpujobChan chan string) {

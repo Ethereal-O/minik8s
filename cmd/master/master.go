@@ -38,13 +38,13 @@ func doit(cmd *cobra.Command, args []string) {
 	// Gracefully exit after Ctrl-C
 	<-c
 	controller.RSControllerToExit <- true
-	controller.HpaToExit <- true
-	controller.GpuJobToExit <- true
+	controller.HpaControllerToExit <- true
+	controller.GpuJobControllerToExit <- true
 	scheduler.ToExit <- true
 	services.ToExit <- true
 	<-controller.RSControllerExited
-	<-controller.HpaExited
-	<-controller.GpuJobExited
+	<-controller.HpaControllerExited
+	<-controller.GpuJobControllerExited
 	<-scheduler.Exited
 	<-services.Exited
 
