@@ -94,9 +94,9 @@ func (counter *Counter) fetchAndAdd() int {
 
 	ret := etcd.Get_etcd(counter.url, false)
 
-	if len(ret) != 1 {
+	if len(ret) == 0 {
 		etcd.Set_etcd(counter.url, counter.initCount)
-		ret[0] = counter.initCount
+		ret = append(ret, counter.initCount)
 	}
 
 	num, _ := strconv.Atoi(ret[0])
