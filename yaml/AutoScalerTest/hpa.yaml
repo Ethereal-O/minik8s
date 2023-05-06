@@ -8,7 +8,7 @@ spec:
   scaleTargetRef:
     kind: Replicaset
     name: RS2
-  targetCPUUtilizationPercentage: 1
+  targetCPUUtilizationPercentage: 0
   targetCPUUtilizationStrategy: max
   targetMemoryUtilizationPercentage: 10
   targetMemoryUtilizationStrategy: average

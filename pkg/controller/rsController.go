@@ -45,7 +45,7 @@ func dealRs(rsChan chan string) {
 				client.AddReplicaSet(tarRs)
 				RSExited[tarRs.Metadata.Name] = make(chan bool)
 				RSToExit[tarRs.Metadata.Name] = make(chan bool)
-				go RSCycle(tarRs)
+				go RSCycle(tarRs.Metadata.Name)
 			} else if tarRs.Runtime.Status == config.EXIT_STATUS {
 				RSToExit[tarRs.Metadata.Name] <- true
 				<-RSExited[tarRs.Metadata.Name]
@@ -61,13 +61,14 @@ func dealRs(rsChan chan string) {
 	}
 }
 
-func RSCycle(rs object.ReplicaSet) {
+func RSCycle(reName string) {
 	for {
 		select {
-		case <-RSToExit[rs.Metadata.Name]:
-			RSExited[rs.Metadata.Name] <- true
+		case <-RSToExit[reName]:
+			RSExited[reName] <- true
 			return
 		default:
+			rs := client.GetReplicaSetByKey(reName)[0]
 			time.Sleep(1 * time.Second)
 			targetNum := rs.Spec.Replicas
 			rspodList, actualNum := object.GetPodsOfRS(&rs, client.GetActivePods())
