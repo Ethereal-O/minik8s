@@ -1,6 +1,5 @@
 #!/bin/bash
 sudo killall kubectl > /dev/null 2>&1
-sleep 10
 sudo killall -9 kubectl > /dev/null 2>&1
 echo "[Cleaner] K8S Master/Worker stopped!" 1>&2
 sudo killall etcd > /dev/null 2>&1
