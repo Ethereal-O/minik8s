@@ -8,7 +8,7 @@ import (
 type RRPolicy struct {
 }
 
-func (policy RRPolicy) selectNode(pod *object.Pod, nodes []*object.Node) string {
+func (policy RRPolicy) selectNode(pod *object.Pod, nodes []object.Node) string {
 	// No optional nodes
 	if len(nodes) == 0 {
 		return ""
