@@ -89,6 +89,6 @@ func deleteRuntimeService(runtimeService *object.RuntimeService) {
 }
 
 func updateRuntimeService(runtimeService *object.RuntimeService) {
-	deleteRuntimeService(runtimeService)
+	//deleteRuntimeService(runtimeService)
 	createRuntimeService(runtimeService)
 }
