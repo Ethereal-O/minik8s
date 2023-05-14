@@ -2,6 +2,7 @@ package kubeProxy
 
 import (
 	"fmt"
+	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/services"
 	"minik8s/pkg/util/tools"
@@ -12,7 +13,7 @@ func dealRunningRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 	if !ok {
 		fmt.Printf("creating runtimeGateway %s\n", runtimeGateway.Gateway.Metadata.Name)
 		createRuntimeGateway(runtimeGateway)
-	} else if tools.MD5(oldRuntimeGateway.Gateway) != tools.MD5(*runtimeGateway) {
+	} else if tools.MD5(*oldRuntimeGateway) != tools.MD5(*runtimeGateway) {
 		fmt.Printf("updating runtimeGateway %s\n", runtimeGateway.Gateway.Metadata.Name)
 		updateRuntimeGateway(runtimeGateway)
 	} else {
@@ -39,6 +40,8 @@ func createRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 		reloadNginxConfig(services.GATEWAY_CONTAINER_PREFIX + runtimeGateway.Gateway.Metadata.Name)
 		fmt.Println("reload nginx config finished")
 		updateDnsConfig()
+
+		client.AddRuntimeGateway(*runtimeGateway)
 	}
 }
 

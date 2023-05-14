@@ -12,7 +12,7 @@ func dealRunningRuntimeService(runtimeService *object.RuntimeService) {
 	if !ok {
 		fmt.Printf("creating runtimeService %s\n", runtimeService.Service.Metadata.Name)
 		createRuntimeService(runtimeService)
-	} else if tools.MD5(oldRuntimeService.Service) != tools.MD5(*runtimeService) {
+	} else if tools.MD5(*oldRuntimeService) != tools.MD5(*runtimeService) {
 		fmt.Printf("updating runtimeService %s\n", runtimeService.Service.Metadata.Name)
 		updateRuntimeService(runtimeService)
 	} else {
