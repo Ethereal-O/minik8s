@@ -8,6 +8,7 @@ import (
 	"minik8s/cmd/edit/get"
 	"minik8s/cmd/edit/watch"
 	"minik8s/cmd/master"
+	"minik8s/cmd/request"
 	"minik8s/cmd/worker"
 	"os"
 )
@@ -23,7 +24,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(apply.Apply(), del.Delete(), get.Get(), watch.Watch(),
-		master.Execute(), worker.Execute())
+		master.Execute(), worker.Execute(), request.Request())
 }
 
 func Execute() {

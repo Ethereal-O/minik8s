@@ -31,6 +31,7 @@ func doit(cmd *cobra.Command, args []string) {
 	go controller.Start_rsController()
 	go controller.Start_hpaController()
 	go controller.Start_GpuJobController()
+	go controller.Start_serverlessFunctionsController()
 	go scheduler.Start_scheduler()
 	go services.StartServiceManager()
 	go services.StartDnsManager()
@@ -40,11 +41,13 @@ func doit(cmd *cobra.Command, args []string) {
 	controller.RSControllerToExit <- true
 	controller.HpaControllerToExit <- true
 	controller.GpuJobControllerToExit <- true
+	controller.ServerlessFunctionsControllerToExit <- true
 	scheduler.ToExit <- true
 	services.ToExit <- true
 	<-controller.RSControllerExited
 	<-controller.HpaControllerExited
 	<-controller.GpuJobControllerExited
+	<-controller.ServerlessFunctionsControllerExited
 	<-scheduler.Exited
 	<-services.Exited
 
