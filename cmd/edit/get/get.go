@@ -129,7 +129,7 @@ func doit(cmd *cobra.Command, args []string) {
 				row := make(map[string]string)
 				row["Name"] = runtimeServiceObject.Service.Metadata.Name
 				row["Uuid"] = runtimeServiceObject.Service.Runtime.Uuid
-				row["Status"] = runtimeServiceObject.Service.Runtime.Status
+				row["Status"] = runtimeServiceObject.Status
 				row["Selector"] = object.SerializeSelectorList(runtimeServiceObject.Service.Spec.Selector)
 				row["Type"] = runtimeServiceObject.Service.Spec.Type
 				row["IP"] = runtimeServiceObject.Service.Runtime.ClusterIp
@@ -151,7 +151,7 @@ func doit(cmd *cobra.Command, args []string) {
 				row := make(map[string]string)
 				row["Name"] = runtimeGatewayObject.Gateway.Metadata.Name
 				row["Uuid"] = runtimeGatewayObject.Gateway.Runtime.Uuid
-				row["Status"] = runtimeGatewayObject.Gateway.Runtime.Status
+				row["Status"] = runtimeGatewayObject.Status
 				row["Host"] = runtimeGatewayObject.Gateway.Spec.Host
 				row["Path"] = object.SerializePathList(runtimeGatewayObject.Gateway.Spec.Paths)
 				rows = append(rows, row)

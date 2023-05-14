@@ -10,6 +10,7 @@ import (
 type RuntimeService struct {
 	Service Service
 	Pods    []Pod
+	Status  string
 	Timer   time.Ticker `json:"-"`
 	Lock    sync.Mutex  `json:"-"`
 }
