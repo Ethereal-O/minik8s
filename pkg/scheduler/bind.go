@@ -20,13 +20,13 @@ func BindPod(pod *object.Pod, policy SchedulePolicy) bool {
 }
 
 type SchedulePolicy interface {
-	selectNode(pod *object.Pod, nodes []*object.Node) string
+	selectNode(pod *object.Pod, nodes []object.Node) string
 }
 
-func getOptionalNodes(pod *object.Pod) []*object.Node {
+func getOptionalNodes(pod *object.Pod) []object.Node {
 	nodes := client.GetActiveNodes()
 
-	var optional_nodes []*object.Node
+	var optional_nodes []object.Node
 	for _, node := range nodes {
 		cpu := node.Runtime.Available.Cpu
 		mem := node.Runtime.Available.Memory
@@ -35,7 +35,7 @@ func getOptionalNodes(pod *object.Pod) []*object.Node {
 			mem -= resource.ConvertMemoryToBytes(container.Limits.Memory)
 		}
 		if cpu > 0 && mem > 0 {
-			optional_nodes = append(optional_nodes, &node)
+			optional_nodes = append(optional_nodes, node)
 		}
 	}
 
