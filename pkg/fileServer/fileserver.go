@@ -12,9 +12,9 @@ var FileServerExited = make(chan bool)
 var FileServerToExit = make(chan bool)
 
 func Start_Fileserver() {
-	gpufileChan, stopFunc := messging.Watch("/"+config.GPUFILE_TYPE, true)
-	dealFile(gpufileChan)
-	fmt.Println("GpuJob Controller start")
+	fileChan, stopFunc := messging.Watch("/"+config.TRANSFILE_TYPE, true)
+	dealFile(fileChan)
+	fmt.Println("File server start")
 
 	// Wait until Ctrl-C
 	<-FileServerToExit
@@ -22,18 +22,24 @@ func Start_Fileserver() {
 	FileServerExited <- true
 }
 
-func dealFile(gpufileChan chan string) {
+func dealFile(fileChan chan string) {
 	for {
 		select {
-		case mes := <-gpufileChan:
+		case mes := <-fileChan:
 			if mes == "hello" {
 				continue
 			}
-			var gpufile object.GpuFile
-			json.Unmarshal([]byte(mes), &gpufile)
-			jobname := gpufile.Dirname
-			jobdata := gpufile.Data
-			DownloadFile(jobdata, config.NODE_DIR_PATH+"/"+jobname)
+			var file object.TransFile
+			json.Unmarshal([]byte(mes), &file)
+			filename := file.Dirname
+			filedata := file.Data
+			fmt.Println("[downloader receive]" + filename)
+			if file.Tp == "GpuFile" {
+				DownloadFile(filedata, config.GPU_NODE_DIR_PATH+"/"+filename)
+			}
+			if file.Tp == "FuncFile" {
+				DownloadFile(filedata, config.FUNC_NODE_DIR_PATH+"/"+filename)
+			}
 		}
 	}
 }

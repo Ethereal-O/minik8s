@@ -23,20 +23,23 @@ var (
 )
 
 const (
-	POD_TYPE            = "Pod"
-	REPLICASET_TYPE     = "ReplicaSet"
-	AUTOSCALER_TYPE     = "AutoScaler"
-	SERVICE_TYPE        = "Service"
-	RUNTIMESERVICE_TYPE = "RuntimeService"
-	NODE_TYPE           = "Node"
-	DNS_TYPE            = "DNS"
-	GATEWAY_TYPE        = "Gateway"
-	RUNTIMEGATEWAY_TYPE = "RuntimeGateway"
-	GPUJOB_TYPE         = "GpuJob"
-	GPUFILE_TYPE        = "GpuFile"
+	POD_TYPE                 = "Pod"
+	REPLICASET_TYPE          = "ReplicaSet"
+	AUTOSCALER_TYPE          = "AutoScaler"
+	SERVICE_TYPE             = "Service"
+	RUNTIMESERVICE_TYPE      = "RuntimeService"
+	NODE_TYPE                = "Node"
+	DNS_TYPE                 = "DNS"
+	GATEWAY_TYPE             = "Gateway"
+	RUNTIMEGATEWAY_TYPE      = "RuntimeGateway"
+	GPUJOB_TYPE              = "GpuJob"
+	SERVERLESSFUNCTIONS_TYPE = "ServerlessFunctions"
+	FUNCTION_TYPE            = "Function"
+	TRANSFILE_TYPE           = "TransFile"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE, GPUJOB_TYPE, GPUFILE_TYPE}
+var TP = []string{POD_TYPE, REPLICASET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE,
+	GPUJOB_TYPE, SERVERLESSFUNCTIONS_TYPE, FUNCTION_TYPE, TRANSFILE_TYPE}
 
 const EMPTY_FLAG = "none"
 
@@ -58,11 +61,20 @@ const (
 
 // Some const for GPU
 const (
-	NODE_DIR_PATH      = "/home/shareDir"
-	CONTAINER_DIR_PATH = "/home/shareDir"
-	GPU_JOB_NAME       = "gpujob"
-	GPU_JOB_IMAGE      = "henry35/zsh-gpu-server:4.0"
-	GPU_JOB_COMMAND    = "/home/server.sh"
+	GPU_NODE_DIR_PATH      = "/home/shareDir"
+	GPU_CONTAINER_DIR_PATH = "/home/shareDir"
+	GPU_JOB_NAME           = "gpujob"
+	GPU_JOB_IMAGE          = "henry35/zsh-gpu-server:4.0"
+	GPU_JOB_COMMAND        = "/home/server.sh"
+)
+
+// Some const for Serverless
+const (
+	FUNC_NODE_DIR_PATH      = "/home/functions"
+	FUNC_CONTAINER_DIR_PATH = "/home/functions"
+	FUNC_NAME               = "func"
+	FUNC_IMAGE              = "henry35/serverless:2.0"
+	FUNC_COMMAND            = "/home/import.sh"
 )
 
 func init() {

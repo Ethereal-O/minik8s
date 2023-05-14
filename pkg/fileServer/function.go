@@ -9,9 +9,10 @@ import (
 	"minik8s/pkg/util/config"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
-func UploadFile(dirpath string, key string) {
+func UploadFile(dirpath string, key string, tp string) {
 	var files []string
 	_ = filepath.Walk(dirpath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -32,26 +33,35 @@ func UploadFile(dirpath string, key string) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	gpufile := object.GpuFile{Dirname: key, Data: string(filesJson)}
+	gpufile := object.TransFile{Dirname: key, Data: string(filesJson), Tp: tp}
 	gpufileJson, err := json.Marshal(gpufile)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	client.Put_object(key, string(gpufileJson), config.GPUFILE_TYPE)
+	client.Put_object(key, string(gpufileJson), config.TRANSFILE_TYPE)
 }
 
 func DownloadFile(value string, dirpath string) {
-	//Step1: Create the dir in the shareDir
+	//Step1: Create the dir in the shareDir(for gpu)/functions(for faas)
 	err := os.MkdirAll(dirpath, 0777)
 	if err != nil {
+		fmt.Println("[download fail!!!!]" + dirpath)
 		return
 	}
-
+	fmt.Println("[download]" + dirpath)
+	fmt.Println("[download]" + dirpath)
+	fmt.Println("[download]" + dirpath)
+	fmt.Println("[download]" + dirpath)
+	fmt.Println("[download]" + dirpath)
 	var files []string
 	err = json.Unmarshal([]byte(value), &files)
 	if err != nil {
+		fmt.Println("[download fail!!!!] unmashall")
 		return
 	}
+	fmt.Println("[download]" + strconv.Itoa(len(files)))
+	fmt.Println("[download]" + strconv.Itoa(len(files)))
+	fmt.Println("[download]" + strconv.Itoa(len(files)))
 	var flag = 0
 	var filename string
 	for _, item := range files {
