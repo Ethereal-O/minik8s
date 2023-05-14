@@ -2,6 +2,8 @@ package kubeProxy
 
 import "minik8s/pkg/util/iptables"
 
+// DESPERATE
+
 func createSingleNet(singlePod *SinglePod, podInfo PodInfo) *SingleNet {
 	singleNet := &SingleNet{
 		Table:    singlePod.Table,

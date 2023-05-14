@@ -1,0 +1,26 @@
+kind: ReplicaSet
+metadata:
+  name: Svc-RS
+  labels:
+    bound: Service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: Svc-Pod
+      labels:
+        bound: Service
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: Svc-Cont
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: Svc-Volume
+              mountPath: /etc/nginx
+      volumes:
+        - name: Svc-Volume
+          type: hostPath
+          path: /home/os/minik8s/Service

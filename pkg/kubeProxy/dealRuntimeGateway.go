@@ -29,14 +29,14 @@ func createRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 	kubeProxyManager.Lock.Lock()
 	defer kubeProxyManager.Lock.Unlock()
 	if runtimeGateway.Status == services.GATEWAY_STATUS_INIT {
-		createDir(runtimeGateway)
+		createDir(services.GATEWAY_NGINX_PATH_PREFIX + "/" + runtimeGateway.Gateway.Metadata.Name)
 	} else if runtimeGateway.Status == services.GATEWAY_STATUS_DEPLOYING {
 		runtimeGateway.Status = services.GATEWAY_STATUS_RUNNING
 		kubeProxyManager.RuntimeGatewayMap[runtimeGateway.Gateway.Metadata.Name] = runtimeGateway
 
-		updateNginxConfig(runtimeGateway)
+		updateGatewayNginxConfig(runtimeGateway)
 		fmt.Println("write nginx config finished")
-		reloadNginxConfig(runtimeGateway)
+		reloadNginxConfig(services.GATEWAY_CONTAINER_PREFIX + runtimeGateway.Gateway.Metadata.Name)
 		fmt.Println("reload nginx config finished")
 		updateDnsConfig()
 	}
@@ -51,7 +51,7 @@ func deleteRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 	}
 	delete(kubeProxyManager.RuntimeGatewayMap, runtimeGateway.Gateway.Metadata.Name)
 	updateDnsConfig()
-	deleteDir(runtimeGateway)
+	deleteDir(services.GATEWAY_NGINX_PATH_PREFIX + "/" + runtimeGateway.Gateway.Metadata.Name)
 }
 
 func updateRuntimeGateway(runtimeGateway *object.RuntimeGateway) {

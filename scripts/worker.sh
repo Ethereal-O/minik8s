@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# here to copy file to /home/os/minik8s/DNS, so that we can use it in minik8s
+sudo rm -rf /home/os/minik8s/DNS > /dev/null 2>&1
+sudo rm -rf /home/os/minik8s/Gateway > /dev/null 2>&1
+sudo rm -rf /home/os/minik8s/Service > /dev/null 2>&1
+sudo mkdir -p /home/os/minik8s/DNS > /dev/null 2>&1
+sudo mkdir -p /home/os/minik8s/Gateway > /dev/null 2>&1
+sudo mkdir -p /home/os/minik8s/Service > /dev/null 2>&1
+sudo cp ./template/config/CORE_DNS_CONFIG/* /home/os/minik8s/DNS > /dev/null 2>&1
+echo "[Worker] DNS config created!" 1>&2
+
 sh ./scripts/helper/weave_start.sh
 if [ "$?" = 1 ]; then
   echo "[Worker] Failed to start weave subnet!" 1>&2

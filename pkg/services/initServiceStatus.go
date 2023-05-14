@@ -5,7 +5,10 @@ import (
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
+	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/tools"
+	"minik8s/pkg/util/weave"
+	"strings"
 	"time"
 )
 
@@ -39,6 +42,26 @@ func selectPods(runtimeService *object.RuntimeService) {
 	// get all pods and selector
 	selector := runtimeService.Service.Spec.Selector
 	allPods := client.GetAllPods()
+
+	// first check if service-pod is running
+	runningPods, _ := tools.Filter(allPods, func(pod object.Pod) bool {
+		if pod.Runtime.Status == config.RUNNING_STATUS && strings.Contains(pod.Metadata.Name, runtimeService.Service.Metadata.Name) {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	if len(runningPods) == 0 {
+		return
+	}
+
+	// attach clusterIp to pod
+	err := weave.Attach(runningPods[0].Runtime.Containers[0], runtimeService.Service.Runtime.ClusterIp+network.Mask)
+	if err != nil {
+		fmt.Println(err)
+		//return
+	}
 
 	// apply filter to get new pods
 	filterPods, _ := tools.Filter(allPods, func(pod object.Pod) bool {
