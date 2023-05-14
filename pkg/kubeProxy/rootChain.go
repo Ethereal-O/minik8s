@@ -5,6 +5,8 @@ import (
 	"minik8s/pkg/util/iptables"
 )
 
+// DESPERATE
+
 func (rootChain *RootChain) makeRuleCommand() {
 	rootChain.RuleCommand = []string{"-j", ROOT_CHAIN, "-s", "0/0", "-d", "0/0", "-p", "all"}
 }

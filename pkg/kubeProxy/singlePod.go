@@ -5,6 +5,8 @@ import (
 	"minik8s/pkg/util/iptables"
 )
 
+// DESPERATE
+
 func createSinglePod(singleService *SingleService, podInfo PodInfo, id int) *SinglePod {
 	singlePod := &SinglePod{
 		Table:    singleService.Table,

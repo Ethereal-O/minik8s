@@ -14,7 +14,7 @@ const (
 	PodIPCounterInitIP = "10.10.1.1"
 
 	ServiceIPCounterURL    = "/counter/service_ip"
-	ServiceIPCounterInitIP = "100.10.1.1"
+	ServiceIPCounterInitIP = "10.10.20.1"
 
 	NodeIPCounterURL    = "/counter/node_ip"
 	NodeIPCounterInitIP = "10.10.0.1"

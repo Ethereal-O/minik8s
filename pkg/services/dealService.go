@@ -27,13 +27,17 @@ func dealExitService(service *object.Service) {
 }
 
 func createService(service *object.Service) {
+	client.AddReplicaSet(GetServiceReplicaSet(service.Metadata.Name))
 	serviceManager.Lock.Lock()
 	defer serviceManager.Lock.Unlock()
 	runtimeService := &object.RuntimeService{
 		Service: *service,
+		Status:  SERVICE_STATUS_INIT,
 		Lock:    sync.Mutex{},
 		Pods:    []object.Pod{},
 	}
+	client.AddRuntimeService(*runtimeService)
+	runtimeService.Status = SERVICE_STATUS_RUNNING
 	InitRuntimeService(runtimeService)
 	serviceManager.ServiceMap[service.Metadata.Name] = runtimeService
 }
@@ -48,6 +52,13 @@ func deleteService(service *object.Service) {
 	runtimeService.Timer.Stop()
 	ret := client.DeleteRuntimeService(*runtimeService)
 	fmt.Println(ret)
+
+	replicaSetList := client.GetReplicaSetByKey(SERVICE_REPLICASET_PREFIX + service.Metadata.Name)
+	if len(replicaSetList) == 0 {
+		return
+	}
+	client.DeleteReplicaSet(replicaSetList[0])
+
 	delete(serviceManager.ServiceMap, service.Metadata.Name)
 }
 
