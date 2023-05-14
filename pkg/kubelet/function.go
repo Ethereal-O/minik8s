@@ -54,9 +54,9 @@ func addPortBindings(portBindings nat.PortMap, ports []object.Port) {
 		if port.Protocol == "" {
 			port.Protocol = "tcp"
 		}
-		// HostIP not assigned, default is localhost (127.0.0.1)
+		// HostIP not assigned, default is host IP (192.168.xx.xx)
 		if port.HostIP == "" {
-			port.HostIP = "127.0.0.1"
+			port.HostIP, _ = network.GetHostIp()
 		}
 		// HostPort not assigned, default is random available port
 		if port.HostPort == 0 {
