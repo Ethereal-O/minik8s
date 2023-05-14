@@ -213,9 +213,30 @@ type GpuJobSpec struct {
 	Path string `json:"path" yaml:"path"`
 }
 
-// --------------------------- GpuFile ---------------------------
+//----------------------------- ServerlessFunctions ---------------------------
 
-type GpuFile struct {
+type ServerlessFunctions struct {
+	Kind     string   `yaml:"kind" json:"kind"`
+	Metadata Metadata `yaml:"metadata" json:"metadata"`
+	Spec     FuncSpec `yaml:"spec" json:"spec"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
+}
+
+type FuncSpec struct {
+	Path  string     `json:"path" yaml:"path"`
+	Items []Function `json:"items" yaml:"items"`
+}
+
+type Function struct {
+	FuncName string  `json:"funcName" yaml:"funcName"`
+	Module   string  `json:"module" yaml:"module"`
+	Runtime  Runtime `yaml:"runtime" json:"runtime"`
+}
+
+// --------------------------- File ---------------------------
+
+type TransFile struct {
 	Dirname string `json:"dirname" yaml:"dirname"`
 	Data    string `json:"data" yaml:"data"`
+	Tp      string `json:"tp" yaml:"tp"`
 }

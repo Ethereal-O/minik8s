@@ -9,7 +9,7 @@ import (
 type ScoringPolicy struct {
 }
 
-func (policy ScoringPolicy) selectNode(pod *object.Pod, nodes []*object.Node) string {
+func (policy ScoringPolicy) selectNode(pod *object.Pod, nodes []object.Node) string {
 	// No optional nodes
 	if len(nodes) == 0 {
 		return ""

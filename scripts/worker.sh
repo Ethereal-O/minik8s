@@ -19,7 +19,7 @@ else
 fi
 
 # Get master IP
-master_ip=""
+master_ip=$(cat master_ip.txt)
 
 if pgrep nsqd > /dev/null; then
   echo "[Worker] NSQ consumer is already running!" 1>&2

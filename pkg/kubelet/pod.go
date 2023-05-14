@@ -7,6 +7,7 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/resource"
+	"strings"
 	"time"
 )
 
@@ -148,7 +149,8 @@ func ProbeCycle(pod *object.Pod) {
 
 func PodException(pod *object.Pod) {
 	// If the pod belongs to an RS, no need to restart, because RS will do it automatically
-	pod.Runtime.NeedRestart = pod.Runtime.Belong == ""
+	// If the pod belongs to a job, it has no need to restart
+	pod.Runtime.NeedRestart = (pod.Runtime.Belong == "") != strings.EqualFold(pod.Metadata.Name[:6], "gpujob")
 	pod.Runtime.Status = config.EXIT_STATUS
 	client.AddPod(*pod)
 
