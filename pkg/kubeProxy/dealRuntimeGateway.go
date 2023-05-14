@@ -58,6 +58,10 @@ func deleteRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 }
 
 func updateRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
+	if runtimeGateway.Status == services.GATEWAY_STATUS_RUNNING {
+		fmt.Printf("not to deal with running gateway")
+		return
+	}
 	deleteRuntimeGateway(runtimeGateway)
 	createRuntimeGateway(runtimeGateway)
 }
