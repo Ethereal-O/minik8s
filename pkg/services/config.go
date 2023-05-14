@@ -11,20 +11,27 @@ const (
 	CHECK_PODS_TIME_INTERVAL               = 5 * time.Second
 	CHECK_DNS_TIME_INTERVAL                = 5 * time.Second
 	CREATE_RS_AND_SERVICE_TIME_INTERVAL    = 1 * time.Second
-	GATEWAY_STATUS_INIT                    = "init"
-	GATEWAY_STATUS_DEPLOYING               = "deploying"
-	GATEWAY_STATUS_RUNNING                 = "running"
+	SERVICE_STATUS_INIT                    = "INIT"
+	SERVICE_STATUS_RUNNING                 = "RUNNING"
+	GATEWAY_STATUS_INIT                    = "INIT"
+	GATEWAY_STATUS_DEPLOYING               = "DEPLOYING"
+	GATEWAY_STATUS_RUNNING                 = "RUNNING"
 	GATEWAY_PREFIX                         = "Gtw-"
 	GATEWAY_REPLICASET_PREFIX              = "GtwRS-"
 	GATEWAY_POD_PREFIX                     = "GtwPod-"
 	GATEWAY_CONTAINER_PREFIX               = "GtwCont-"
 	GATEWAY_SERVICE_PREFIX                 = "GtwSvc-"
 	DNS_SERVICE_NAME                       = "DNS-Svc"
-	DNS_GATEWAY_SELECTOR                   = "bound"
-	NGINX_PATH_PREFIX                      = "/home/os/minik8s/Gateway"
+	SERVICE_REPLICASET_PREFIX              = "SvcRS-"
+	SERVICE_POD_PREFIX                     = "SvcPod-"
+	SERVICE_CONTAINER_PREFIX               = "SvcCont-"
+	ALL_SELECTOR                           = "bound"
+	GATEWAY_NGINX_PATH_PREFIX              = "/home/os/minik8s/Gateway"
+	SERVICE_NGINX_PATH_PREFIX              = "/home/os/minik8s/Service"
 	NGINX_CONFIG_FILE                      = "nginx.conf"
 	HOST_PATH                              = "/home/os/minik8s/DNS/hosts.conf"
 	NGINX_TEMPLATE_FILEPATH                = "template/config/NGINX_TEMPLATE"
+	SERVICE_REPLICATESET_TEMPLATE_FILEPATH = "template/yaml/service-replicaset.yaml"
 	DNS_REPLICATESET_TEMPLATE_FILEPATH     = "template/yaml/dns-replicaset.yaml"
 	DNS_SERVICE_TEMPLATE_FILEPATH          = "template/yaml/dns-service.yaml"
 	GATEWAY_REPLICATESET_TEMPLATE_FILEPATH = "template/yaml/gateway-replicaset.yaml"
@@ -42,15 +49,16 @@ type ServiceManager struct {
 
 type DnsManager struct {
 	Timer              time.Ticker
-	DnsTemplates       DnsTemplate
+	Templates          Template
 	GatewayMap         map[string]*object.RuntimeGateway
 	ToBeDoneGatewayMap map[string]object.RuntimeGateway
 	Lock               sync.Mutex
 }
 
-type DnsTemplate struct {
+type Template struct {
 	DnsReplicaSetTemplate     object.ReplicaSet
 	DnsServiceTemplate        object.Service
 	GateWayReplicaSetTemplate object.ReplicaSet
 	GateWayServiceTemplate    object.Service
+	ServiceReplicaSetTemplate object.ReplicaSet
 }
