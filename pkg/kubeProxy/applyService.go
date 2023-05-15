@@ -3,9 +3,15 @@ package kubeProxy
 import (
 	"bufio"
 	"fmt"
+	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/services"
+	"minik8s/pkg/util/config"
+	"minik8s/pkg/util/network"
+	"minik8s/pkg/util/tools"
+	"minik8s/pkg/util/weave"
 	"os"
+	"strings"
 )
 
 func updateServiceNginxConfig(runtimeService *object.RuntimeService) {
@@ -81,4 +87,29 @@ func makeServiceConfig(runtimeService *object.RuntimeService) []string {
 	result = append(result, "}")
 
 	return result
+}
+
+func applyWeaveAttach(runtimeService *object.RuntimeService) {
+	// get all pods and selector
+	allPods := client.GetAllPods()
+	// first check if service-pod is running
+	runningPods, _ := tools.Filter(allPods, func(pod object.Pod) bool {
+		if pod.Runtime.Status == config.RUNNING_STATUS && strings.Contains(pod.Metadata.Name, runtimeService.Service.Metadata.Name) {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	if len(runningPods) == 0 {
+		fmt.Printf("this should not happen, service %s has no running pod\n", runtimeService.Service.Metadata.Name)
+		return
+	}
+
+	// attach clusterIp to pod
+	err := weave.Attach(runningPods[0].Runtime.Containers[0], runtimeService.Service.Runtime.ClusterIp+network.Mask)
+	if err != nil {
+		fmt.Println(err)
+		//return
+	}
 }

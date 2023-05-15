@@ -57,6 +57,7 @@ func createRuntimeService(runtimeService *object.RuntimeService) {
 		runtimeService.Status = services.SERVICE_STATUS_RUNNING
 		kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name] = runtimeService
 
+		applyWeaveAttach(runtimeService)
 		updateServiceNginxConfig(runtimeService)
 		fmt.Println("write nginx config finished")
 		reloadNginxConfig(services.SERVICE_CONTAINER_PREFIX + runtimeService.Service.Metadata.Name)
@@ -89,6 +90,6 @@ func deleteRuntimeService(runtimeService *object.RuntimeService) {
 }
 
 func updateRuntimeService(runtimeService *object.RuntimeService) {
-	deleteRuntimeService(runtimeService)
+	//deleteRuntimeService(runtimeService)
 	createRuntimeService(runtimeService)
 }
