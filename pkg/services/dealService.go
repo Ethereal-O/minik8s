@@ -27,7 +27,7 @@ func dealExitService(service *object.Service) {
 }
 
 func createService(service *object.Service) {
-	client.AddReplicaSet(GetServiceReplicaSet(service.Metadata.Name))
+	client.AddReplicaSet(GetServiceReplicaSet(service.Metadata.Name, service.Spec.Ports))
 	serviceManager.Lock.Lock()
 	defer serviceManager.Lock.Unlock()
 	runtimeService := &object.RuntimeService{

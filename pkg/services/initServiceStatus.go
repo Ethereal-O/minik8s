@@ -54,13 +54,6 @@ func selectPods(runtimeService *object.RuntimeService) {
 		return
 	}
 
-	//// attach clusterIp to pod
-	//err := weave.Attach(runningPods[0].Runtime.Containers[0], runtimeService.Service.Runtime.ClusterIp+network.Mask)
-	//if err != nil {
-	//	fmt.Println(err)
-	//	//return
-	//}
-
 	// apply filter to get new pods
 	filterPods, _ := tools.Filter(allPods, func(pod object.Pod) bool {
 		if pod.Runtime.Status != config.RUNNING_STATUS {

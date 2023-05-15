@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"minik8s/pkg/client"
 	"minik8s/pkg/exeFile"
+	// "fmt"
 )
 
 var file string
@@ -18,9 +19,9 @@ var applyCmd = &cobra.Command{
 func doit(cmd *cobra.Command, args []string) {
 	value, key, tp := exeFile.ReadYaml(file)
 	client.Put_object(key, value, tp)
-	//fmt.Println(value)
-	//fmt.Println(key)
-	//fmt.Println(tp)
+	// fmt.Println(value)
+	// fmt.Println(key)
+	// fmt.Println(tp)
 }
 
 func init() {

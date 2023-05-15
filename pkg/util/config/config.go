@@ -25,6 +25,7 @@ var (
 const (
 	POD_TYPE                 = "Pod"
 	REPLICASET_TYPE          = "ReplicaSet"
+	DAEMONSET_TYPE           = "DaemonSet"
 	AUTOSCALER_TYPE          = "AutoScaler"
 	SERVICE_TYPE             = "Service"
 	RUNTIMESERVICE_TYPE      = "RuntimeService"
@@ -38,7 +39,7 @@ const (
 	TRANSFILE_TYPE           = "TransFile"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE,
+var TP = []string{POD_TYPE, REPLICASET_TYPE, DAEMONSET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE,
 	GPUJOB_TYPE, SERVERLESSFUNCTIONS_TYPE, FUNCTION_TYPE, TRANSFILE_TYPE}
 
 const EMPTY_FLAG = "none"
@@ -75,6 +76,12 @@ const (
 	FUNC_NAME               = "func"
 	FUNC_IMAGE              = "henry35/serverless:2.0"
 	FUNC_COMMAND            = "/home/import.sh"
+)
+
+// Image source
+const (
+	PIP3_SOURCE_IMAGE_HOSTNAME = "pypi.tuna.tsinghua.edu.cn"
+	PIP3_SOURCE_IMAGE_IP       = "101.6.15.130"
 )
 
 func init() {

@@ -40,7 +40,6 @@ func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
 	<-ToExit
 	runtimeServiceStop()
 	runtimeGatewayStop()
-	//kubeProxyManager.deleteRootChain()
 	Exited <- true
 }
 

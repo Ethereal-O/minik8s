@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"minik8s/pkg/exeFile"
 	"minik8s/pkg/object"
+	"strconv"
 )
 
 func (dnsManager *DnsManager) InitDnsTemplate() {
@@ -97,12 +98,20 @@ func GetGateWayService(gatewayName string) object.Service {
 	return template
 }
 
-func GetServiceReplicaSet(serviceName string) object.ReplicaSet {
+func GetServiceReplicaSet(serviceName string, ports []object.ServicePort) object.ReplicaSet {
 	template := dnsManager.Templates.ServiceReplicaSetTemplate
 	template.Metadata.Name = SERVICE_REPLICASET_PREFIX + serviceName
 	template.Spec.Template.Metadata.Labels[ALL_SELECTOR] = serviceName
 	template.Spec.Template.Metadata.Name = SERVICE_POD_PREFIX + serviceName
 	template.Spec.Template.Spec.Volumes[0].Path = SERVICE_NGINX_PATH_PREFIX + "/" + serviceName
 	template.Spec.Template.Spec.Containers[0].Name = SERVICE_CONTAINER_PREFIX + serviceName
+	var target_ports []object.Port
+	for _, port := range ports {
+		var target_port, _ = strconv.Atoi(port.TargetPort)
+		target_ports = append(target_ports, object.Port{
+			ContainerPort: target_port,
+		})
+	}
+	template.Spec.Template.Spec.Containers[0].Ports = target_ports
 	return template
 }
