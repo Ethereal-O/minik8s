@@ -14,6 +14,32 @@ import (
 	"strings"
 )
 
+func applyService(runtimeService *object.RuntimeService) {
+	applyClusterIpService(runtimeService)
+	applyNodePortService(runtimeService)
+}
+
+func applyClusterIpService(runtimeService *object.RuntimeService) {
+	applyWeaveAttach(runtimeService)
+	updateServiceNginxConfig(runtimeService)
+	fmt.Println("write nginx config finished")
+	reloadNginxConfig(services.SERVICE_CONTAINER_PREFIX + runtimeService.Service.Metadata.Name)
+	fmt.Println("reload nginx config finished")
+}
+
+func applyNodePortService(runtimeService *object.RuntimeService) {
+	if runtimeService.Service.Spec.Type != config.SERVICE_TYPE_NODEPORT {
+		return
+	}
+	addNodeport(runtimeService)
+	// TODO
+	updateNodePortServiceNginxConfig(runtimeService)
+	fmt.Println("write nginx config finished")
+	// TODO
+	reloadNginxConfig("Name here")
+	fmt.Println("reload nginx config finished")
+}
+
 func updateServiceNginxConfig(runtimeService *object.RuntimeService) {
 	var content []string
 	content = append(content, makeServiceConfig(runtimeService)...)
@@ -112,4 +138,63 @@ func applyWeaveAttach(runtimeService *object.RuntimeService) {
 		fmt.Println(err)
 		//return
 	}
+}
+
+func updateNodePortServiceNginxConfig(runtimeService *object.RuntimeService) {
+	var content []string
+	content = append(content, makeNodePortServiceConfig(runtimeService)...)
+	f, err := os.OpenFile("AAA", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		fmt.Println("nginx config write fail: " + err.Error())
+		return
+	}
+	w := bufio.NewWriter(f)
+	for _, v := range content {
+		fmt.Fprintln(w, v)
+	}
+	err = w.Flush()
+	if err != nil {
+		fmt.Println("nginx config write fail: " + err.Error())
+		return
+	}
+	return
+}
+
+func makeNodePortServiceConfig(runtimeService *object.RuntimeService) []string {
+	var result []string
+	result = append(result, "error_log stderr;")
+	result = append(result, "events { worker_connections  1024; }")
+
+	// http block
+	result = append(result, "http {", "    access_log /dev/stdout combined;")
+	for _, port := range runtimeService.Service.Spec.Ports {
+		if port.Protocol == "UDP" {
+			continue
+		}
+		result = append(result, fmt.Sprintf("    server {        listen %s ;", port.NodePort))
+		result = append(result, fmt.Sprintf("        server_name localhost;"))
+		result = append(result, fmt.Sprintf("        location / {"))
+		result = append(result, fmt.Sprintf("            proxy_pass http://%s:%s/;", runtimeService.Service.Runtime.ClusterIp, port.Port))
+		result = append(result, "        }")
+		result = append(result, "       }")
+	}
+	result = append(result, "}")
+
+	// udp block
+	result = append(result, "stream {")
+	for _, port := range runtimeService.Service.Spec.Ports {
+		if port.Protocol == "TCP" {
+			continue
+		}
+		result = append(result, fmt.Sprintf("    server {        listen %s udp ;", port.NodePort))
+		result = append(result, fmt.Sprintf("            proxy_pass %s:%s;", runtimeService.Service.Runtime.ClusterIp, port.Port))
+		result = append(result, "       }")
+	}
+	result = append(result, "}")
+
+	return result
+}
+
+func addNodeport(runtimeService *object.RuntimeService) {
+	// need to do nothing
 }
