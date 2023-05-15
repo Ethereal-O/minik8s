@@ -78,6 +78,19 @@ type Template struct {
 	Spec     PodSpec  `yaml:"spec" json:"spec"`
 }
 
+// --------------------------- Daemon Set ---------------------------
+
+type DaemonSet struct {
+	Kind     string   `yaml:"kind" json:"kind"`
+	Metadata Metadata `yaml:"metadata" json:"metadata"`
+	Spec     DsSpec   `yaml:"spec" json:"spec"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
+}
+
+type DsSpec struct {
+	Template Template `yaml:"template" json:"template"`
+}
+
 // --------------------------- Auto Scaler ---------------------------
 
 // AutoScaler only support the ReplicaSet type currently
@@ -116,6 +129,7 @@ type Pod struct {
 
 type PodSpec struct {
 	RestartPolicy string      `yaml:"restartPolicy" json:"restartPolicy"`
+	HostMode      string      `yaml:"hostMode" json:"hostMode"`
 	Volumes       []Volume    `yaml:"volumes" json:"volumes"`
 	Containers    []Container `yaml:"containers" json:"containers"`
 }

@@ -36,6 +36,7 @@ const (
 	DNS_SERVICE_TEMPLATE_FILEPATH          = "template/yaml/dns-service.yaml"
 	GATEWAY_REPLICATESET_TEMPLATE_FILEPATH = "template/yaml/gateway-replicaset.yaml"
 	GATEWAY_SERVICE_TEMPLATE_FILEPATH      = "template/yaml/gateway-service.yaml"
+	FORWARD_DAEMONSET_TEMPLATE_FILEPATH = "template/yaml/forward-daemonset.yaml"
 )
 
 // Service

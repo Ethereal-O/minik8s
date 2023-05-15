@@ -13,25 +13,38 @@ import (
 
 func StartPod(pod *object.Pod, node *object.Node) bool {
 	var containersIdList []string
-	// Step 1: Start pause container
-	result, ID := StartPauseContainer(pod)
-	if !result {
-		return false
-	}
-	containersIdList = append(containersIdList, ID)
 
-	// Step 2: Get pod IP from pause container
-	inspection, _ := Client.ContainerInspect(Ctx, ID)
-	status, _ := inspectionToContainerRuntime(&inspection)
-	pod.Runtime.PodIp = status.IP
-
-	// Step 3: Start common containers
-	for _, myContainer := range pod.Spec.Containers {
-		result, ID := StartCommonContainer(pod, &myContainer)
+	// Host mode pod has no pause container
+	if pod.Spec.HostMode == "true" {
+		// Step 1: Start host containers
+		for _, myContainer := range pod.Spec.Containers {
+			result, ID := StartHostContainer(pod, &myContainer)
+			if !result {
+				return false
+			}
+			containersIdList = append(containersIdList, ID)
+		}
+	} else {
+		// Step 1: Start pause container
+		result, ID := StartPauseContainer(pod)
 		if !result {
 			return false
 		}
 		containersIdList = append(containersIdList, ID)
+
+		// Step 2: Get pod IP from pause container
+		inspection, _ := Client.ContainerInspect(Ctx, ID)
+		status, _ := inspectionToContainerRuntime(&inspection)
+		pod.Runtime.PodIp = status.IP
+
+		// Step 3: Start common containers
+		for _, myContainer := range pod.Spec.Containers {
+			result, ID := StartCommonContainer(pod, &myContainer)
+			if !result {
+				return false
+			}
+			containersIdList = append(containersIdList, ID)
+		}
 	}
 
 	// Step 4: Sync pod with API server
@@ -117,8 +130,7 @@ func ProbeCycle(pod *object.Pod) {
 			var containerMemoryPercentageList []float64
 			var containerCpuPercentageList []float64
 
-			//The pause container should not be calculated and is supposed to be with no error
-			for _, containerId := range pod.Runtime.Containers[1:] {
+			for _, containerId := range pod.Runtime.Containers {
 				inspection, err := Client.ContainerInspect(Ctx, containerId)
 				if err != nil {
 					// Container does not exist, restart the pod!
@@ -148,9 +160,15 @@ func ProbeCycle(pod *object.Pod) {
 }
 
 func PodException(pod *object.Pod) {
-	// If the pod belongs to an RS, no need to restart, because RS will do it automatically
-	// If the pod belongs to a job, it has no need to restart
-	pod.Runtime.NeedRestart = (pod.Runtime.Belong == "") != strings.EqualFold(pod.Metadata.Name[:6], "gpujob")
+	pod.Runtime.NeedRestart = true
+	// If the pod belongs to an RS/DS, no need to restart, because RS/DS will do it automatically
+	if pod.Runtime.Belong != "" {
+		pod.Runtime.NeedRestart = false
+	}
+	// If the pod belongs to a gpujob, no need to restart
+	if strings.HasPrefix(strings.ToLower(pod.Metadata.Name), "gpujob") {
+		pod.Runtime.NeedRestart = false
+	}
 	pod.Runtime.Status = config.EXIT_STATUS
 	client.AddPod(*pod)
 
