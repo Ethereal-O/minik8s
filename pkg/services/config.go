@@ -25,9 +25,11 @@ const (
 	SERVICE_REPLICASET_PREFIX              = "SvcRS-"
 	SERVICE_POD_PREFIX                     = "SvcPod-"
 	SERVICE_CONTAINER_PREFIX               = "SvcCont-"
+	FORWARD_DAEMONSET_PREFIX               = "Forward-DS"
 	ALL_SELECTOR                           = "bound"
 	GATEWAY_NGINX_PATH_PREFIX              = "/home/os/minik8s/Gateway"
 	SERVICE_NGINX_PATH_PREFIX              = "/home/os/minik8s/Service"
+	FORWARD_NGINX_PATH                     = "/home/os/minik8s/Forward/nginx.conf"
 	NGINX_CONFIG_FILE                      = "nginx.conf"
 	HOST_PATH                              = "/home/os/minik8s/DNS/hosts.conf"
 	NGINX_TEMPLATE_FILEPATH                = "template/config/NGINX_TEMPLATE"
@@ -36,6 +38,7 @@ const (
 	DNS_SERVICE_TEMPLATE_FILEPATH          = "template/yaml/dns-service.yaml"
 	GATEWAY_REPLICATESET_TEMPLATE_FILEPATH = "template/yaml/gateway-replicaset.yaml"
 	GATEWAY_SERVICE_TEMPLATE_FILEPATH      = "template/yaml/gateway-service.yaml"
+	FORWARD_DAEMONSET_TEMPLATE_FILEPATH    = "template/yaml/forward-daemonset.yaml"
 )
 
 // Service

@@ -206,8 +206,6 @@ func DeleteRuntimeGateway(runtimeGateway object.RuntimeGateway) string {
 
 // --------------------------- ReplicaSet ---------------------------
 
-// TODO: add ReplicaSet
-
 func AddReplicaSet(replicaSet object.ReplicaSet) string {
 	replicaSetValue, err := json.Marshal(replicaSet)
 	if err != nil {
@@ -229,6 +227,31 @@ func GetReplicaSetByKey(key string) []object.ReplicaSet {
 
 func DeleteReplicaSet(replicaSet object.ReplicaSet) string {
 	return Delete_object(replicaSet.Metadata.Name, config.REPLICASET_TYPE)
+}
+
+// --------------------------- DaemonSet ---------------------------
+
+func AddDaemonSet(daemonSet object.DaemonSet) string {
+	daemonSetValue, err := json.Marshal(daemonSet)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(daemonSet.Metadata.Name, string(daemonSetValue), config.DAEMONSET_TYPE)
+}
+
+func GetDaemonSetByKey(key string) []object.DaemonSet {
+	daemonSetList := Get_object(key, config.DAEMONSET_TYPE)
+	var resList []object.DaemonSet
+	for _, daemonSet := range daemonSetList {
+		var daemonSetObject object.DaemonSet
+		json.Unmarshal([]byte(daemonSet), &daemonSetObject)
+		resList = append(resList, daemonSetObject)
+	}
+	return resList
+}
+
+func DeleteDaemonSet(daemonSet object.DaemonSet) string {
+	return Delete_object(daemonSet.Metadata.Name, config.DAEMONSET_TYPE)
 }
 
 // --------------------------- AutoScaler ---------------------------

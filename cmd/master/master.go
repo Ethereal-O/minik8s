@@ -29,6 +29,7 @@ func doit(cmd *cobra.Command, args []string) {
 	// Wait for API Server to start
 	time.Sleep(1 * time.Second)
 	go controller.Start_rsController()
+	go controller.Start_dsController()
 	go controller.Start_hpaController()
 	go controller.Start_GpuJobController()
 	go controller.Start_serverlessFunctionsController()
@@ -39,12 +40,14 @@ func doit(cmd *cobra.Command, args []string) {
 	// Gracefully exit after Ctrl-C
 	<-c
 	controller.RSControllerToExit <- true
+	controller.DSControllerToExit <- true
 	controller.HpaControllerToExit <- true
 	controller.GpuJobControllerToExit <- true
 	controller.ServerlessFunctionsControllerToExit <- true
 	scheduler.ToExit <- true
 	services.ToExit <- true
 	<-controller.RSControllerExited
+	<-controller.DSControllerExited
 	<-controller.HpaControllerExited
 	<-controller.GpuJobControllerExited
 	<-controller.ServerlessFunctionsControllerExited

@@ -76,6 +76,26 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
+	if tp == config.DAEMONSET_TYPE {
+		table, _ := gotable.Create("Name", "Uuid", "Status", "Pods")
+		for _, ds := range res {
+			var dsObject object.DaemonSet
+			json.Unmarshal([]byte(ds), &dsObject)
+			rows := make([]map[string]string, 0)
+			if dsObject.Runtime.Status != config.EXIT_STATUS {
+				dspodList, _ := object.GetPodsOfDS(&dsObject, client.GetActivePods())
+
+				row := make(map[string]string)
+				row["Name"] = dsObject.Metadata.Name
+				row["Uuid"] = dsObject.Runtime.Uuid
+				row["Status"] = dsObject.Runtime.Status
+				row["Pods"] = object.SerializePodList(dspodList)
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
 	if tp == config.AUTOSCALER_TYPE {
 		table, _ := gotable.Create("Name", "Uuid", "Status", "MinReplicas", "MaxReplicas", "ActualReplicas")
 		for _, hpa := range res {

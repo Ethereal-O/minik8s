@@ -25,6 +25,8 @@ type KubeProxyManager struct {
 	Lock              sync.Mutex
 }
 
+// DEPRECATED
+
 type PodInfo struct {
 	// PodName is the name of the pod
 	PodName string
