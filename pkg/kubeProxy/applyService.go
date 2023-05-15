@@ -32,11 +32,9 @@ func applyNodePortService(runtimeService *object.RuntimeService) {
 		return
 	}
 	addNodeport(runtimeService)
-	// TODO
 	updateNodePortServiceNginxConfig(runtimeService)
 	fmt.Println("write nginx config finished")
-	// TODO
-	reloadNginxConfig("Name here")
+	reloadNginxConfig(services.FORWARD_DAEMONSET_PREFIX)
 	fmt.Println("reload nginx config finished")
 }
 
@@ -143,7 +141,7 @@ func applyWeaveAttach(runtimeService *object.RuntimeService) {
 func updateNodePortServiceNginxConfig(runtimeService *object.RuntimeService) {
 	var content []string
 	content = append(content, makeNodePortServiceConfig(runtimeService)...)
-	f, err := os.OpenFile("AAA", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	f, err := os.OpenFile(services.FORWARD_NGINX_PATH, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		fmt.Println("nginx config write fail: " + err.Error())
 		return
