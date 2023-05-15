@@ -77,6 +77,12 @@ const (
 	FUNC_COMMAND            = "/home/import.sh"
 )
 
+// Image source
+const (
+	PIP3_SOURCE_IMAGE_HOSTNAME = "pypi.tuna.tsinghua.edu.cn"
+	PIP3_SOURCE_IMAGE_IP       = "101.6.15.130"
+)
+
 func init() {
 	data, err := ioutil.ReadFile("master_ip.txt")
 	if err != nil {

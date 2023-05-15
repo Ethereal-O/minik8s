@@ -2,6 +2,8 @@ package object
 
 import "minik8s/pkg/util/config"
 
+// --- Pods and Rs ---
+
 func GetPodsOfRS(rs *ReplicaSet, activePods []Pod) ([]Pod, int) {
 	actualNum := 0
 	var rspodList []Pod
@@ -28,6 +30,8 @@ func SerializePodList(podList []Pod) string {
 	}
 	return serialized
 }
+
+// --- Service ---
 
 func SerializeSelectorList(selectorList map[string]string) string {
 	serialized := ""
@@ -77,4 +81,28 @@ func SerializePathList(pathList []Path) string {
 		}
 	}
 	return serialized
+}
+
+// --- GpuJob  ---
+
+func GpuJobPodFullName(job GpuJob) string {
+	return config.GPU_JOB_NAME + "_pod_" + job.Metadata.Name
+}
+
+// --- Serverless  ---
+
+func ServerlessFunctionsRsFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_rs_" + functions.Metadata.Name
+}
+
+func ServerlessFunctionsHpaFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_autoscaler_" + functions.Metadata.Name
+}
+
+func ServerlessFunctionsServiceFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_service_" + functions.Metadata.Name
+}
+
+func ServerlessFunctionsPodFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_pod_" + functions.Metadata.Name
 }

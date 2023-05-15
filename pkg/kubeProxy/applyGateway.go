@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"minik8s/pkg/object"
 	"minik8s/pkg/services"
+	"minik8s/pkg/util/config"
 	"os"
 )
 
@@ -24,6 +25,8 @@ func updateDnsConfig() {
 			return
 		}
 	}
+	lineStr := fmt.Sprintf("%s %s", config.PIP3_SOURCE_IMAGE_IP, config.PIP3_SOURCE_IMAGE_HOSTNAME)
+	_, err = fmt.Fprintln(w, lineStr)
 	err = w.Flush()
 	if err != nil {
 		fmt.Println("dns config write fail: " + err.Error())

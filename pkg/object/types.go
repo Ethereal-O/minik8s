@@ -33,6 +33,10 @@ type Runtime struct {
 	// --- Node ---
 	// Available resources of the node
 	Available Resources `yaml:"available" json:"available"`
+
+	// --- ServerlessFunctions ---
+	// When a function is available, FunctionIp is the target Ip
+	FunctionIp string `yaml:"functionIp" json:"functionIp"`
 }
 
 // --------------------------- Node ---------------------------
