@@ -160,6 +160,22 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
+	if tp == config.FUNCTION_TYPE {
+		table, _ := gotable.Create("Name", "Status", "Ip")
+		functionList := client.GetActiveFunctions()
+		for _, functionObject := range functionList {
+			rows := make([]map[string]string, 0)
+			if functionObject.Runtime.Status != config.EXIT_STATUS {
+				row := make(map[string]string)
+				row["Name"] = functionObject.FuncName
+				row["Status"] = functionObject.Runtime.Status
+				row["Ip"] = functionObject.Runtime.FunctionIp
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
 }
 
 func init() {

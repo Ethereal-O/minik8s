@@ -4,13 +4,17 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"io/ioutil"
+	"minik8s/pkg/client"
 	"minik8s/pkg/exeFile"
+	"minik8s/pkg/util/config"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
-var file string
+var paramFile string
+var funcName string
 
 var RequestCmd = &cobra.Command{
 	Use:   "request",
@@ -20,13 +24,30 @@ var RequestCmd = &cobra.Command{
 }
 
 func doit(cmd *cobra.Command, args []string) {
-	params := exeFile.ReadRequest(file)
+	tarFunction := client.GetFunction(funcName)
+	if tarFunction == nil {
+		fmt.Println("The function not exist!")
+		return
+	}
+	if tarFunction.Runtime.Status != config.RUNNING_STATUS {
+		for {
+			time.Sleep(3 * time.Second)
+			fmt.Println("Waiting for the pod to start (cold start)!")
+			tarFunction = client.GetFunction(funcName)
+			if tarFunction.Runtime.Status == config.RUNNING_STATUS {
+				break
+			}
+		}
+	}
+	params := exeFile.ReadRequest(paramFile)
 	urlMap := url.Values{}
 	for key, value := range params {
 		urlMap.Add(key, value)
 	}
-
-	request, err := http.NewRequest("POST", params["url"], strings.NewReader(urlMap.Encode()))
+	urlMap.Add("function", tarFunction.FuncName)
+	urlMap.Add("module", tarFunction.Module)
+	url := "http://" + tarFunction.Runtime.FunctionIp + ":8081" + "/run"
+	request, err := http.NewRequest("POST", url, strings.NewReader(urlMap.Encode()))
 	if err != nil {
 		panic(err)
 	}
@@ -47,12 +68,14 @@ func doit(cmd *cobra.Command, args []string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(b))
+	fmt.Println("The result is:", string(b))
 }
 
 func init() {
-	RequestCmd.Flags().StringVarP(&file, "file", "f", "", "Path to yaml file")
-	RequestCmd.MarkFlagRequired("file")
+	RequestCmd.Flags().StringVarP(&funcName, "funcName", "f", "", "The function name")
+	RequestCmd.Flags().StringVarP(&paramFile, "paramFile", "p", "", "Path to the param yaml file")
+	RequestCmd.MarkFlagRequired("funcName")
+	RequestCmd.MarkFlagRequired("paramFile")
 }
 
 func Request() *cobra.Command {

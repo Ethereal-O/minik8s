@@ -37,7 +37,7 @@ func dealJob(gpujobChan chan string) {
 			var newPod = &object.Pod{
 				Kind: config.POD_TYPE,
 				Metadata: object.Metadata{
-					Name: "gpujob_pod_" + jobname,
+					Name: object.GpuJobPodFullName(tarGpuJob),
 				},
 				Spec: object.PodSpec{
 					Volumes: []object.Volume{

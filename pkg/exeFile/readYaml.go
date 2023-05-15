@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"minik8s/pkg/client"
 	"minik8s/pkg/fileServer"
 	"minik8s/pkg/object"
 	"os"
@@ -157,11 +156,6 @@ func parseServerlessFunctions(yamlFile []byte) (string, string, string) {
 	dir, err := os.Getwd()
 	path := conf.Spec.Path
 	fileServer.UploadFile(dir+path, key, "FuncFile")
-
-	for _, function := range conf.Spec.Items {
-		function_conf, _ := json.Marshal(function)
-		client.Put_object(key+"_"+function.FuncName, string(function_conf), "Function")
-	}
 
 	inf, _ := json.Marshal(conf)
 	return string(inf), key, "ServerlessFunctions"
