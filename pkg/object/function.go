@@ -91,6 +91,18 @@ func GpuJobPodFullName(job GpuJob) string {
 
 // --- Serverless  ---
 
+func ServerlessFunctionsRsFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_rs_" + functions.Metadata.Name
+}
+
+func ServerlessFunctionsHpaFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_autoscaler_" + functions.Metadata.Name
+}
+
+func ServerlessFunctionsServiceFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_service_" + functions.Metadata.Name
+}
+
 func ServerlessFunctionsPodFullName(functions ServerlessFunctions) string {
 	return config.FUNC_NAME + "_pod_" + functions.Metadata.Name
 }
