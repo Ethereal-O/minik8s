@@ -2,4 +2,5 @@
         hosts {
           import hosts.conf
         }
+        reload 10s
 }
