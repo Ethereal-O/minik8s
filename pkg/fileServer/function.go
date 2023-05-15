@@ -9,7 +9,6 @@ import (
 	"minik8s/pkg/util/config"
 	"os"
 	"path/filepath"
-	"strconv"
 )
 
 func UploadFile(dirpath string, key string, tp string) {
@@ -45,23 +44,14 @@ func DownloadFile(value string, dirpath string) {
 	//Step1: Create the dir in the shareDir(for gpu)/functions(for faas)
 	err := os.MkdirAll(dirpath, 0777)
 	if err != nil {
-		fmt.Println("[download fail!!!!]" + dirpath)
 		return
 	}
-	fmt.Println("[download]" + dirpath)
-	fmt.Println("[download]" + dirpath)
-	fmt.Println("[download]" + dirpath)
-	fmt.Println("[download]" + dirpath)
 	fmt.Println("[download]" + dirpath)
 	var files []string
 	err = json.Unmarshal([]byte(value), &files)
 	if err != nil {
-		fmt.Println("[download fail!!!!] unmashall")
 		return
 	}
-	fmt.Println("[download]" + strconv.Itoa(len(files)))
-	fmt.Println("[download]" + strconv.Itoa(len(files)))
-	fmt.Println("[download]" + strconv.Itoa(len(files)))
 	var flag = 0
 	var filename string
 	for _, item := range files {

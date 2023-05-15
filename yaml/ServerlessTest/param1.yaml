@@ -1,5 +1,2 @@
-url: http://10.10.1.2:8081/run
-module: add
-function: add
 x: 10
 y: 22

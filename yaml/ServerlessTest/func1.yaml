@@ -8,5 +8,5 @@ spec:
       module: add
     - funcName: minus
       module: minus
-    - funcName: matrix
+    - funcName: rank
       module: matrix
