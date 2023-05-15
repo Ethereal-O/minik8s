@@ -1,0 +1,26 @@
+kind: DaemonSet
+metadata:
+  name: Forward-DS
+  labels:
+    bound: Forward
+spec:
+  template:
+    metadata:
+      name: Forward-Pod
+      labels:
+        bound: Forward
+    spec:
+      restartPolicy: Always
+      hostMode: true
+      containers:
+        - name: Forward-Cont
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: Forward-Volume
+              mountPath: /etc/nginx
+      volumes:
+        - name: Forward-Volume
+          type: hostPath
+          path: /home/os/minik8s/Forward

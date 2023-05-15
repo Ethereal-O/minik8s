@@ -177,6 +177,67 @@ func replicaset_delete(c echo.Context) error {
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
+//--------------------- DaemonSet Handler ---------------------------
+
+func daemonset_put(c echo.Context) error {
+	dsObject := new(object.DaemonSet)
+	if err := c.Bind(dsObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if dsObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		dsObject.Runtime.Uuid = uuid
+	}
+	if dsObject.Runtime.Status == "" {
+		dsObject.Runtime.Status = config.CREATED_STATUS
+	}
+	ds, err := json.Marshal(dsObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(ds)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func daemonset_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func daemonset_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var dsObject object.DaemonSet
+	err := json.Unmarshal([]byte(res[0]), &dsObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	dsObject.Runtime.Status = config.EXIT_STATUS
+	ds, err := json.Marshal(dsObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(ds)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
 //--------------------- AutoScaler Handler ---------------------------
 
 func autoscaler_put(c echo.Context) error {

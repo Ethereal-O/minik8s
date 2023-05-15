@@ -25,6 +25,7 @@ else
   pubUrl="http://127.0.0.1:4151/pub?topic="
   curl -d "hello" "${pubUrl}Pod"
   curl -d "hello" "${pubUrl}ReplicaSet"
+  curl -d "hello" "${pubUrl}DaemonSet"
   curl -d "hello" "${pubUrl}AutoScaler"
   curl -d "hello" "${pubUrl}Service"
   curl -d "hello" "${pubUrl}RuntimeService"

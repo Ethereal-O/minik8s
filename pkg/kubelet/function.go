@@ -54,9 +54,9 @@ func addPortBindings(portBindings nat.PortMap, ports []object.Port) {
 		if port.Protocol == "" {
 			port.Protocol = "tcp"
 		}
-		// HostIP not assigned, default is host IP (192.168.xx.xx)
+		// HostIP not assigned, default is "0.0.0.0"
 		if port.HostIP == "" {
-			port.HostIP, _ = network.GetHostIp()
+			port.HostIP = "0.0.0.0"
 		}
 		// HostPort not assigned, default is random available port
 		if port.HostPort == 0 {
@@ -219,6 +219,5 @@ func inspectionToContainerRuntime(inspection *InspectInfo) (*Status, error) {
 		CpuPercent:   cpuPercent,
 		MemPercent:   memPercent,
 		IP:           inspection.NetworkSettings.IPAddress,
-		//IP:           inspection.NetworkSettings.IPAddress + "/" + strconv.Itoa(inspection.NetworkSettings.IPPrefixLen),
 	}, nil
 }

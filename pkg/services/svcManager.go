@@ -3,10 +3,13 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"minik8s/pkg/client"
+	"minik8s/pkg/exeFile"
 	"minik8s/pkg/messging"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"sync"
+	"time"
 )
 
 var serviceManager *ServiceManager
@@ -25,6 +28,9 @@ func StartServiceManager() {
 	serviceManager = createServiceManager()
 	serviceChan, serviceStop := messging.Watch("/"+config.SERVICE_TYPE, true)
 	go dealService(serviceChan)
+
+	time.Sleep(5 * time.Second)
+	enableForwarding()
 
 	// Wait until Ctrl-C
 	<-ToExit
@@ -54,4 +60,15 @@ func dealService(serviceChan chan string) {
 			}
 		}
 	}
+}
+
+func enableForwarding() {
+	value, _, _ := exeFile.ReadYaml(FORWARD_DAEMONSET_TEMPLATE_FILEPATH)
+	var DaemonSetObject object.DaemonSet
+	err := json.Unmarshal([]byte(value), &DaemonSetObject)
+	if err != nil {
+		fmt.Println("Enable forwarding fail" + err.Error())
+		return
+	}
+	client.AddDaemonSet(DaemonSetObject)
 }
