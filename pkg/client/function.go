@@ -296,7 +296,7 @@ func AddNode(node object.Node) string {
 	}
 	return Put_object(node.Metadata.Name, string(nodeValue), config.NODE_TYPE)
 }
-	
+
 // --------------------------- GpuJob ---------------------------
 
 func AddGpuJob(gpuJob object.GpuJob) string {
@@ -320,4 +320,66 @@ func GetAllGpuJob() []object.GpuJob {
 
 func DeleteGpuJob(gpuJob object.GpuJob) string {
 	return Delete_object(gpuJob.Metadata.Name, config.GPUJOB_TYPE)
+}
+
+// --------------------------- ServerlessFunctions ---------------------------
+
+func AddServerlessFunctions(serverlessFunctions object.ServerlessFunctions) string {
+	serverlessFunctionsValue, err := json.Marshal(serverlessFunctions)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(serverlessFunctions.Metadata.Name, string(serverlessFunctionsValue), config.SERVERLESSFUNCTIONS_TYPE)
+}
+
+func GetAllServerlessFunctions() []object.ServerlessFunctions {
+	serverlessFunctionsList := Get_object(config.EMPTY_FLAG, config.SERVERLESSFUNCTIONS_TYPE)
+	var resList []object.ServerlessFunctions
+	for _, serverlessFunctions := range serverlessFunctionsList {
+		var serverlessFunctionsObject object.ServerlessFunctions
+		json.Unmarshal([]byte(serverlessFunctions), &serverlessFunctionsObject)
+		resList = append(resList, serverlessFunctionsObject)
+	}
+	return resList
+}
+
+func DeleteServerlessFunctionsValue(serverlessFunctions object.ServerlessFunctions) string {
+	return Delete_object(serverlessFunctions.Metadata.Name, config.SERVERLESSFUNCTIONS_TYPE)
+}
+
+func GetAllFunctions() []object.Function {
+	var functionList []object.Function
+	serverlessFunctionsList := GetAllServerlessFunctions()
+	for _, serverlessFunctions := range serverlessFunctionsList {
+		for _, function := range serverlessFunctions.Spec.Items {
+			function.Runtime = serverlessFunctions.Runtime
+			functionList = append(functionList, function)
+		}
+	}
+	return functionList
+}
+
+func GetActiveFunctions() []object.Function {
+	var functionList []object.Function
+	serverlessFunctionsList := GetAllServerlessFunctions()
+	for _, serverlessFunctions := range serverlessFunctionsList {
+		if serverlessFunctions.Runtime.Status != config.RUNNING_STATUS {
+			continue
+		}
+		for _, function := range serverlessFunctions.Spec.Items {
+			function.Runtime = serverlessFunctions.Runtime
+			functionList = append(functionList, function)
+		}
+	}
+	return functionList
+}
+
+func GetFunction(funcName string) *object.Function {
+	functionList := GetAllFunctions()
+	for _, function := range functionList {
+		if function.FuncName == funcName {
+			return &function
+		}
+	}
+	return nil
 }
