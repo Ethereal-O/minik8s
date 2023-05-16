@@ -52,6 +52,7 @@ func dealService(serviceChan chan string) {
 				continue
 			}
 			if tarService.Runtime.Status == config.EXIT_STATUS {
+				fmt.Println("abcdefg!")
 				dealExitService(&tarService)
 			} else if tarService.Runtime.Status == config.RUNNING_STATUS {
 				dealRunningService(&tarService)

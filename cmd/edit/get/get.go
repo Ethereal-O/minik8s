@@ -182,7 +182,7 @@ func doit(cmd *cobra.Command, args []string) {
 	}
 	if tp == config.FUNCTION_TYPE {
 		table, _ := gotable.Create("Name", "Status", "Ip")
-		functionList := client.GetActiveFunctions()
+		functionList := client.GetAllFunctions()
 		for _, functionObject := range functionList {
 			rows := make([]map[string]string, 0)
 			if functionObject.Runtime.Status != config.EXIT_STATUS {

@@ -11,46 +11,36 @@ import (
 	"time"
 )
 
-//func postJsonData() {
-//	fmt.Println("------------------- post json data --------------------------")
-//
-//	//数据格式化
-//	data := map[string]interface{}{
-//		"name": "alnk2",
-//		"age":  18,
-//	}
-//	dataStr, err := json.Marshal(data)
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	//创建一个新的post请求
-//	request, err := http.NewRequest("POST", config.APISERVER_URL, strings.NewReader(string(dataStr)))
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	//请求头设置
-//	request.Header.Add("Authorization", "token1...")       //token
-//	request.Header.Add("Content-Type", "application/json") //json请求
-//
-//	//发送请求到服务端
-//	client := &http.Client{}
-//	res, err := client.Do(request)
-//	if err != nil {
-//		panic(err)
-//	}
-//	defer res.Body.Close()
-//
-//	//获取服务端的返回值
-//	b, err := ioutil.ReadAll(res.Body)
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	fmt.Println(string(b))
-//
-//}
+func ForwardPostData(formData map[string]string, tagetUrl string) string {
+	urlMap := url.Values{}
+	for key, value := range formData {
+		urlMap.Add(key, value)
+	}
+
+	request, err := http.NewRequest("POST", tagetUrl, strings.NewReader(urlMap.Encode()))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("request.url: ", request.URL)
+	fmt.Println("request.method: ", request.Method)
+
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	//发送请求给服务端
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	defer res.Body.Close()
+
+	//服务端返回数据
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
+}
 
 func postFormData(key string, prix bool, crt string) string {
 	urlMap := url.Values{}
