@@ -66,7 +66,8 @@ func (kubeProxyManager *KubeProxyManager) updateRuntimeService() {
 
 	// add new runtimeService to map
 	for _, runtimeService := range newRuntimeServices {
-		kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name] = &runtimeService
+		runtimeServiceRef := runtimeService
+		kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name] = &runtimeServiceRef
 	}
 
 	// update node port service config
