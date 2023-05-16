@@ -11,6 +11,7 @@ import (
 )
 
 func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
+	updateDnsConfig()
 	kubeProxyManager.Timer = *time.NewTicker(CHECK_NODEPORT_SERVICE_TIME_INTERVAL)
 	go kubeProxyManager.checkNodePortServiceLoop()
 }

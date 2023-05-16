@@ -35,13 +35,14 @@ func createRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 		runtimeGateway.Status = services.GATEWAY_STATUS_RUNNING
 		kubeProxyManager.RuntimeGatewayMap[runtimeGateway.Gateway.Metadata.Name] = runtimeGateway
 
+		client.AddRuntimeGateway(*runtimeGateway)
+
 		updateGatewayNginxConfig(runtimeGateway)
 		fmt.Println("write nginx config finished")
 		reloadNginxConfig(services.GATEWAY_CONTAINER_PREFIX + runtimeGateway.Gateway.Metadata.Name)
 		fmt.Println("reload nginx config finished")
 		updateDnsConfig()
 
-		client.AddRuntimeGateway(*runtimeGateway)
 	}
 }
 
