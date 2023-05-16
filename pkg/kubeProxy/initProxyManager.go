@@ -1,77 +1,36 @@
 package kubeProxy
 
 import (
-	"fmt"
 	"minik8s/pkg/client"
-	"minik8s/pkg/object"
 	"minik8s/pkg/services"
-	"minik8s/pkg/util/config"
-	"minik8s/pkg/util/tools"
-	"time"
 )
 
 func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
-	updateDnsConfig()
-	kubeProxyManager.Timer = *time.NewTicker(CHECK_NODEPORT_SERVICE_TIME_INTERVAL)
-	go kubeProxyManager.checkNodePortServiceLoop()
-}
-
-func (kubeProxyManager *KubeProxyManager) checkNodePortServiceLoop() {
-	defer kubeProxyManager.Timer.Stop()
-	for {
-		select {
-		case <-kubeProxyManager.Timer.C:
-			kubeProxyManager.checkNodePortService()
-		}
-	}
-}
-
-func (kubeProxyManager *KubeProxyManager) checkNodePortService() {
 	kubeProxyManager.Lock.Lock()
 	defer kubeProxyManager.Lock.Unlock()
-	kubeProxyManager.updateRuntimeService()
+	kubeProxyManager.initGatewayMap()
+	kubeProxyManager.initServiceMap()
+	updateDnsConfig()
+	applyNodePortService()
 }
 
-func (kubeProxyManager *KubeProxyManager) updateRuntimeService() {
-	// get all runtimeService
+func (kubeProxyManager *KubeProxyManager) initServiceMap() {
 	allRuntimeServices := client.GetAllRuntimeServices()
-
-	// first check if service is running
-	runningRuntimeServices, _ := tools.Filter(allRuntimeServices, func(runtimeService object.RuntimeService) bool {
-		if runtimeService.Status == services.SERVICE_STATUS_RUNNING && runtimeService.Service.Spec.Type == config.SERVICE_TYPE_NODEPORT {
-			return true
-		} else {
-			return false
+	for _, runtimeService := range allRuntimeServices {
+		if runtimeService.Status == services.SERVICE_STATUS_RUNNING {
+			runtimeServiceRef := runtimeService
+			kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name] = &runtimeServiceRef
 		}
-	})
-
-	if len(runningRuntimeServices) == 0 {
-		return
 	}
+}
 
-	// apply filter to get new runtimeService
-	newRuntimeServices, _ := tools.Filter(runningRuntimeServices, func(runtimeService object.RuntimeService) bool {
-		if _, ok := kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name]; ok {
-			return false
-		} else {
-			return true
+func (kubeProxyManager *KubeProxyManager) initGatewayMap() {
+	allRuntimeGateways := client.GetAllRuntimeGateways()
+	for _, runtimeGateway := range allRuntimeGateways {
+		if runtimeGateway.Status == services.GATEWAY_STATUS_RUNNING || runtimeGateway.Status == services.GATEWAY_STATUS_DEPLOYING {
+			runtimeGatewayRef := runtimeGateway
+			runtimeGatewayRef.Status = services.GATEWAY_STATUS_RUNNING
+			kubeProxyManager.RuntimeGatewayMap[runtimeGateway.Gateway.Metadata.Name] = &runtimeGatewayRef
 		}
-	})
-
-	if len(newRuntimeServices) == 0 {
-		return
-	}
-
-	fmt.Printf("updating node port service config num %d\n", len(newRuntimeServices))
-
-	// add new runtimeService to map
-	for _, runtimeService := range newRuntimeServices {
-		runtimeServiceRef := runtimeService
-		kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name] = &runtimeServiceRef
-	}
-
-	// update node port service config
-	for _, runtimeService := range kubeProxyManager.RuntimeServiceMap {
-		applyNodePortService(runtimeService)
 	}
 }

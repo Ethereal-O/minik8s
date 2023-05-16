@@ -3,7 +3,6 @@ package kubeProxy
 import (
 	"bufio"
 	"fmt"
-	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/services"
 	"minik8s/pkg/util/config"
@@ -19,8 +18,7 @@ func updateDnsConfig() {
 	}
 	w := bufio.NewWriter(f)
 	var hosts_str string
-	gateways := client.GetAllRuntimeGateways()
-	for _, gateway := range gateways {
+	for _, gateway := range kubeProxyManager.RuntimeGatewayMap {
 		if gateway.Status != services.GATEWAY_STATUS_RUNNING {
 			continue
 		}

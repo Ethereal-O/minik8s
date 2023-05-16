@@ -23,7 +23,6 @@ type KubeProxyManager struct {
 	RuntimeServiceMap map[string]*object.RuntimeService
 	RuntimeGatewayMap map[string]*object.RuntimeGateway
 	RootChain         RootChain // DEPRECATED
-	Timer             time.Ticker
 	Lock              sync.Mutex
 }
 
