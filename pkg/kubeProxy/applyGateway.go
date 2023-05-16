@@ -31,6 +31,13 @@ func updateDnsConfig() {
 	if err != nil {
 		fmt.Println("dns config write fail: " + err.Error())
 	}
+
+	// copy it to host
+	args := fmt.Sprintf("%s %s", services.HOST_PATH, services.HOST_HOSTS_PATH)
+	_, err = execCmd("cp", args)
+	if err != nil {
+		return
+	}
 	return
 }
 
