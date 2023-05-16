@@ -249,6 +249,7 @@ type Function struct {
 	FuncName string  `json:"funcName" yaml:"funcName"`
 	Module   string  `json:"module" yaml:"module"`
 	Runtime  Runtime `yaml:"runtime" json:"runtime"`
+	FaasName string  `yaml:"faasName" json:"faasName"`
 }
 
 // --------------------------- File ---------------------------
