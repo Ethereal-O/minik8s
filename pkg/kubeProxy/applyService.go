@@ -16,7 +16,10 @@ import (
 
 func applyService(runtimeService *object.RuntimeService) {
 	applyClusterIpService(runtimeService)
-	applyNodePortService(runtimeService)
+	if runtimeService.Service.Spec.Type != config.SERVICE_TYPE_NODEPORT {
+		return
+	}
+	applyNodePortService()
 }
 
 func applyClusterIpService(runtimeService *object.RuntimeService) {
@@ -27,11 +30,7 @@ func applyClusterIpService(runtimeService *object.RuntimeService) {
 	fmt.Println("reload nginx config finished")
 }
 
-func applyNodePortService(runtimeService *object.RuntimeService) {
-	if runtimeService.Service.Spec.Type != config.SERVICE_TYPE_NODEPORT {
-		return
-	}
-	addNodeport(runtimeService)
+func applyNodePortService() {
 	updateNodePortServiceNginxConfig()
 	fmt.Println("write nginx config finished")
 	reloadNginxConfig(services.FORWARD_DAEMONSET_PREFIX)
@@ -201,8 +200,4 @@ func makeNodePortServiceConfig() []string {
 	result = append(result, "}")
 
 	return result
-}
-
-func addNodeport(runtimeService *object.RuntimeService) {
-	// need to do nothing
 }
