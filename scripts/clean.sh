@@ -19,7 +19,8 @@ sudo rm -rf /home/os/minik8s/DNS > /dev/null 2>&1
 sudo rm -rf /home/os/minik8s/Gateway > /dev/null 2>&1
 sudo rm -rf /home/os/minik8s/Service > /dev/null 2>&1
 sudo rm -rf /home/os/minik8s/Forward > /dev/null 2>&1
-sudo cp ./template/config/HOST_DNS_CONFIG/hosts /etc/hosts > /dev/null 2>&1
+sudo cp /etc/hosts.bak /etc/hosts > /dev/null 2>&1
+sudo rm /etc/hosts.bak > /dev/null 2>&1
 echo "[Cleaner] DNS data cleared!" 1>&2
 sudo docker kill $(docker ps -q) > /dev/null 2>&1
 sudo docker rm $(docker ps -aq) > /dev/null 2>&1

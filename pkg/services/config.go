@@ -33,6 +33,7 @@ const (
 	NGINX_CONFIG_FILE                      = "nginx.conf"
 	HOST_PATH                              = "/home/os/minik8s/DNS/hosts.conf"
 	HOST_HOSTS_PATH                        = "/etc/hosts"
+	HOST_HOSTS_BAK_PATH                    = "/etc/hosts.bak"
 	NGINX_TEMPLATE_FILEPATH                = "template/config/NGINX_TEMPLATE"
 	SERVICE_REPLICATESET_TEMPLATE_FILEPATH = "template/yaml/service-replicaset.yaml"
 	DNS_REPLICATESET_TEMPLATE_FILEPATH     = "template/yaml/dns-replicaset.yaml"

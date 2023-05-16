@@ -3,6 +3,7 @@ package kubeProxy
 import (
 	"bufio"
 	"fmt"
+	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/services"
 	"minik8s/pkg/util/config"
@@ -17,27 +18,39 @@ func updateDnsConfig() {
 		return
 	}
 	w := bufio.NewWriter(f)
-	for _, gateway := range kubeProxyManager.RuntimeGatewayMap {
-		lineStr := fmt.Sprintf("%s %s", gateway.ClusterIp, gateway.Gateway.Spec.Host)
-		_, err := fmt.Fprintln(w, lineStr)
-		if err != nil {
-			fmt.Println("dns config write fail: " + err.Error())
-			return
+	var hosts_str string
+	gateways := client.GetAllRuntimeGateways()
+	for _, gateway := range gateways {
+		if gateway.Status != services.GATEWAY_STATUS_RUNNING {
+			continue
 		}
+		hosts_str += fmt.Sprintf("%s %s\n", gateway.ClusterIp, gateway.Gateway.Spec.Host)
 	}
-	lineStr := fmt.Sprintf("%s %s", config.PIP3_SOURCE_IMAGE_IP, config.PIP3_SOURCE_IMAGE_HOSTNAME)
-	_, err = fmt.Fprintln(w, lineStr)
+	hosts_str += fmt.Sprintf("%s %s", config.PIP3_SOURCE_IMAGE_IP, config.PIP3_SOURCE_IMAGE_HOSTNAME)
+	_, err = fmt.Fprintln(w, hosts_str)
 	err = w.Flush()
 	if err != nil {
 		fmt.Println("dns config write fail: " + err.Error())
 	}
 
-	// copy it to host
-	args := fmt.Sprintf("%s %s", services.HOST_PATH, services.HOST_HOSTS_PATH)
-	_, err = execCmd("cp", args)
-	if err != nil {
-		return
+	// write it to host
+	f_bak, err := os.OpenFile(services.HOST_HOSTS_BAK_PATH, os.O_RDONLY, 0644)
+	defer f_bak.Close()
+	// read all data to string
+	var str string
+	data := make([]byte, 1024)
+	for {
+		n, err := f_bak.Read(data)
+		if err != nil {
+			break
+		}
+		str += string(data[:n])
 	}
+	str += "\n"
+	str += hosts_str
+	f_host, err := os.OpenFile(services.HOST_HOSTS_PATH, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	defer f_host.Close()
+	_, err = fmt.Fprintln(f_host, str)
 	return
 }
 

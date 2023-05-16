@@ -11,6 +11,7 @@ sudo mkdir -p /home/os/minik8s/Service > /dev/null 2>&1
 sudo mkdir -p /home/os/minik8s/Forward > /dev/null 2>&1
 sudo cp -r ./template/config/CORE_DNS_CONFIG/* /home/os/minik8s/DNS > /dev/null 2>&1
 sudo cp -r ./template/config/NGINX_TEMPLATE/* /home/os/minik8s/Forward > /dev/null 2>&1
+sudo cp /etc/hosts /etc/hosts.bak > /dev/null 2>&1
 echo "[Worker] DNS config created!" 1>&2
 
 sh ./scripts/helper/weave_start.sh
