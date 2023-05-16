@@ -24,11 +24,9 @@ func reloadNginxConfig(name string) {
 	}
 	for _, containerId := range containerIds {
 		args := fmt.Sprintf("exec %s nginx -s reload", containerId)
-		res, err := execCmd("docker", args)
+		_, err := execCmd("docker", args)
 		if err != nil {
 			fmt.Println(err)
-		} else {
-			fmt.Println(res)
 		}
 	}
 }
@@ -56,6 +54,7 @@ func execCmd(exc string, args string) ([]string, error) {
 
 func createDir(path string) {
 	args := fmt.Sprintf("-r %s %s", services.NGINX_TEMPLATE_FILEPATH, path)
+	fmt.Println("copying nginx template file to " + path)
 	res, err := execCmd("cp", args)
 	if err != nil {
 		fmt.Println("createDir fail")
@@ -67,6 +66,7 @@ func createDir(path string) {
 
 func deleteDir(path string) {
 	args := fmt.Sprintf("-rf %s", path)
+	fmt.Println("removing nginx file in " + path)
 	res, err := execCmd("rm", args)
 	if err != nil {
 		fmt.Println("deleteDir fail")

@@ -16,7 +16,10 @@ import (
 
 func applyService(runtimeService *object.RuntimeService) {
 	applyClusterIpService(runtimeService)
-	applyNodePortService(runtimeService)
+	if runtimeService.Service.Spec.Type != config.SERVICE_TYPE_NODEPORT {
+		return
+	}
+	applyNodePortService()
 }
 
 func applyClusterIpService(runtimeService *object.RuntimeService) {
@@ -27,12 +30,8 @@ func applyClusterIpService(runtimeService *object.RuntimeService) {
 	fmt.Println("reload nginx config finished")
 }
 
-func applyNodePortService(runtimeService *object.RuntimeService) {
-	if runtimeService.Service.Spec.Type != config.SERVICE_TYPE_NODEPORT {
-		return
-	}
-	addNodeport(runtimeService)
-	updateNodePortServiceNginxConfig(runtimeService)
+func applyNodePortService() {
+	updateNodePortServiceNginxConfig()
 	fmt.Println("write nginx config finished")
 	reloadNginxConfig(services.FORWARD_DAEMONSET_PREFIX)
 	fmt.Println("reload nginx config finished")
@@ -138,9 +137,9 @@ func applyWeaveAttach(runtimeService *object.RuntimeService) {
 	}
 }
 
-func updateNodePortServiceNginxConfig(runtimeService *object.RuntimeService) {
+func updateNodePortServiceNginxConfig() {
 	var content []string
-	content = append(content, makeNodePortServiceConfig(runtimeService)...)
+	content = append(content, makeNodePortServiceConfig()...)
 	f, err := os.OpenFile(services.FORWARD_NGINX_PATH, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		fmt.Println("nginx config write fail: " + err.Error())
@@ -158,41 +157,47 @@ func updateNodePortServiceNginxConfig(runtimeService *object.RuntimeService) {
 	return
 }
 
-func makeNodePortServiceConfig(runtimeService *object.RuntimeService) []string {
+func makeNodePortServiceConfig() []string {
 	var result []string
 	result = append(result, "error_log stderr;")
 	result = append(result, "events { worker_connections  1024; }")
 
 	// http block
 	result = append(result, "http {", "    access_log /dev/stdout combined;")
-	for _, port := range runtimeService.Service.Spec.Ports {
-		if port.Protocol == "UDP" {
+	for _, runtimeService := range kubeProxyManager.RuntimeServiceMap {
+		if runtimeService.Service.Spec.Type != config.SERVICE_TYPE_NODEPORT {
 			continue
 		}
-		result = append(result, fmt.Sprintf("    server {        listen %s ;", port.NodePort))
-		result = append(result, fmt.Sprintf("        server_name localhost;"))
-		result = append(result, fmt.Sprintf("        location / {"))
-		result = append(result, fmt.Sprintf("            proxy_pass http://%s:%s/;", runtimeService.Service.Runtime.ClusterIp, port.Port))
-		result = append(result, "        }")
-		result = append(result, "       }")
+		for _, port := range runtimeService.Service.Spec.Ports {
+			if port.Protocol == "UDP" {
+				continue
+			}
+			result = append(result, fmt.Sprintf("    server {        listen %s ;", port.NodePort))
+			result = append(result, fmt.Sprintf("        server_name localhost;"))
+			result = append(result, fmt.Sprintf("        location / {"))
+			result = append(result, fmt.Sprintf("            proxy_pass http://%s:%s/;", runtimeService.Service.Runtime.ClusterIp, port.Port))
+			result = append(result, "        }")
+			result = append(result, "       }")
+		}
 	}
 	result = append(result, "}")
 
 	// udp block
 	result = append(result, "stream {")
-	for _, port := range runtimeService.Service.Spec.Ports {
-		if port.Protocol == "TCP" {
+	for _, runtimeService := range kubeProxyManager.RuntimeServiceMap {
+		if runtimeService.Service.Spec.Type != config.SERVICE_TYPE_NODEPORT {
 			continue
 		}
-		result = append(result, fmt.Sprintf("    server {        listen %s udp ;", port.NodePort))
-		result = append(result, fmt.Sprintf("            proxy_pass %s:%s;", runtimeService.Service.Runtime.ClusterIp, port.Port))
-		result = append(result, "       }")
+		for _, port := range runtimeService.Service.Spec.Ports {
+			if port.Protocol == "TCP" {
+				continue
+			}
+			result = append(result, fmt.Sprintf("    server {        listen %s udp ;", port.NodePort))
+			result = append(result, fmt.Sprintf("            proxy_pass %s:%s;", runtimeService.Service.Runtime.ClusterIp, port.Port))
+			result = append(result, "       }")
+		}
 	}
 	result = append(result, "}")
 
 	return result
-}
-
-func addNodeport(runtimeService *object.RuntimeService) {
-	// need to do nothing
 }

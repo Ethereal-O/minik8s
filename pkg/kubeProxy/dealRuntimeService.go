@@ -31,7 +31,6 @@ func createRuntimeService(runtimeService *object.RuntimeService) {
 	if runtimeService.Status == services.SERVICE_STATUS_INIT {
 		createDir(services.SERVICE_NGINX_PATH_PREFIX + "/" + runtimeService.Service.Metadata.Name)
 	} else if runtimeService.Status == services.SERVICE_STATUS_RUNNING {
-		runtimeService.Status = services.SERVICE_STATUS_RUNNING
 		kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name] = runtimeService
 
 		applyService(runtimeService)

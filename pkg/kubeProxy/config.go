@@ -3,25 +3,26 @@ package kubeProxy
 import (
 	"minik8s/pkg/object"
 	"sync"
+	"time"
 )
 
 const (
-	SINGLE_SERVICE    = "Svc"
-	SINGLE_POD        = "POD"
-	SINGLE_NET        = "NET"
-	ROOT_TABLE        = "nat"
-	ROOT_CHAIN        = "KUBE_PROXY_PARENT_CHAIN"
-	OUTPUT_CHAIN      = "OUTPUT"
-	PREROUTING_CHAIN  = "PREROUTING"
-	POSTROUTING_CHAIN = "POSTROUTING"
+	SINGLE_SERVICE                       = "Svc"
+	SINGLE_POD                           = "POD"
+	SINGLE_NET                           = "NET"
+	ROOT_TABLE                           = "nat"
+	ROOT_CHAIN                           = "KUBE_PROXY_PARENT_CHAIN"
+	OUTPUT_CHAIN                         = "OUTPUT"
+	PREROUTING_CHAIN                     = "PREROUTING"
+	POSTROUTING_CHAIN                    = "POSTROUTING"
+	CHECK_NODEPORT_SERVICE_TIME_INTERVAL = 5 * time.Second
 )
 
 type KubeProxyManager struct {
-	// RootMap is a map of map, the first key is the service name, the second key is the pod port, and the value is a single service
-	RootMap           map[string]map[string]*SingleService
+	RootMap           map[string]map[string]*SingleService // DEPRECATED
 	RuntimeServiceMap map[string]*object.RuntimeService
 	RuntimeGatewayMap map[string]*object.RuntimeGateway
-	RootChain         RootChain
+	RootChain         RootChain // DEPRECATED
 	Lock              sync.Mutex
 }
 

@@ -42,6 +42,7 @@ func createRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 		updateDnsConfig()
 
 		client.AddRuntimeGateway(*runtimeGateway)
+
 	}
 }
 

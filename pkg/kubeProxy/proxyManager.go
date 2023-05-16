@@ -15,7 +15,6 @@ var ToExit = make(chan bool)
 
 func createKubeProxyManager() *KubeProxyManager {
 	kubeProxyManager := &KubeProxyManager{}
-	kubeProxyManager.RootMap = make(map[string]map[string]*SingleService)
 	kubeProxyManager.RuntimeServiceMap = make(map[string]*object.RuntimeService)
 	kubeProxyManager.RuntimeGatewayMap = make(map[string]*object.RuntimeGateway)
 	var lock sync.Mutex
@@ -26,11 +25,11 @@ func createKubeProxyManager() *KubeProxyManager {
 func Start_proxy() {
 	fmt.Println("kube-proxy start")
 	kubeProxyManager = createKubeProxyManager()
-	kubeProxyManager.initRootChain()
 	kubeProxyManager.initKubeProxyManager()
+	kubeProxyManager.startKubeProxyManager()
 }
 
-func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
+func (kubeProxyManager *KubeProxyManager) startKubeProxyManager() {
 	runtimeServiceChan, runtimeServiceStop := messging.Watch("/"+config.RUNTIMESERVICE_TYPE, true)
 	runtimeGatewayChan, runtimeGatewayStop := messging.Watch("/"+config.RUNTIMEGATEWAY_TYPE, true)
 	go dealRuntimeService(runtimeServiceChan)
