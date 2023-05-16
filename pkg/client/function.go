@@ -366,7 +366,7 @@ func GetAllServerlessFunctions() []object.ServerlessFunctions {
 	return resList
 }
 
-func DeleteServerlessFunctionsValue(serverlessFunctions object.ServerlessFunctions) string {
+func DeleteServerlessFunctions(serverlessFunctions object.ServerlessFunctions) string {
 	return Delete_object(serverlessFunctions.Metadata.Name, config.SERVERLESSFUNCTIONS_TYPE)
 }
 
@@ -376,6 +376,7 @@ func GetAllFunctions() []object.Function {
 	for _, serverlessFunctions := range serverlessFunctionsList {
 		for _, function := range serverlessFunctions.Spec.Items {
 			function.Runtime = serverlessFunctions.Runtime
+			function.FaasName = serverlessFunctions.Metadata.Name
 			functionList = append(functionList, function)
 		}
 	}
@@ -391,6 +392,7 @@ func GetActiveFunctions() []object.Function {
 		}
 		for _, function := range serverlessFunctions.Spec.Items {
 			function.Runtime = serverlessFunctions.Runtime
+			function.FaasName = serverlessFunctions.Metadata.Name
 			functionList = append(functionList, function)
 		}
 	}

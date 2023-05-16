@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"minik8s/pkg/apiServer"
 	"minik8s/pkg/controller"
+	"minik8s/pkg/functionProxy"
 	"minik8s/pkg/scheduler"
 	"minik8s/pkg/services"
 	"os"
@@ -26,7 +27,8 @@ func doit(cmd *cobra.Command, args []string) {
 
 	apiServer.Init_server()
 	go apiServer.Start_server()
-	// Wait for API Server to start
+	go functionProxy.Start_proxy()
+	// Wait for API Server ans Function Proxy to start
 	time.Sleep(1 * time.Second)
 	go controller.Start_rsController()
 	go controller.Start_dsController()
@@ -43,20 +45,22 @@ func doit(cmd *cobra.Command, args []string) {
 	controller.DSControllerToExit <- true
 	controller.HpaControllerToExit <- true
 	controller.GpuJobControllerToExit <- true
-	controller.ServerlessFunctionsControllerToExit <- true
+	controller.FaasControllerToExit <- true
 	scheduler.ToExit <- true
 	services.ToExit <- true
 	<-controller.RSControllerExited
 	<-controller.DSControllerExited
 	<-controller.HpaControllerExited
 	<-controller.GpuJobControllerExited
-	<-controller.ServerlessFunctionsControllerExited
+	<-controller.FaasControllerExited
 	<-scheduler.Exited
 	<-services.Exited
 
 	// Wait for other components to exit
 	apiServer.ToExit <- true
+	functionProxy.ToExit <- true
 	<-apiServer.Exited
+	<-functionProxy.Exited
 }
 
 func init() {

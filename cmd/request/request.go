@@ -3,13 +3,9 @@ package request
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"minik8s/pkg/client"
 	"minik8s/pkg/exeFile"
 	"minik8s/pkg/util/config"
-	"net/http"
-	"net/url"
-	"strings"
 	"time"
 )
 
@@ -24,51 +20,27 @@ var RequestCmd = &cobra.Command{
 }
 
 func doit(cmd *cobra.Command, args []string) {
-	tarFunction := client.GetFunction(funcName)
-	if tarFunction == nil {
+	params := exeFile.ReadRequest(paramFile)
+	params["function"] = funcName
+	url := config.FUNCTION_PROXY_URL
+	res := client.ForwardPostData(params, url)
+	if res == "The function not exist!" {
 		fmt.Println("The function not exist!")
-		return
-	}
-	if tarFunction.Runtime.Status != config.RUNNING_STATUS {
+	} else if res == "The function not up!" {
 		for {
 			time.Sleep(3 * time.Second)
 			fmt.Println("Waiting for the pod to start (cold start)!")
-			tarFunction = client.GetFunction(funcName)
-			if tarFunction.Runtime.Status == config.RUNNING_STATUS {
+			res = client.ForwardPostData(params, url)
+			if res != "The function not up!" {
+				time.Sleep(5 * time.Second)
+				fmt.Println("The result is:", res)
 				break
 			}
 		}
+	} else {
+		fmt.Println("The result is:", res)
 	}
-	params := exeFile.ReadRequest(paramFile)
-	urlMap := url.Values{}
-	for key, value := range params {
-		urlMap.Add(key, value)
-	}
-	urlMap.Add("function", tarFunction.FuncName)
-	urlMap.Add("module", tarFunction.Module)
-	url := "http://" + tarFunction.Runtime.FunctionIp + ":8081" + "/run"
-	request, err := http.NewRequest("POST", url, strings.NewReader(urlMap.Encode()))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("request.url: ", request.URL)
-	fmt.Println("request.method: ", request.Method)
-	fmt.Println("params: ", params)
 
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	client := &http.Client{}
-	res, err := client.Do(request)
-	if err != nil {
-		panic(err)
-	}
-	defer res.Body.Close()
-
-	b, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("The result is:", string(b))
 }
 
 func init() {

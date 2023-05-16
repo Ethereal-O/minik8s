@@ -14,9 +14,10 @@ var (
 	NSQ_PRODUCER   string
 	PROMETHEUS_URL string
 
-	// APISERVER_URL / NSQ_CONSUMER are used by every worker node
-	APISERVER_URL string
-	NSQ_CONSUMER  string
+	// APISERVER_URL / NSQ_CONSUMER / FUNCTION_PROXY_URL are used by every worker node
+	APISERVER_URL      string
+	FUNCTION_PROXY_URL string
+	NSQ_CONSUMER       string
 
 	// DNS_SERVER makes all server have same DNS server to support DNS query
 	DNS_SERVER string
@@ -98,6 +99,7 @@ func init() {
 	PROMETHEUS_URL = "http://" + LOCALHOST + ":9090"
 
 	APISERVER_URL = "http://" + MASTER_IP + ":8080"
+	FUNCTION_PROXY_URL = "http://" + MASTER_IP + ":8081"
 	NSQ_CONSUMER = MASTER_IP + ":4161"
 
 	DNS_SERVER = "10.10.10.10"
