@@ -24,11 +24,9 @@ func reloadNginxConfig(name string) {
 	}
 	for _, containerId := range containerIds {
 		args := fmt.Sprintf("exec %s nginx -s reload", containerId)
-		res, err := execCmd("docker", args)
+		_, err := execCmd("docker", args)
 		if err != nil {
 			fmt.Println(err)
-		} else {
-			fmt.Println(res)
 		}
 	}
 }
