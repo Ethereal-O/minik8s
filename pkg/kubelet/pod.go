@@ -6,12 +6,11 @@ import (
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
-	"minik8s/pkg/util/resource"
 	"strings"
 	"time"
 )
 
-func StartPod(pod *object.Pod, node *object.Node) bool {
+func StartPod(pod *object.Pod) bool {
 	var containersIdList []string
 
 	// Host mode pod has no pause container
@@ -54,22 +53,11 @@ func StartPod(pod *object.Pod, node *object.Node) bool {
 	PodExited[pod.Runtime.Uuid] = make(chan bool)
 	client.AddPod(*pod)
 
-	// Step 5: Sync node with API server
-	cpu := node.Runtime.Available.Cpu
-	mem := node.Runtime.Available.Memory
-	for _, container := range pod.Spec.Containers {
-		cpu -= resource.ConvertCpuToBytes(container.Limits.Cpu)
-		mem -= resource.ConvertMemoryToBytes(container.Limits.Memory)
-	}
-	node.Runtime.Available.Cpu = cpu
-	node.Runtime.Available.Memory = mem
-	client.AddNode(*node)
-
-	go ProbeCycle(pod)
+	go PodProbeCycle(pod)
 	return true
 }
 
-func DeletePod(pod *object.Pod, node *object.Node) bool {
+func DeletePod(pod *object.Pod) bool {
 	// Step 0: If the pod has not run its containers, just return
 	if len(pod.Runtime.Containers) == 0 {
 		return true
@@ -105,21 +93,10 @@ func DeletePod(pod *object.Pod, node *object.Node) bool {
 		client.AddPod(*pod)
 	}
 
-	// Step 4: Sync node with API server
-	cpu := node.Runtime.Available.Cpu
-	mem := node.Runtime.Available.Memory
-	for _, container := range pod.Spec.Containers {
-		cpu += resource.ConvertCpuToBytes(container.Limits.Cpu)
-		mem += resource.ConvertMemoryToBytes(container.Limits.Memory)
-	}
-	node.Runtime.Available.Cpu = cpu
-	node.Runtime.Available.Memory = mem
-	client.AddNode(*node)
-
 	return true
 }
 
-func ProbeCycle(pod *object.Pod) {
+func PodProbeCycle(pod *object.Pod) {
 	for {
 		select {
 		case <-PodToExit[pod.Runtime.Uuid]:
@@ -153,8 +130,8 @@ func ProbeCycle(pod *object.Pod) {
 			}
 			podAvgMemoryPrecentage := avg(containerMemoryPercentageList)
 			podAvgCpuPrecentage := avg(containerCpuPercentageList)
-			memoryPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgMemoryPrecentage)
-			cpuPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgCpuPrecentage)
+			podMemoryPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgMemoryPrecentage)
+			podCpuPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgCpuPrecentage)
 		}
 	}
 }

@@ -9,8 +9,6 @@ import (
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/network"
 	"minik8s/pkg/util/weave"
-	"runtime"
-	"syscall"
 	"time"
 )
 
@@ -18,6 +16,8 @@ var Exited = make(chan bool)
 var ToExit = make(chan bool)
 var PodToExit = make(map[string]chan bool)
 var PodExited = make(map[string]chan bool)
+var NodeToExit = make(chan bool)
+var NodeExited = make(chan bool)
 
 func Start_kubelet() {
 	podChan, podStop := messging.Watch("/"+config.POD_TYPE, true)
@@ -28,7 +28,7 @@ func Start_kubelet() {
 	go start_monitor()
 
 	time.Sleep(5 * time.Second)
-	autoAddNode()
+	StartNode()
 	fmt.Println("Kubelet start")
 
 	// Wait until Ctrl-C
@@ -52,16 +52,15 @@ func dealPod(podChan chan string) {
 				fmt.Println(err.Error())
 			}
 			ip, _ := network.GetHostIp()
-			node := client.GetNode(ip)
-			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == node.Metadata.Name {
-				started := StartPod(&tarPod, &node)
+			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
+				started := StartPod(&tarPod)
 				if started {
 					fmt.Printf("[Kubelet] Pod %v started!\n", tarPod.Metadata.Name)
 				} else {
 					fmt.Printf("[Kubelet] Failed to start pod %v!\n", tarPod.Metadata.Name)
 				}
-			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == node.Metadata.Name {
-				deleted := DeletePod(&tarPod, &node)
+			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
+				deleted := DeletePod(&tarPod)
 				if deleted {
 					fmt.Printf("[Kubelet] Pod %v deleted!\n", tarPod.Metadata.Name)
 				} else {
@@ -95,39 +94,16 @@ func dealNode(nodeChan chan string) {
 					tarNode.Runtime.Status = config.RUNNING_STATUS
 					client.AddNode(tarNode)
 					fmt.Println("[Kubelet] Node started!")
+					go NodeProbeCycle(&tarNode)
+				}
+			} else if tarNode.Runtime.Status == config.EXIT_STATUS && tarNode.Metadata.Name == "Node_"+ip {
+				deleted := DeleteNode(&tarNode)
+				if deleted {
+					fmt.Printf("[Kubelet] Node %v deleted!\n", tarNode.Metadata.Name)
+				} else {
+					fmt.Printf("[Kubelet] Failed to delete node %v!\n", tarNode.Metadata.Name)
 				}
 			}
 		}
 	}
-}
-
-func autoAddNode() {
-	ip, err := network.GetHostIp()
-	if err != nil {
-		fmt.Println("[Kubelet] Cannot obtain host IP!")
-		panic(err)
-	} else {
-		fmt.Printf("[Kubelet] Obtained host IP: %v\n", ip)
-	}
-
-	var node object.Node
-	node.Kind = "Node"
-	node.Metadata.Name = "Node_" + ip
-	node.Spec.Ip = ip
-	var cpu = int64(runtime.NumCPU()) * 1e9 / 100 * NodeResourceUsage // NanoCPU
-	node.Runtime.Available.Cpu = cpu
-	node.Spec.Capacity.Cpu = cpu
-
-	// Sysinfo is only for linux!!
-	sysInfo := new(syscall.Sysinfo_t)
-	err = syscall.Sysinfo(sysInfo)
-	if err != nil {
-		fmt.Println("[Kubelet] Cannot obtain host Memory!")
-		panic(err)
-	}
-	var mem = int64(sysInfo.Totalram) / 100 * NodeResourceUsage // Bytes
-	node.Runtime.Available.Memory = mem
-	node.Spec.Capacity.Memory = mem
-
-	client.AddNode(node)
 }
