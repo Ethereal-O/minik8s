@@ -50,6 +50,11 @@ make testStress
 make testGpu
 ```
 
+- Build k8s, run a master, a worker, a serverless test on one host
+```
+make testServerless
+```
+
 - Stop k8s and clear k8s states
 ```
 make clean

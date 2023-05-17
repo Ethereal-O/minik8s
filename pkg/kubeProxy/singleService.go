@@ -67,20 +67,15 @@ func (singleService *SingleService) initSingleService() error {
 func (singleService *SingleService) deleteSingleService() error {
 	ipt, err := iptables.New()
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	err = ipt.Delete(singleService.Table, singleService.Parent, singleService.RuleCommandClusterIp...)
 	if singleService.IsNodePort {
 		err = ipt.Delete(singleService.Table, singleService.Parent, singleService.RuleCommandNodePort...)
 	}
-	if err != nil {
-		return err
-	}
 	for _, singlePod := range singleService.SinglePodMap {
 		err = singlePod.deleteSinglePod()
-		if err != nil {
-			return err
-		}
 	}
 	err = ipt.DeleteChain(singleService.Table, singleService.Name)
 	return err

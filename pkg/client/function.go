@@ -279,7 +279,7 @@ func DeleteAutoScaler(autoScaler object.AutoScaler) string {
 	return Delete_object(autoScaler.Metadata.Name, config.AUTOSCALER_TYPE)
 }
 
-// --------------------------- Nodes ---------------------------
+// --------------------------- Node ---------------------------
 
 func GetAllNodes() []object.Node {
 	nodeList := Get_object(config.EMPTY_FLAG, config.NODE_TYPE)

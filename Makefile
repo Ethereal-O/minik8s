@@ -9,6 +9,7 @@ TESTGATEWAY=$(shell ./scripts/testGateway.sh)
 TESTRS=$(shell ./scripts/testRS.sh)
 TESTSTRESS=$(shell ./scripts/testStress.sh)
 TESTGPU=$(shell ./scripts/testGpu.sh)
+TESTSERVERLESS=$(shell ./scripts/testServerless.sh)
 
 # Build k8s but not run
 .PHONY:build
@@ -59,6 +60,11 @@ testStress: master
 .PHONY:testGpu
 testGpu: master
 	@echo $(TESTGPU)
+
+# Build k8s, run a master, a worker, a serverless test on one host
+.PHONY:testServerless
+testServerless: master
+	@echo $(TESTSERVERLESS)
 
 # Stop k8s and clear k8s states
 .PHONY:clean

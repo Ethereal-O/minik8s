@@ -25,7 +25,7 @@ func createKubeProxyManager() *KubeProxyManager {
 func Start_proxy() {
 	fmt.Println("kube-proxy start")
 	kubeProxyManager = createKubeProxyManager()
-	kubeProxyManager.initKubeProxyManager()
+	initialize()
 	kubeProxyManager.startKubeProxyManager()
 }
 
@@ -37,29 +37,68 @@ func (kubeProxyManager *KubeProxyManager) startKubeProxyManager() {
 
 	// Wait until Ctrl-C
 	<-ToExit
+	finalize()
 	runtimeServiceStop()
 	runtimeGatewayStop()
 	Exited <- true
 }
 
 func dealRuntimeService(runtimeServiceChan chan string) {
-	for {
-		select {
-		case mes := <-runtimeServiceChan:
-			var tarRuntimeService object.RuntimeService
-			err := json.Unmarshal([]byte(mes), &tarRuntimeService)
-			if err != nil {
-				fmt.Println(err.Error())
-				continue
-			}
-			if tarRuntimeService.Service.Runtime.Status == config.EXIT_STATUS {
-				dealExitRuntimeService(&tarRuntimeService)
-			} else if tarRuntimeService.Service.Runtime.Status == config.RUNNING_STATUS {
-				dealRunningRuntimeService(&tarRuntimeService)
-			} else {
-				fmt.Println("runtime service status error!")
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
+		for {
+			select {
+			case mes := <-runtimeServiceChan:
+				var tarRuntimeService object.RuntimeService
+				err := json.Unmarshal([]byte(mes), &tarRuntimeService)
+				if err != nil {
+					fmt.Println(err.Error())
+					continue
+				}
+				if tarRuntimeService.Service.Runtime.Status == config.EXIT_STATUS {
+					dealExitRuntimeService(&tarRuntimeService)
+				} else if tarRuntimeService.Service.Runtime.Status == config.RUNNING_STATUS {
+					dealRunningRuntimeService(&tarRuntimeService)
+				} else {
+					fmt.Println("runtime service status error!")
+				}
 			}
 		}
+	}
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+		for {
+			select {
+			case mes := <-runtimeServiceChan:
+				var tarRuntimeService object.RuntimeService
+				err := json.Unmarshal([]byte(mes), &tarRuntimeService)
+				if err != nil {
+					fmt.Println(err.Error())
+					continue
+				}
+				if tarRuntimeService.Service.Runtime.Status == config.EXIT_STATUS {
+					dealExitRuntimeService_old(&tarRuntimeService)
+				} else if tarRuntimeService.Service.Runtime.Status == config.RUNNING_STATUS {
+					dealRunningRuntimeService_old(&tarRuntimeService)
+				} else {
+					fmt.Println("runtime service status error!")
+				}
+			}
+		}
+	}
+}
+
+func initialize() {
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
+		kubeProxyManager.initKubeProxyManager()
+	}
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+		kubeProxyManager.RootMap = make(map[string]map[string]*SingleService)
+		kubeProxyManager.initRootChain()
+	}
+}
+
+func finalize() {
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+		kubeProxyManager.deleteRootChain()
 	}
 }
 
