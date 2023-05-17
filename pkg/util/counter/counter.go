@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 	"minik8s/pkg/etcd"
+	"minik8s/pkg/util/config"
 	"net"
 	"strconv"
 	"sync"
@@ -75,6 +76,12 @@ func NewPodIP() string {
 }
 
 func NewServiceIP() string {
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
+		serviceIPCounter.initCount = serializeIP(ServiceIPCounterInitIP)
+	}
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+		serviceIPCounter.initCount = serializeIP(ServiceIPCounterInitIP_OLD)
+	}
 	return deserializeIP(serviceIPCounter.fetchAndAdd())
 }
 
