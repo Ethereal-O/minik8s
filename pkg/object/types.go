@@ -259,3 +259,28 @@ type TransFile struct {
 	Data    string `json:"data" yaml:"data"`
 	Tp      string `json:"tp" yaml:"tp"`
 }
+
+// --------------------------- DAG -----------------------------
+
+type WorkFlow struct {
+	WorkFlowName string    `json:"workFlowName" yaml:"workFlowName"`
+	StartNode    string    `json:"startNode" yaml:"startNode"`
+	Nodes        []DagNode `json:"nodes" yaml:"nodes"`
+}
+
+type DagNode struct {
+	NodeName string   `json:"nodeName" yaml:"nodeName"`
+	FuncName string   `json:"funcName" yaml:"funcName"`
+	Choices  []Choice `json:"choices" yaml:"choices"`
+}
+
+type Choice struct {
+	Condition Condition `json:"condition" yaml:"condition"`
+	NextNode  string    `json:"nextNode" yaml:"nextNode"`
+}
+
+type Condition struct {
+	TarVariable string `json:"tarVariable" yaml:"tarVariable"`
+	TarValue    string `json:"tarValue" yaml:"tarValue"`
+	Relation    string `json:"relation" yaml:"relation"`
+}

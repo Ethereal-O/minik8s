@@ -21,6 +21,16 @@ func ReadRequest(file string) map[string]string {
 	return params
 }
 
+func ReadWorkFlow(file string) object.WorkFlow {
+	yamlFile, err := ioutil.ReadFile(file)
+	var conf object.WorkFlow
+	err = yaml.Unmarshal(yamlFile, &conf)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return conf
+}
+
 func ReadYaml(file string) (string, string, string) {
 	yamlFile, err := ioutil.ReadFile(file)
 	if err != nil {
