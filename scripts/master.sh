@@ -1,16 +1,8 @@
 #!/bin/bash
 
-sh ./scripts/helper/weave_start.sh
-if [ "$?" = 1 ]; then
-  echo "[Master] Failed to start weave subnet!" 1>&2
-  exit 1
-else
-  echo "[Master] Weave subnet started!" 1>&2
-fi
-
-etcd -listen-client-urls="http://0.0.0.0:2379" --advertise-client-urls="http://0.0.0.0:2379" --enable-v2=true > etcd.log 2>&1 &
+etcd -listen-client-urls="http://0.0.0.0:2379" --advertise-client-urls="http://0.0.0.0:2379" --enable-v2 > etcd.log 2>&1 &
 sleep 1
-etcdctl --endpoints http://127.0.0.1:2379 set /coreos.com/network/config '{"Network": "172.17.0.0/16", "SubnetLen": 24, "SubnetMin": "172.17.1.0","SubnetMax": "172.17.20.0", "Backend": {"Type": "vxlan"}}' > /dev/null 2>&1
+ETCDCTL_API=2 etcdctl --endpoints http://127.0.0.1:2379 set /coreos.com/network/config '{"Network": "172.17.0.0/16", "SubnetLen": 24, "SubnetMin": "172.17.1.0","SubnetMax": "172.17.20.0", "Backend": {"Type": "vxlan"}}' > /dev/null 2>&1
 echo "[Master] ETCD started!" 1>&2
 
 prometheus --config.file=prometheus.yml > prometheus.log 2>&1 &

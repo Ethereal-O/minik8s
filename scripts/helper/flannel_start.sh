@@ -15,7 +15,9 @@ if [ -z "$master_ip" ]; then
 fi
 
 # Start flannel
+sleep 1
 flannel --etcd-endpoints="http://$master_ip:2379" --ip-masq=true > flannel.log 2>&1 &
+sleep 5
 sudo systemctl stop docker.socket > /dev/null 2>&1
 sudo systemctl stop docker > /dev/null 2>&1
 sudo killall dockerd > /dev/null 2>&1
