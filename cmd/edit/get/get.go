@@ -29,6 +29,9 @@ func doit(cmd *cobra.Command, args []string) {
 	if tp == config.GATEWAY_TYPE {
 		tp = config.RUNTIMEGATEWAY_TYPE
 	}
+	if tp == config.FUNCTION_TYPE {
+		tp = config.SERVERLESSFUNCTIONS_TYPE
+	}
 	res := client.Get_object(key, tp)
 	if key != config.EMPTY_FLAG {
 		fmt.Printf("Key: %v\n", key)
@@ -180,7 +183,7 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
-	if tp == config.FUNCTION_TYPE {
+	if tp == config.SERVERLESSFUNCTIONS_TYPE {
 		table, _ := gotable.Create("Name", "Status", "Ip")
 		functionList := client.GetAllFunctions()
 		for _, functionObject := range functionList {

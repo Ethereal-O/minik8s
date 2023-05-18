@@ -1,0 +1,37 @@
+workFlowName: dagTest1
+startNode: node1
+nodes:
+  - nodeName: node1
+    funcName: add
+    choices:
+      - condition:
+          tarVariable: result
+          tarValue: 5
+          relation: lt
+        nextNode: node2
+      - condition:
+          tarVariable: result
+          tarValue: 5
+          relation: ge
+        nextNode: node3
+  - nodeName: node2
+    funcName: add
+    choices:
+      - condition:
+          tarVariable: result
+          tarValue: 5
+          relation: lt
+        nextNode: node4
+      - condition:
+          tarVariable: result
+          tarValue: 5
+          relation: ge
+        nextNode: node5
+  - nodeName: node3
+    funcName: add
+    choices:
+      - nextNode: node5
+  - nodeName: node4
+    funcName: minus
+  - nodeName: node5
+    funcName: minus

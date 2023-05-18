@@ -30,10 +30,6 @@ type Runtime struct {
 	// Whether the pod should be restarted
 	NeedRestart bool `yaml:"needRestart" json:"needRestart"`
 
-	// --- Node ---
-	// Available resources of the node
-	Available Resources `yaml:"available" json:"available"`
-
 	// --- ServerlessFunctions ---
 	// When a function is available, FunctionIp is the target Ip
 	FunctionIp string `yaml:"functionIp" json:"functionIp"`
@@ -50,13 +46,6 @@ type Node struct {
 
 type NodeSpec struct {
 	Ip string `yaml:"ip" json:"ip"`
-	// Total resources of the node
-	Capacity Resources `yaml:"capacity" json:"capacity"`
-}
-
-type Resources struct {
-	Cpu    int64 `yaml:"cpu" json:"cpu"`
-	Memory int64 `yaml:"memory" json:"memory"`
 }
 
 // --------------------------- Replica Set ---------------------------
@@ -258,4 +247,29 @@ type TransFile struct {
 	Dirname string `json:"dirname" yaml:"dirname"`
 	Data    string `json:"data" yaml:"data"`
 	Tp      string `json:"tp" yaml:"tp"`
+}
+
+// --------------------------- DAG -----------------------------
+
+type WorkFlow struct {
+	WorkFlowName string    `json:"workFlowName" yaml:"workFlowName"`
+	StartNode    string    `json:"startNode" yaml:"startNode"`
+	Nodes        []DagNode `json:"nodes" yaml:"nodes"`
+}
+
+type DagNode struct {
+	NodeName string   `json:"nodeName" yaml:"nodeName"`
+	FuncName string   `json:"funcName" yaml:"funcName"`
+	Choices  []Choice `json:"choices" yaml:"choices"`
+}
+
+type Choice struct {
+	Condition Condition `json:"condition" yaml:"condition"`
+	NextNode  string    `json:"nextNode" yaml:"nextNode"`
+}
+
+type Condition struct {
+	TarVariable string `json:"tarVariable" yaml:"tarVariable"`
+	TarValue    string `json:"tarValue" yaml:"tarValue"`
+	Relation    string `json:"relation" yaml:"relation"`
 }

@@ -62,8 +62,10 @@ func svcFlowLoop(svcName string) {
 					tarRs.Spec.Replicas--
 					client.AddReplicaSet(tarRs)
 					SvcFlowMap.Delete(svcName)
+					return
 				} else {
 					SvcFlowMap.Delete(svcName)
+					return
 				}
 			} else if tmpFlow-preFlow > scale_boundary {
 				preFlow = tmpFlow

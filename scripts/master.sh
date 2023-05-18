@@ -13,6 +13,9 @@ sleep 1
 etcdctl --endpoints http://127.0.0.1:2379 set /coreos.com/network/config '{"Network": "172.17.0.0/16", "SubnetLen": 24, "SubnetMin": "172.17.1.0","SubnetMax": "172.17.20.0", "Backend": {"Type": "vxlan"}}' > /dev/null 2>&1
 echo "[Master] ETCD started!" 1>&2
 
+prometheus --config.file=prometheus.yml > prometheus.log 2>&1 &
+echo "[Master] Prometheus started!" 1>&2
+
 if pgrep nsqlookupd > /dev/null; then
   echo "[Master] NSQ producer is already running!" 1>&2
 else
