@@ -87,13 +87,11 @@ func dealRuntimeService(runtimeServiceChan chan string) {
 }
 
 func initialize() {
-	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
-		kubeProxyManager.initKubeProxyManager()
-	}
 	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
 		kubeProxyManager.RootMap = make(map[string]map[string]*SingleService)
 		kubeProxyManager.initRootChain()
 	}
+	kubeProxyManager.initKubeProxyManager()
 }
 
 func finalize() {

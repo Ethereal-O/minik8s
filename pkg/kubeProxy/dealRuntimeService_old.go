@@ -29,26 +29,7 @@ func createRuntimeService_old(runtimeService *object.RuntimeService) {
 	defer kubeProxyManager.Lock.Unlock()
 	// here create network
 	fmt.Printf("creating network for runtimeService %s at %s!\n", runtimeService.Service.Metadata.Name, runtimeService.Service.Runtime.ClusterIp)
-	multiService := make(map[string]*SingleService)
-	for _, port := range runtimeService.Service.Spec.Ports {
-		var podsInfo []PodInfo
-		for _, pod := range runtimeService.Pods {
-			podsInfo = append(podsInfo, PodInfo{
-				PodName: pod.Metadata.Name,
-				PodIP:   pod.Runtime.PodIp,
-				PodPort: port.TargetPort,
-			})
-		}
-		singleService := createSingleService(runtimeService, port, podsInfo)
-		err := singleService.initSingleService()
-		if err != nil {
-			fmt.Printf("init singleService failed: %s\n", err.Error())
-			return
-		}
-		multiService[singleService.Name] = singleService
-	}
-	kubeProxyManager.RootMap[runtimeService.Service.Metadata.Name] = multiService
-	kubeProxyManager.RuntimeServiceMap[runtimeService.Service.Metadata.Name] = runtimeService
+	createMultiService(runtimeService)
 	fmt.Printf("creating network done for runtimeService %s at %s!\n", runtimeService.Service.Metadata.Name, runtimeService.Service.Runtime.ClusterIp)
 }
 
