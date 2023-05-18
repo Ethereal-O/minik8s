@@ -16,6 +16,7 @@ var Exited = make(chan bool)
 var ToExit = make(chan bool)
 var PodToExit = make(map[string]chan bool)
 var PodExited = make(map[string]chan bool)
+var PodDeleted = make(map[string]chan bool)
 var NodeToExit = make(chan bool)
 var NodeExited = make(chan bool)
 
@@ -33,6 +34,7 @@ func Start_kubelet() {
 
 	// Wait until Ctrl-C
 	<-ToExit
+	DeleteNode()
 	podStop()
 	nodeStop()
 	Exited <- true
@@ -61,6 +63,7 @@ func dealPod(podChan chan string) {
 				}
 			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
 				deleted := DeletePod(&tarPod)
+				PodDeleted[tarPod.Runtime.Uuid] <- true
 				if deleted {
 					fmt.Printf("[Kubelet] Pod %v deleted!\n", tarPod.Metadata.Name)
 				} else {
@@ -95,13 +98,6 @@ func dealNode(nodeChan chan string) {
 					client.AddNode(tarNode)
 					fmt.Println("[Kubelet] Node started!")
 					go NodeProbeCycle(&tarNode)
-				}
-			} else if tarNode.Runtime.Status == config.EXIT_STATUS && tarNode.Metadata.Name == "Node_"+ip {
-				deleted := DeleteNode(&tarNode)
-				if deleted {
-					fmt.Printf("[Kubelet] Node %v deleted!\n", tarNode.Metadata.Name)
-				} else {
-					fmt.Printf("[Kubelet] Failed to delete node %v!\n", tarNode.Metadata.Name)
 				}
 			}
 		}

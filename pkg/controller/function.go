@@ -69,8 +69,8 @@ func prometheus_query(tp string, uuid string) float64 {
 		vector := result.(model.Vector)
 		if len(vector) != 0 {
 			s := vector[0]
-			fmt.Printf("podName=%q, uuid=%q, value=%v\n",
-				s.Metric["podName"], s.Metric["uuid"], s.Value)
+			//fmt.Printf("podName=%q, uuid=%q, value=%v\n",
+			//	s.Metric["podName"], s.Metric["uuid"], s.Value)
 			return float64(s.Value)
 		}
 	}
