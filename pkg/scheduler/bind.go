@@ -38,8 +38,8 @@ func getOptionalNodes(pod *object.Pod) []object.Node {
 		cpu := prometheus_query("cpu", node.Runtime.Uuid)
 		mem := prometheus_query("memory", node.Runtime.Uuid)
 		for _, container := range pod.Spec.Containers {
-			cpu -= resource.ConvertCpuToBytes(container.Limits.Cpu)
-			mem -= resource.ConvertMemoryToBytes(container.Limits.Memory)
+			cpu -= float64(resource.ConvertCpuToBytes(container.Limits.Cpu))
+			mem -= float64(resource.ConvertMemoryToBytes(container.Limits.Memory))
 		}
 		if cpu > 0 && mem > 0 {
 			optional_nodes = append(optional_nodes, node)
@@ -49,7 +49,7 @@ func getOptionalNodes(pod *object.Pod) []object.Node {
 	return optional_nodes
 }
 
-func prometheus_query(tp string, uuid string) int64 {
+func prometheus_query(tp string, uuid string) float64 {
 
 	// Step 1: Form the query with type(cpu/memory) and uuid
 	publicPrix := fmt.Sprintf("%s_%s_%s",
@@ -81,8 +81,8 @@ func prometheus_query(tp string, uuid string) int64 {
 			s := vector[0]
 			fmt.Printf("nodeName=%q, uuid=%q, value=%v\n",
 				s.Metric["nodeName"], s.Metric["uuid"], s.Value)
-			return int64(s.Value)
+			return float64(s.Value)
 		}
 	}
-	return 0
+	return 0.0
 }
