@@ -30,10 +30,6 @@ type Runtime struct {
 	// Whether the pod should be restarted
 	NeedRestart bool `yaml:"needRestart" json:"needRestart"`
 
-	// --- Node ---
-	// Available resources of the node
-	Available Resources `yaml:"available" json:"available"`
-
 	// --- ServerlessFunctions ---
 	// When a function is available, FunctionIp is the target Ip
 	FunctionIp string `yaml:"functionIp" json:"functionIp"`
@@ -50,13 +46,6 @@ type Node struct {
 
 type NodeSpec struct {
 	Ip string `yaml:"ip" json:"ip"`
-	// Total resources of the node
-	Capacity Resources `yaml:"capacity" json:"capacity"`
-}
-
-type Resources struct {
-	Cpu    int64 `yaml:"cpu" json:"cpu"`
-	Memory int64 `yaml:"memory" json:"memory"`
 }
 
 // --------------------------- Replica Set ---------------------------

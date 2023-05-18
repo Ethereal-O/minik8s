@@ -61,9 +61,7 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 	podUuid := pod.Runtime.Uuid
 
 	// Step 1: Prepare for labels
-	labels := map[string]string{
-		KubernetesPodUIDLabel: podUuid,
-	}
+	labels := map[string]string{}
 	for labelName, labelValue := range pod.Metadata.Labels {
 		labels[labelName] = labelValue
 	}
@@ -133,9 +131,7 @@ func CreatePauseContainer(pod *object.Pod) (string, string, error) {
 	podUuid := pod.Runtime.Uuid
 
 	// Step 1: Prepare for labels
-	labels := map[string]string{
-		KubernetesPodUIDLabel: podUuid,
-	}
+	labels := map[string]string{}
 	for labelName, labelValue := range pod.Metadata.Labels {
 		labels[labelName] = labelValue
 	}
@@ -212,9 +208,7 @@ func CreateHostContainer(pod *object.Pod, myContainer *object.Container) (string
 	podUuid := pod.Runtime.Uuid
 
 	// Step 1: Prepare for labels
-	labels := map[string]string{
-		KubernetesPodUIDLabel: podUuid,
-	}
+	labels := map[string]string{}
 	for labelName, labelValue := range pod.Metadata.Labels {
 		labels[labelName] = labelValue
 	}

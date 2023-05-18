@@ -9,29 +9,36 @@ import (
 	"net/http"
 )
 
-const (
-	NAME_PRIFIX = "pod"
-	SUBSYS      = "podResource"
-	NAMESPACE   = "minik8s"
-	JOBNAME     = "resource_usage"
-)
-
-var memoryPrecentage = prometheus.NewGaugeVec(
+var podMemoryPrecentage = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Subsystem: SUBSYS,
+		Subsystem: POD_SUBSYS,
 		Namespace: NAMESPACE,
-		Name:      fmt.Sprintf("%s:%s", NAME_PRIFIX, "memory"),
+		Name:      fmt.Sprintf("%s:%s", POD_NAME_PRIFIX, "memory"),
 	}, []string{"uuid", "podName"})
 
-var cpuPrecentage = prometheus.NewGaugeVec(
+var podCpuPrecentage = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Subsystem: SUBSYS,
+		Subsystem: POD_SUBSYS,
 		Namespace: NAMESPACE,
-		Name:      fmt.Sprintf("%s:%s", NAME_PRIFIX, "cpu"),
+		Name:      fmt.Sprintf("%s:%s", POD_NAME_PRIFIX, "cpu"),
 	}, []string{"uuid", "podName"})
+
+var nodeAvailableMemory = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Subsystem: NODE_SUBSYS,
+		Namespace: NAMESPACE,
+		Name:      fmt.Sprintf("%s:%s", NODE_NAME_PRIFIX, "memory"),
+	}, []string{"uuid", "nodeName"})
+
+var nodeAvailableCpu = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Subsystem: NODE_SUBSYS,
+		Namespace: NAMESPACE,
+		Name:      fmt.Sprintf("%s:%s", NODE_NAME_PRIFIX, "cpu"),
+	}, []string{"uuid", "nodeName"})
 
 func start_monitor() {
-	prometheus.MustRegister(memoryPrecentage, cpuPrecentage)
+	prometheus.MustRegister(podMemoryPrecentage, podCpuPrecentage, nodeAvailableMemory, nodeAvailableCpu)
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(":9080", nil)
 }
