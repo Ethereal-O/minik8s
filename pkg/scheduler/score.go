@@ -21,8 +21,8 @@ func (policy ScoringPolicy) selectNode(pod *object.Pod, nodes []object.Node) str
 	for _, node := range nodes {
 		cpu := prometheus_query("cpu", node.Runtime.Uuid)
 		mem := prometheus_query("memory", node.Runtime.Uuid)
-		cpu_score := float64(cpu / 1e9) * 10.0       // 1 CPU = 10 score
-		mem_score := float64(mem / (1024 * 1024 * 1024)) * 5.0 // 1 GB Memory = 5 score
+		cpu_score := cpu / 1e9 * 10.0       // 1 CPU = 10 score
+		mem_score := mem / (1024 * 1024 * 1024) * 5.0 // 1 GB Memory = 5 score
 
 		rs_scale := 1.5
 		// pod belongs to a ReplicaSet
