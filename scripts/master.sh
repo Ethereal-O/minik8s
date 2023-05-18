@@ -12,6 +12,9 @@ etcd -listen-client-urls="http://0.0.0.0:2379" --advertise-client-urls="http://0
 sleep 1
 echo "[Master] ETCD started!" 1>&2
 
+prometheus --config.file=prometheus.yml > prometheus.log 2>&1 &
+echo "[Master] Prometheus started!" 1>&2
+
 if pgrep nsqlookupd > /dev/null; then
   echo "[Master] NSQ producer is already running!" 1>&2
 else
