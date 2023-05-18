@@ -3,6 +3,7 @@ package kubeProxy
 import (
 	"minik8s/pkg/client"
 	"minik8s/pkg/services"
+	"minik8s/pkg/util/config"
 )
 
 func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
@@ -11,7 +12,12 @@ func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
 	kubeProxyManager.initGatewayMap()
 	kubeProxyManager.initServiceMap()
 	updateDnsConfig()
-	applyNodePortService()
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
+		applyNodePortService()
+	}
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+		applyAllMultiService()
+	}
 }
 
 func (kubeProxyManager *KubeProxyManager) initServiceMap() {
