@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # After 5s, kill kubectl forcefully
-timeout 5s sudo killall kubectl > /dev/null 2>&1
+sudo killall kubectl > /dev/null 2>&1
+sleep 5
 sudo killall -9 kubectl > /dev/null 2>&1
 echo "[Cleaner] K8S Master/Worker stopped!" 1>&2
 

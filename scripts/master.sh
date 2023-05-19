@@ -3,13 +3,15 @@
 # Start etcd
 docker run -d \
   --env ALLOW_NONE_AUTHENTICATION=yes \
+  --env ETCD_ENABLE_V2=true \
+  --env ETCDCTL_API=2 \
   --network=host \
   --name etcd \
   bitnami/etcd \
   > /dev/null 2>&1
 sleep 1
 docker exec etcd \
-  etcdctl --endpoints http://127.0.0.1:2379 put /coreos.com/network/config '{"Network": "172.17.0.0/16", "SubnetLen": 24, "SubnetMin": "172.17.1.0","SubnetMax": "172.17.20.0", "Backend": {"Type": "vxlan"}}' \
+  etcdctl --endpoints http://127.0.0.1:2379 set /coreos.com/network/config '{"Network": "172.17.0.0/16", "SubnetLen": 24, "SubnetMin": "172.17.1.0","SubnetMax": "172.17.20.0", "Backend": {"Type": "vxlan"}}' \
   > /dev/null 2>&1
 echo "[Master] ETCD started!" 1>&2
 
