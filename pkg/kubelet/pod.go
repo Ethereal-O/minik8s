@@ -51,6 +51,7 @@ func StartPod(pod *object.Pod) bool {
 	pod.Runtime.Containers = containersIdList
 	PodToExit[pod.Runtime.Uuid] = make(chan bool)
 	PodExited[pod.Runtime.Uuid] = make(chan bool)
+	PodDeleted[pod.Runtime.Uuid] = make(chan bool)
 	client.AddPod(*pod)
 
 	go PodProbeCycle(pod)

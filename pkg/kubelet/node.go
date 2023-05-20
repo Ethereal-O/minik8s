@@ -29,20 +29,27 @@ func StartNode() {
 	client.AddNode(node)
 }
 
-func DeleteNode(node *object.Node) bool {
+func DeleteNode() {
 	// Step 1: Stop probe cycle
 	NodeToExit <- true
 	<-NodeExited
 
 	// Step 2: Delete all pods
+	ip, _ := network.GetHostIp()
+	node := client.GetNode(ip)
 	for _, pod := range client.GetActivePods() {
 		if pod.Runtime.Bind == node.Metadata.Name {
 			pod.Runtime.Status = config.EXIT_STATUS
 			client.AddPod(pod)
+			<-PodDeleted[pod.Runtime.Uuid] // Wait for pod delete
+			delete(PodDeleted, pod.Runtime.Uuid)
 		}
 	}
 
-	return true
+	// Step 3: Stop current node
+	node.Runtime.Status = config.EXIT_STATUS
+	client.AddNode(node)
+	fmt.Printf("[Kubelet] Node %v deleted!\n", node.Metadata.Name)
 }
 
 func NodeProbeCycle(node *object.Node) {
