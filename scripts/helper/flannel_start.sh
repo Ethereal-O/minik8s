@@ -24,5 +24,6 @@ sudo killall dockerd > /dev/null 2>&1
 source /run/flannel/subnet.env
 sudo echo -e "{\n\t\"bip\":\"${FLANNEL_SUBNET}\",\n\t\"mtu\":${FLANNEL_MTU}\n}" > /etc/docker/daemon.json
 sudo systemctl start docker > /dev/null 2>&1
+sleep 2
 
 exit 0
