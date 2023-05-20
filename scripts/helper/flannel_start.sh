@@ -17,13 +17,13 @@ fi
 # Start flannel
 sleep 1
 flannel --etcd-endpoints="http://$master_ip:2379" --ip-masq=true > flannel.log 2>&1 &
-sleep 5
+sleep 4
 sudo systemctl stop docker.socket > /dev/null 2>&1
 sudo systemctl stop docker > /dev/null 2>&1
 sudo killall dockerd > /dev/null 2>&1
 source /run/flannel/subnet.env
 sudo echo -e "{\n\t\"bip\":\"${FLANNEL_SUBNET}\",\n\t\"mtu\":${FLANNEL_MTU}\n}" > /etc/docker/daemon.json
 sudo systemctl start docker > /dev/null 2>&1
-sleep 2
+sleep 1
 
 exit 0
