@@ -14,18 +14,6 @@ sudo cp -r ./template/config/NGINX_TEMPLATE/* /home/os/minik8s/Forward > /dev/nu
 sudo cp /etc/hosts /etc/hosts.bak > /dev/null 2>&1
 echo "[Worker] DNS config created!" 1>&2
 
-# Start flannel network
-grep "SERVICE_POLICY          = SERVICE_POLICY_IPTABLES" ./pkg/util/config/config.go > /dev/null 2>&1
-if [ "$?" != 1 ]; then
-  bash ./scripts/helper/flannel_start.sh
-  if [ "$?" = 1 ]; then
-    echo "[Worker] Failed to start flannel network!" 1>&2
-    exit 1
-  else
-    echo "[Worker] Flannel network started!" 1>&2
-  fi
-fi
-
 # Start weave subnet
 sh ./scripts/helper/weave_start.sh
 if [ "$?" = 1 ]; then
