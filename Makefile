@@ -11,6 +11,7 @@ TESTRS=$(shell ./scripts/testRS.sh)
 TESTSTRESS=$(shell ./scripts/testStress.sh)
 TESTGPU=$(shell ./scripts/testGpu.sh)
 TESTSERVERLESS=$(shell ./scripts/testServerless.sh)
+TESTCONSISTENCY=$(shell ./scripts/testConsistency.sh)
 
 # Build k8s but not run
 .PHONY:build
@@ -36,37 +37,41 @@ worker:
 
 # Build k8s, run a master, a worker, a Pod on one host
 .PHONY:testPod
-testPod: master
+testPod:
 	@echo $(TESTPOD)
 
 # Build k8s, run a master, a worker, a Pod, a Service on one host
 .PHONY:testService
-testService: master
+testService:
 	@echo $(TESTSERVICE)
 
 # Build k8s, run a master, a worker, a Pod, a Service, a Gateway on one host
 .PHONY:testGateway
-testGateway: master
+testGateway:
 	@echo $(TESTGATEWAY)
+
+.PHONY:testConsistency
+testConsistency:
+	@echo $(TESTCONSISTENCY)
 
 # Build k8s, run a master, a worker, a RS, a Service on one host
 .PHONY:testRS
-testRS: master
+testRS:
 	@echo $(TESTRS)
 
 # Build k8s, run a master, a worker, a Stress Pod on one host
 .PHONY:testStress
-testStress: master
+testStress:
 	@echo $(TESTSTRESS)
 
 # Build k8s, run a master, a worker, a Gpu Job on one host
 .PHONY:testGpu
-testGpu: master
+testGpu:
 	@echo $(TESTGPU)
 
 # Build k8s, run a master, a worker, a serverless test on one host
 .PHONY:testServerless
-testServerless: master
+testServerless:
 	@echo $(TESTSERVERLESS)
 
 # Stop k8s and clear k8s states
