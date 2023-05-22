@@ -84,6 +84,26 @@ func dealRuntimeService(runtimeServiceChan chan string) {
 			}
 		}
 	}
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
+		for {
+			select {
+			case mes := <-runtimeServiceChan:
+				var tarRuntimeService object.RuntimeService
+				err := json.Unmarshal([]byte(mes), &tarRuntimeService)
+				if err != nil {
+					fmt.Println(err.Error())
+					continue
+				}
+				if tarRuntimeService.Service.Runtime.Status == config.EXIT_STATUS {
+					dealExitRuntimeService_micro(&tarRuntimeService)
+				} else if tarRuntimeService.Service.Runtime.Status == config.RUNNING_STATUS {
+					dealRunningRuntimeService_micro(&tarRuntimeService)
+				} else {
+					fmt.Println("runtime service status error!")
+				}
+			}
+		}
+	}
 }
 
 func initialize() {
@@ -91,12 +111,19 @@ func initialize() {
 		kubeProxyManager.RootMap = make(map[string]map[string]*SingleService)
 		kubeProxyManager.initRootChain()
 	}
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
+		kubeProxyManager.PodMatchMap = make(map[string]map[string]*PodMatch)
+		kubeProxyManager.initSidecar()
+	}
 	kubeProxyManager.initKubeProxyManager()
 }
 
 func finalize() {
 	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
 		kubeProxyManager.deleteRootChain()
+	}
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
+		kubeProxyManager.deleteSidecar()
 	}
 }
 

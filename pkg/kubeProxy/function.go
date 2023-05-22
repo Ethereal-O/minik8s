@@ -6,9 +6,12 @@ import (
 	"io"
 	"minik8s/pkg/kubelet"
 	"minik8s/pkg/services"
+	"net"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"syscall"
 )
 
 func reloadNginxConfig(name string) {
@@ -74,4 +77,47 @@ func deleteDir(path string) {
 	} else {
 		fmt.Println(res)
 	}
+}
+
+func getOriginalDst(clientConn *net.TCPConn) (ipv4 string, port uint16, newTCPConn *net.TCPConn, err error) {
+
+	remoteAddr := clientConn.RemoteAddr()
+	if remoteAddr == nil {
+		err = fmt.Errorf("clientConn.fd is nil")
+		return
+	}
+
+	newTCPConn = nil
+
+	clientConnFile, err := clientConn.File()
+	if err != nil {
+		return
+	} else {
+		clientConn.Close()
+	}
+
+	addr, err := syscall.GetsockoptIPv6Mreq(int(clientConnFile.Fd()), syscall.IPPROTO_IP, 80)
+	if err != nil {
+		return
+	}
+	newConn, err := net.FileConn(clientConnFile)
+	if err != nil {
+		return
+	}
+
+	if _, ok := newConn.(*net.TCPConn); ok {
+		newTCPConn = newConn.(*net.TCPConn)
+		clientConnFile.Close()
+	} else {
+		fmt.Printf("ERR: newConn is not a *net.TCPConn, instead it is: %T (%v)\n", newConn, newConn)
+		return
+	}
+
+	ipv4 = strconv.Itoa(int(uint(addr.Multiaddr[4]))) + "." +
+		strconv.Itoa(int(uint(addr.Multiaddr[5]))) + "." +
+		strconv.Itoa(int(uint(addr.Multiaddr[6]))) + "." +
+		strconv.Itoa(int(uint(addr.Multiaddr[7])))
+	port = uint16(addr.Multiaddr[2])<<8 + uint16(addr.Multiaddr[3])
+
+	return
 }

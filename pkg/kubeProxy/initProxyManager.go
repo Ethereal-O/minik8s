@@ -15,7 +15,7 @@ func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
 	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
 		applyNodePortService()
 	}
-	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES || config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
 		applyAllMultiService()
 	}
 }

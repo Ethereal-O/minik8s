@@ -21,9 +21,15 @@ const (
 type KubeProxyManager struct {
 	RootMap           map[string]map[string]*SingleService // DEPRECATED
 	RuntimeServiceMap map[string]*object.RuntimeService
+	PodMatchMap       map[string]map[string]*PodMatch
 	RuntimeGatewayMap map[string]*object.RuntimeGateway
 	RootChain         RootChain // DEPRECATED
 	Lock              sync.Mutex
+}
+
+type PodMatch struct {
+	Pod       *object.Pod
+	PodWeight int
 }
 
 // DEPRECATED

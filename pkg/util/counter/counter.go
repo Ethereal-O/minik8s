@@ -79,7 +79,7 @@ func NewServiceIP() string {
 	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
 		serviceIPCounter.initCount = serializeIP(ServiceIPCounterInitIP)
 	}
-	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES || config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
 		serviceIPCounter.initCount = serializeIP(ServiceIPCounterInitIP_OLD)
 	}
 	return deserializeIP(serviceIPCounter.fetchAndAdd())
