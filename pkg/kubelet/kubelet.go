@@ -55,20 +55,24 @@ func dealPod(podChan chan string) {
 			}
 			ip, _ := network.GetHostIp()
 			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
-				started := StartPod(&tarPod)
-				if started {
-					fmt.Printf("[Kubelet] Pod %v started!\n", tarPod.Metadata.Name)
-				} else {
-					fmt.Printf("[Kubelet] Failed to start pod %v!\n", tarPod.Metadata.Name)
-				}
+				go func(pod *object.Pod) {
+					started := StartPod(pod)
+					if started {
+						fmt.Printf("[Kubelet] Pod %v started!\n", pod.Metadata.Name)
+					} else {
+						fmt.Printf("[Kubelet] Failed to start pod %v!\n", pod.Metadata.Name)
+					}
+				}(&tarPod)
 			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
-				deleted := DeletePod(&tarPod)
-				PodDeleted[tarPod.Runtime.Uuid] <- true
-				if deleted {
-					fmt.Printf("[Kubelet] Pod %v deleted!\n", tarPod.Metadata.Name)
-				} else {
-					fmt.Printf("[Kubelet] Failed to delete pod %v!\n", tarPod.Metadata.Name)
-				}
+				go func(pod *object.Pod) {
+					deleted := DeletePod(pod)
+					PodDeleted[pod.Runtime.Uuid] <- true
+					if deleted {
+						fmt.Printf("[Kubelet] Pod %v deleted!\n", pod.Metadata.Name)
+					} else {
+						fmt.Printf("[Kubelet] Failed to delete pod %v!\n", pod.Metadata.Name)
+					}
+				}(&tarPod)
 			}
 		}
 	}

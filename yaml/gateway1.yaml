@@ -6,6 +6,9 @@ metadata:
 spec:
   host: minik8s.com
   paths:
-    - name: /service/
+    - name: /service1/
       service: Service1
       port: 80
+    - name: /service3/
+      service: Service3
+      port: 8080

@@ -4,7 +4,7 @@ metadata:
   labels:
     bound: Gateway
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       name: Gtw-Pod
