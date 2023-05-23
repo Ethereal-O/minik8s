@@ -1,0 +1,12 @@
+kind: Service
+metadata:
+  name: Service1
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: microServiceTest

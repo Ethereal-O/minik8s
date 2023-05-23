@@ -1,0 +1,13 @@
+kind: VirtualService
+metadata:
+  name: VirtualService1
+spec:
+  type: Exact
+  service: Service1
+  selector:
+    - matchLabels:
+        version: v2
+      weight: 9
+    - matchLabels:
+        version: v1
+      weight: 1

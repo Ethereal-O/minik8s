@@ -6,9 +6,11 @@ import (
 	"io"
 	"minik8s/pkg/kubelet"
 	"minik8s/pkg/services"
+	"minik8s/pkg/util/config"
 	"net"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
@@ -120,4 +122,54 @@ func getOriginalDst(clientConn *net.TCPConn) (ipv4 string, port uint16, newTCPCo
 	port = uint16(addr.Multiaddr[2])<<8 + uint16(addr.Multiaddr[3])
 
 	return
+}
+
+func dial(host string, port int, needTransfer bool) (*net.TCPConn, error) {
+	remoteAddr, err := net.ResolveIPAddr("ip", host)
+	if err != nil {
+		return nil, err
+	}
+	remoteAddrAndPort := &net.TCPAddr{IP: remoteAddr.IP, Port: port}
+	var localAddrAndPort *net.TCPAddr
+	if needTransfer {
+		localAddr, err := net.ResolveIPAddr("ip", LOCALHOST_SIDECAR)
+		if err != nil {
+			return nil, err
+		}
+		localAddrAndPort = &net.TCPAddr{IP: localAddr.IP, Port: 0}
+	} else {
+		localAddrAndPort = nil
+	}
+
+	conn, err := net.DialTCP("tcp", localAddrAndPort, remoteAddrAndPort)
+	return conn, err
+}
+
+func copy(dst io.ReadWriteCloser, src io.ReadWriteCloser) {
+	if dst == nil || src == nil {
+		fmt.Println("[copy] null src/dst")
+		return
+	}
+
+	defer dst.Close()
+	defer src.Close()
+
+	_, err := io.Copy(dst, src)
+	if err != nil {
+		return
+	}
+}
+
+func selectorMatch(origin string, selector string, strategy string) bool {
+	if strategy == config.VIRTUAL_SERVICE_TYPE_EXACT {
+		return origin == selector
+	}
+	if strategy == config.VIRTUAL_SERVICE_TYPE_PREFIX {
+		return strings.HasPrefix(origin, selector)
+	}
+	if strategy == config.VIRTUAL_SERVICE_TYPE_REGULAR {
+		found, err := regexp.MatchString(selector, origin)
+		return found && err == nil
+	}
+	return false
 }

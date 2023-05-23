@@ -11,6 +11,7 @@ func (kubeProxyManager *KubeProxyManager) initKubeProxyManager() {
 	defer kubeProxyManager.Lock.Unlock()
 	kubeProxyManager.initGatewayMap()
 	kubeProxyManager.initServiceMap()
+	kubeProxyManager.initVirtualServiceMap()
 	updateDnsConfig()
 	if config.SERVICE_POLICY == config.SERVICE_POLICY_NGINX {
 		applyNodePortService()
@@ -37,6 +38,16 @@ func (kubeProxyManager *KubeProxyManager) initGatewayMap() {
 			runtimeGatewayRef := runtimeGateway
 			runtimeGatewayRef.Status = services.GATEWAY_STATUS_RUNNING
 			kubeProxyManager.RuntimeGatewayMap[runtimeGateway.Gateway.Metadata.Name] = &runtimeGatewayRef
+		}
+	}
+}
+
+func (kubeProxyManager *KubeProxyManager) initVirtualServiceMap() {
+	allVirtualServices := client.GetAllVirtualServices()
+	for _, virtualService := range allVirtualServices {
+		if virtualService.Runtime.Status == config.RUNNING_STATUS {
+			virtualServiceRef := virtualService
+			kubeProxyManager.VirtualServiceMap[virtualService.Metadata.Name] = &virtualServiceRef
 		}
 	}
 }

@@ -27,7 +27,6 @@ func createMultiService(runtimeService *object.RuntimeService) {
 			multiService[singleService.Name] = singleService
 		}
 		kubeProxyManager.RootMap[runtimeService.Service.Metadata.Name] = multiService
-
 	}
 	if config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
 		oldPods, ok := kubeProxyManager.PodMatchMap[runtimeService.Service.Runtime.ClusterIp]
@@ -36,15 +35,16 @@ func createMultiService(runtimeService *object.RuntimeService) {
 			oldPods = kubeProxyManager.PodMatchMap[runtimeService.Service.Runtime.ClusterIp]
 		}
 		for _, pod := range runtimeService.Pods {
+			podRef := pod
 			oldPod, ok := oldPods[pod.Metadata.Name]
 			if !ok {
 				kubeProxyManager.PodMatchMap[runtimeService.Service.Runtime.ClusterIp][pod.Metadata.Name] = &PodMatch{
-					Pod:       &pod,
+					Pod:       &podRef,
 					PodWeight: 0,
 				}
 			} else {
 				kubeProxyManager.PodMatchMap[runtimeService.Service.Runtime.ClusterIp][pod.Metadata.Name] = &PodMatch{
-					Pod:       &pod,
+					Pod:       &podRef,
 					PodWeight: oldPod.PodWeight,
 				}
 			}
