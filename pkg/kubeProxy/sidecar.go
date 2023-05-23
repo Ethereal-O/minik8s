@@ -23,7 +23,7 @@ func (kubeProxyManager *KubeProxyManager) initSidecar() error {
 	go kubeProxyManager.listenSocket(LOCALHOST, OUTBOUND_PORT)
 	go kubeProxyManager.listenSocket(LOCALHOST, INBOUND_PORT)
 	localhost_docker, err := network.GetDockerHostIp()
-	if err != nil {
+	if localhost_docker != "" {
 		go kubeProxyManager.listenSocket(localhost_docker, OUTBOUND_PORT)
 		go kubeProxyManager.listenSocket(localhost_docker, INBOUND_PORT)
 	} else {
