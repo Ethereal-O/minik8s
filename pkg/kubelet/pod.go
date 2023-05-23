@@ -12,24 +12,22 @@ import (
 
 func StartPod(pod *object.Pod) bool {
 	var containersIdList []string
+	var result bool
+	var ID string
 
 	// Host mode pod has no pause container
 	if pod.Spec.HostMode == "true" {
 		// Step 1: Start host containers
-		for _, myContainer := range pod.Spec.Containers {
-			result, ID := StartHostContainer(pod, &myContainer)
-			if !result {
-				return false
-			}
-			containersIdList = append(containersIdList, ID)
-		}
-	} else {
-		// Step 1: Start pause container
-		result, ID := StartPauseContainer(pod)
+		result, containersIdList = StartContainersConcurrently(pod, true)
 		if !result {
 			return false
 		}
-		containersIdList = append(containersIdList, ID)
+	} else {
+		// Step 1: Start pause container
+		result, ID = StartPauseContainer(pod)
+		if !result {
+			return false
+		}
 
 		// Step 2: Get pod IP from pause container
 		inspection, _ := Client.ContainerInspect(Ctx, ID)
@@ -37,13 +35,11 @@ func StartPod(pod *object.Pod) bool {
 		pod.Runtime.PodIp = status.IP
 
 		// Step 3: Start common containers
-		for _, myContainer := range pod.Spec.Containers {
-			result, ID := StartCommonContainer(pod, &myContainer)
-			if !result {
-				return false
-			}
-			containersIdList = append(containersIdList, ID)
+		result, containersIdList = StartContainersConcurrently(pod, false)
+		if !result {
+			return false
 		}
+		containersIdList = append(containersIdList, ID)
 	}
 
 	// Step 4: Sync pod with API server

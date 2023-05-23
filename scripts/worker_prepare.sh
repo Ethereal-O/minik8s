@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Record command log
+touch cmd.log
+
 # Start flannel network
 grep "SERVICE_POLICY          = SERVICE_POLICY_IPTABLES" ./pkg/util/config/config.go > /dev/null 2>&1
 if [ "$?" != 1 ]; then

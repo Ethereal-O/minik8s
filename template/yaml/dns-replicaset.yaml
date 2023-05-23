@@ -4,7 +4,7 @@ metadata:
   labels:
     bound: DNS
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       name: DNS-Pod
