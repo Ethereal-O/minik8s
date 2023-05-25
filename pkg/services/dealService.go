@@ -6,6 +6,7 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/tools"
 	"sync"
+	"time"
 )
 
 func dealRunningService(service *object.Service) {
@@ -49,6 +50,9 @@ func deleteService(service *object.Service) {
 	if !ok {
 		return
 	}
+	runtimeService.Lock.Lock()
+	defer runtimeService.Lock.Unlock()
+	runtimeService.Status = SERVICE_STATUS_EXIT
 	runtimeService.Timer.Stop()
 	ret := client.DeleteRuntimeService(*runtimeService)
 	fmt.Println(ret)
@@ -64,5 +68,7 @@ func deleteService(service *object.Service) {
 
 func updateService(service *object.Service) {
 	deleteService(service)
+	// because weave need time to delete pod, so we sleep a while
+	time.Sleep(UPDATE_SERVICE_TIME_INTERVAL)
 	createService(service)
 }

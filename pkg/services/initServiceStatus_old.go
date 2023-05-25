@@ -24,7 +24,12 @@ func pollLoop_old(runtimeService *object.RuntimeService) {
 	for {
 		select {
 		case <-runtimeService.Timer.C:
-			poll_old(runtimeService)
+			if runtimeService.Status == SERVICE_STATUS_RUNNING {
+				poll_old(runtimeService)
+			} else {
+				fmt.Println("detecting service had been deleted, stop poll")
+				return
+			}
 		}
 	}
 }
@@ -92,5 +97,9 @@ func selectPods_old(runtimeService *object.RuntimeService) {
 	fmt.Printf("service %s update pods num: %d\n", runtimeService.Service.Metadata.Name, len(runtimeService.Pods))
 
 	// update service config
+	if runtimeService.Status != SERVICE_STATUS_RUNNING {
+		fmt.Println("detecting service had been deleted, NOT update service config")
+		return
+	}
 	client.AddRuntimeService(*runtimeService)
 }

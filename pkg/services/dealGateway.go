@@ -39,6 +39,14 @@ func createGateway(gateway *object.Gateway) {
 }
 
 func deleteGateway(gateway *object.Gateway) {
+	dnsManager.Lock.Lock()
+	defer dnsManager.Lock.Unlock()
+	runtimeGateway, ok := dnsManager.GatewayMap[gateway.Metadata.Name]
+	if !ok {
+		return
+	}
+	ret := client.DeleteRuntimeGateway(*runtimeGateway)
+	fmt.Println(ret)
 	serviceList := client.GetServiceByKey(GATEWAY_SERVICE_PREFIX + gateway.Metadata.Name)
 	if len(serviceList) == 0 {
 		return
@@ -51,8 +59,7 @@ func deleteGateway(gateway *object.Gateway) {
 	}
 	client.DeleteReplicaSet(replicaSetList[0])
 
-	dnsManager.Lock.Lock()
-	defer dnsManager.Lock.Unlock()
+	delete(dnsManager.ToBeDoneGatewayMap, gateway.Metadata.Name)
 	delete(dnsManager.GatewayMap, gateway.Metadata.Name)
 }
 
