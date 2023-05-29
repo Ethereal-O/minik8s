@@ -733,6 +733,10 @@ func serverlessFunctions_put(c echo.Context) error {
 	}
 	key := c.Request().RequestURI
 	if serverlessFunctionsObject.Runtime.Uuid == "" {
+		//Update the function do not to change the record in etcd, just update the mounted function file
+		if len(etcd.Get_etcd(key, false)) != 0 {
+			return c.String(http.StatusOK, "ok")
+		}
 		uuid := counter.GetUuid()
 		serverlessFunctionsObject.Runtime.Uuid = uuid
 	}
