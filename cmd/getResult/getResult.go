@@ -74,7 +74,7 @@ func printResult(ip string, file string) {
 	}
 	defer sftpClient.Close()
 
-	var remoteFilePath = config.GPU_NODE_DIR_PATH + file + "result.out"
+	var remoteFilePath = config.GPU_NODE_DIR_PATH + "/" + file + "/result.out"
 	var localDir = "/home/tmpResult"
 
 	srcFile, err := sftpClient.Open(remoteFilePath)
