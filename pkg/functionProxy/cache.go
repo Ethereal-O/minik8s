@@ -2,6 +2,7 @@ package functionProxy
 
 import "sync"
 
+var allowCache = false
 var cache FifoCache
 
 type FifoCache struct {
@@ -20,6 +21,9 @@ func (c *FifoCache) Init(cap int) {
 }
 
 func (c *FifoCache) PutCache(key string, value string) {
+	if !allowCache {
+		return
+	}
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	if c.queue[c.point] != "" {
@@ -31,6 +35,9 @@ func (c *FifoCache) PutCache(key string, value string) {
 }
 
 func (c *FifoCache) GetCache(key string) string {
+	if !allowCache {
+		return ""
+	}
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	value, ok := c.items[key]
