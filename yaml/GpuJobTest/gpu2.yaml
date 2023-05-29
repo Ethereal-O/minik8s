@@ -1,0 +1,5 @@
+kind: GpuJob
+metadata:
+  name: matrix_add
+spec:
+  path: /yaml/GpuJobTest/matrix_add
