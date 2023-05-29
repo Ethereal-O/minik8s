@@ -28,10 +28,10 @@ nodes:
           relation: ge
         nextNode: node5
   - nodeName: node3
-    funcName: add
+    funcName: minus
     choices:
       - nextNode: node5
   - nodeName: node4
-    funcName: minus
+    funcName: add
   - nodeName: node5
     funcName: minus

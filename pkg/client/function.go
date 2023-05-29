@@ -400,7 +400,7 @@ func GetActiveFunctions() []object.Function {
 }
 
 func GetFunction(funcName string) *object.Function {
-	functionList := GetAllFunctions()
+	functionList := GetActiveFunctions()
 	for _, function := range functionList {
 		if function.FuncName == funcName {
 			return &function
