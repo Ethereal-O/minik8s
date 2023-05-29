@@ -46,6 +46,9 @@ func deleteService_old(service *object.Service) {
 	if !ok {
 		return
 	}
+	runtimeService.Lock.Lock()
+	defer runtimeService.Lock.Unlock()
+	runtimeService.Status = SERVICE_STATUS_EXIT
 	runtimeService.Timer.Stop()
 	ret := client.DeleteRuntimeService(*runtimeService)
 	fmt.Println(ret)

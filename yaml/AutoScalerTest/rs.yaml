@@ -13,3 +13,6 @@ spec:
           image: nginx
           ports:
             - containerPort: 80
+          limits:
+            cpu: "1"
+            memory: "300Mi"

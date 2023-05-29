@@ -4,7 +4,7 @@
 ./kubectl apply -f ./yaml/rs1.yaml
 sleep 80
 echo "[TestRS] RS1 started!" 1>&2
-./kubectl get -t Pod 1>&2
+./kubectl get -t Pod 1
 
 # Stop all downloader containers
 docker stop $(docker ps -a | grep downloader | awk '{print $1}')

@@ -11,8 +11,10 @@ const (
 	CHECK_PODS_TIME_INTERVAL               = 5 * time.Second
 	CHECK_DNS_TIME_INTERVAL                = 5 * time.Second
 	CREATE_RS_AND_SERVICE_TIME_INTERVAL    = 1 * time.Second
+	UPDATE_SERVICE_TIME_INTERVAL           = 1 * time.Second
 	SERVICE_STATUS_INIT                    = "INIT"
 	SERVICE_STATUS_RUNNING                 = "RUNNING"
+	SERVICE_STATUS_EXIT                    = "EXIT"
 	GATEWAY_STATUS_INIT                    = "INIT"
 	GATEWAY_STATUS_DEPLOYING               = "DEPLOYING"
 	GATEWAY_STATUS_RUNNING                 = "RUNNING"

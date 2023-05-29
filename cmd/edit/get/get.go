@@ -183,6 +183,29 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
+	if tp == config.GPUJOB_TYPE {
+		table, _ := gotable.Create("Name", "Uuid", "Status", "Bind")
+		for _, gpujob := range res {
+			var gpuObject object.GpuJob
+			json.Unmarshal([]byte(gpujob), &gpuObject)
+			rows := make([]map[string]string, 0)
+			row := make(map[string]string)
+			row["Name"] = gpuObject.Metadata.Name
+			row["Uuid"] = gpuObject.Runtime.Uuid
+			var pod = client.Get_object(object.GpuJobPodFullName(gpuObject), config.POD_TYPE)[0]
+			var podObject object.Pod
+			json.Unmarshal([]byte(pod), &podObject)
+			if podObject.Runtime.Status == config.RUNNING_STATUS {
+				row["Status"] = "Pending"
+			} else {
+				row["Status"] = "Finished"
+			}
+			row["Bind"] = podObject.Runtime.Bind
+			rows = append(rows, row)
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
 	if tp == config.SERVERLESSFUNCTIONS_TYPE {
 		table, _ := gotable.Create("Name", "Status", "Ip")
 		functionList := client.GetAllFunctions()
@@ -199,6 +222,7 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
+
 }
 
 func init() {
