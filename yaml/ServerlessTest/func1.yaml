@@ -1,0 +1,12 @@
+kind: ServerlessFunctions
+metadata:
+  name: basic_functions
+spec:
+  path: /yaml/ServerlessTest/basic
+  items:
+    - funcName: add
+      module: add
+    - funcName: minus
+      module: minus
+    - funcName: rank
+      module: matrix

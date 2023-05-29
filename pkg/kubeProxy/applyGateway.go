@@ -3,13 +3,10 @@ package kubeProxy
 import (
 	"bufio"
 	"fmt"
-	"io"
-	"minik8s/pkg/kubelet"
 	"minik8s/pkg/object"
 	"minik8s/pkg/services"
+	"minik8s/pkg/util/config"
 	"os"
-	"os/exec"
-	"strings"
 )
 
 func updateDnsConfig() {
@@ -20,25 +17,45 @@ func updateDnsConfig() {
 		return
 	}
 	w := bufio.NewWriter(f)
+	var hosts_str string
 	for _, gateway := range kubeProxyManager.RuntimeGatewayMap {
-		lineStr := fmt.Sprintf("%s %s", gateway.ClusterIp, gateway.Gateway.Spec.Host)
-		_, err := fmt.Fprintln(w, lineStr)
-		if err != nil {
-			fmt.Println("dns config write fail: " + err.Error())
-			return
+		if gateway.Status != services.GATEWAY_STATUS_RUNNING {
+			continue
 		}
+		hosts_str += fmt.Sprintf("%s %s\n", gateway.ClusterIp, gateway.Gateway.Spec.Host)
 	}
+	hosts_str += fmt.Sprintf("%s %s", config.PIP3_SOURCE_IMAGE_IP, config.PIP3_SOURCE_IMAGE_HOSTNAME)
+	_, err = fmt.Fprintln(w, hosts_str)
 	err = w.Flush()
 	if err != nil {
 		fmt.Println("dns config write fail: " + err.Error())
 	}
+
+	// write it to host
+	f_bak, err := os.OpenFile(services.HOST_HOSTS_BAK_PATH, os.O_RDONLY, 0644)
+	defer f_bak.Close()
+	// read all data to string
+	var str string
+	data := make([]byte, 1024)
+	for {
+		n, err := f_bak.Read(data)
+		if err != nil {
+			break
+		}
+		str += string(data[:n])
+	}
+	str += "\n"
+	str += hosts_str
+	f_host, err := os.OpenFile(services.HOST_HOSTS_PATH, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	defer f_host.Close()
+	_, err = fmt.Fprintln(f_host, str)
 	return
 }
 
-func updateNginxConfig(runtimeGateway *object.RuntimeGateway) {
+func updateGatewayNginxConfig(runtimeGateway *object.RuntimeGateway) {
 	var content []string
-	content = append(content, makeConfig(runtimeGateway)...)
-	f, err := os.OpenFile(services.NGINX_PATH_PREFIX+"/"+runtimeGateway.Gateway.Metadata.Name+"/"+services.NGINX_CONFIG_FILE, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	content = append(content, makeGatewayConfig(runtimeGateway)...)
+	f, err := os.OpenFile(services.GATEWAY_NGINX_PATH_PREFIX+"/"+runtimeGateway.Gateway.Metadata.Name+"/"+services.NGINX_CONFIG_FILE, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		fmt.Println("nginx config write fail: " + err.Error())
 		return
@@ -55,50 +72,7 @@ func updateNginxConfig(runtimeGateway *object.RuntimeGateway) {
 	return
 }
 
-func reloadNginxConfig(runtimeGateway *object.RuntimeGateway) {
-	res, err := kubelet.GetAllRunningContainers()
-	if err != nil {
-		fmt.Println("nginx reload fail: " + err.Error())
-	}
-	var containerIds []string
-	for _, val := range res {
-		if strings.Contains(val.Names[0], services.GATEWAY_CONTAINER_PREFIX+runtimeGateway.Gateway.Metadata.Name) {
-			containerIds = append(containerIds, val.ID)
-		}
-	}
-	for _, containerId := range containerIds {
-		args := fmt.Sprintf("exec %s nginx -s reload", containerId)
-		res, err := execCmd("docker", args)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			fmt.Println(res)
-		}
-	}
-}
-
-func execCmd(exc string, args string) ([]string, error) {
-	cmd := exec.Command(exc, strings.Split(args, " ")...)
-	stdout, err := cmd.StdoutPipe()
-	cmd.Stderr = os.Stderr
-	err = cmd.Start()
-	if err != nil {
-		return nil, err
-	}
-	reader := bufio.NewReader(stdout)
-	var result []string
-	for {
-		line, err2 := reader.ReadString('\n')
-		if err2 != nil || io.EOF == err2 {
-			break
-		}
-		result = append(result, line)
-	}
-	err = cmd.Wait()
-	return result, err
-}
-
-func makeConfig(runtimeGateway *object.RuntimeGateway) []string {
+func makeGatewayConfig(runtimeGateway *object.RuntimeGateway) []string {
 	var result []string
 	result = append(result, "error_log stderr;")
 	result = append(result, "events { worker_connections  1024; }")
@@ -113,26 +87,4 @@ func makeConfig(runtimeGateway *object.RuntimeGateway) []string {
 	result = append(result, "       }")
 	result = append(result, "}")
 	return result
-}
-
-func createDir(runtimeGateway *object.RuntimeGateway) {
-	args := fmt.Sprintf("-r %s %s", services.NGINX_TEMPLATE_FILEPATH, services.NGINX_PATH_PREFIX+"/"+runtimeGateway.Gateway.Metadata.Name)
-	res, err := execCmd("cp", args)
-	if err != nil {
-		fmt.Println("createDir fail")
-		fmt.Println(err)
-	} else {
-		fmt.Println(res)
-	}
-}
-
-func deleteDir(runtimeGateway *object.RuntimeGateway) {
-	args := fmt.Sprintf("-rf %s", services.NGINX_PATH_PREFIX+"/"+runtimeGateway.Gateway.Metadata.Name)
-	res, err := execCmd("rm", args)
-	if err != nil {
-		fmt.Println("deleteDir fail")
-		fmt.Println(err)
-	} else {
-		fmt.Println(res)
-	}
 }

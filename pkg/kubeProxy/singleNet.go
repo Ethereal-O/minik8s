@@ -1,6 +1,11 @@
 package kubeProxy
 
-import "minik8s/pkg/util/iptables"
+import (
+	"fmt"
+	"minik8s/pkg/util/iptables"
+)
+
+// DESPERATE
 
 func createSingleNet(singlePod *SinglePod, podInfo PodInfo) *SingleNet {
 	singleNet := &SingleNet{
@@ -34,11 +39,9 @@ func (singleNet *SingleNet) initSingleNet() error {
 func (singleNet *SingleNet) deleteSingleNet() error {
 	ipt, err := iptables.New()
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	err = ipt.Delete(singleNet.Table, singleNet.Parent, singleNet.RuleCommand...)
-	if err != nil {
-		return err
-	}
 	return nil
 }

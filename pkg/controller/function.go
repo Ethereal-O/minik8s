@@ -41,36 +41,36 @@ func judge(tp string, strategy string, limit int, uuidList []string) bool {
 
 func prometheus_query(tp string, uuid string) float64 {
 
-	//step1:Form the query with type(cpu/memory) and uuid
+	// Step 1: Form the query with type(cpu/memory) and uuid
 	publicPrix := fmt.Sprintf("%s_%s_%s",
-		kubelet.NAMESPACE, kubelet.SUBSYS, kubelet.NAME_PRIFIX)
+		kubelet.NAMESPACE, kubelet.POD_SUBSYS, kubelet.POD_NAME_PRIFIX)
 	query := fmt.Sprintf("%s:%s{job=\"%s\",uuid=\"%s\"}",
 		publicPrix, tp, kubelet.JOBNAME, uuid)
 
-	//step2:query for the target mrtric
-	client, err := api.NewClient(api.Config{
+	// Step 2: Query for the target metric
+	prometheusClient, err := api.NewClient(api.Config{
 		Address: config.PROMETHEUS_URL,
 	})
 	if err != nil {
 		fmt.Println("[Prometheus Client error]", err.Error())
 		panic(err)
 	}
-	v1api := v1.NewAPI(client)
+	v1api := v1.NewAPI(prometheusClient)
 	result, _, err := v1api.Query(context.Background(), query, time.Now())
 	if err != nil {
 		fmt.Println("[Query error]", err.Error())
 		panic(err)
 	}
 
-	//step3:Print the result(for debug) and return
-	//Because uuid is unique,there is only one result for each uuid and each type(cpu/memory)
-	//But there can be 0 result since that the pod is created in minik8s but hasn't upload
+	// Step 3: Print the result (for debug) and return
+	// Because uuid is unique,there is only one result for each uuid and each type (cpu/memory)
+	// But there can be 0 result since that the pod is created but hasn't upload
 	if result.Type() == model.ValVector {
 		vector := result.(model.Vector)
 		if len(vector) != 0 {
 			s := vector[0]
-			fmt.Printf("podName=%q, uuid=%q, value=%v\n",
-				s.Metric["podName"], s.Metric["uuid"], s.Value)
+			//fmt.Printf("podName=%q, uuid=%q, value=%v\n",
+			//	s.Metric["podName"], s.Metric["uuid"], s.Value)
 			return float64(s.Value)
 		}
 	}

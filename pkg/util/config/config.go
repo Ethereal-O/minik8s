@@ -14,29 +14,34 @@ var (
 	NSQ_PRODUCER   string
 	PROMETHEUS_URL string
 
-	// APISERVER_URL / NSQ_CONSUMER are used by every worker node
-	APISERVER_URL string
-	NSQ_CONSUMER  string
+	// APISERVER_URL / NSQ_CONSUMER / FUNCTION_PROXY_URL are used by every worker node
+	APISERVER_URL      string
+	FUNCTION_PROXY_URL string
+	NSQ_CONSUMER       string
 
 	// DNS_SERVER makes all server have same DNS server to support DNS query
 	DNS_SERVER string
 )
 
 const (
-	POD_TYPE            = "Pod"
-	REPLICASET_TYPE     = "ReplicaSet"
-	AUTOSCALER_TYPE     = "AutoScaler"
-	SERVICE_TYPE        = "Service"
-	RUNTIMESERVICE_TYPE = "RuntimeService"
-	NODE_TYPE           = "Node"
-	DNS_TYPE            = "DNS"
-	GATEWAY_TYPE        = "Gateway"
-	RUNTIMEGATEWAY_TYPE = "RuntimeGateway"
-	GPUJOB_TYPE         = "GpuJob"
-	GPUFILE_TYPE        = "GpuFile"
+	POD_TYPE                 = "Pod"
+	REPLICASET_TYPE          = "ReplicaSet"
+	DAEMONSET_TYPE           = "DaemonSet"
+	AUTOSCALER_TYPE          = "AutoScaler"
+	SERVICE_TYPE             = "Service"
+	RUNTIMESERVICE_TYPE      = "RuntimeService"
+	NODE_TYPE                = "Node"
+	DNS_TYPE                 = "DNS"
+	GATEWAY_TYPE             = "Gateway"
+	RUNTIMEGATEWAY_TYPE      = "RuntimeGateway"
+	GPUJOB_TYPE              = "GpuJob"
+	SERVERLESSFUNCTIONS_TYPE = "ServerlessFunctions"
+	FUNCTION_TYPE            = "Function"
+	TRANSFILE_TYPE           = "TransFile"
 )
 
-var TP = []string{POD_TYPE, REPLICASET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE, GPUJOB_TYPE, GPUFILE_TYPE}
+var TP = []string{POD_TYPE, REPLICASET_TYPE, DAEMONSET_TYPE, AUTOSCALER_TYPE, SERVICE_TYPE, RUNTIMESERVICE_TYPE, NODE_TYPE, DNS_TYPE, GATEWAY_TYPE, RUNTIMEGATEWAY_TYPE,
+	GPUJOB_TYPE, SERVERLESSFUNCTIONS_TYPE, FUNCTION_TYPE, TRANSFILE_TYPE}
 
 const EMPTY_FLAG = "none"
 
@@ -51,18 +56,36 @@ const (
 )
 
 const (
-	SERVICE_TYPE_NODEPORT  = "NodePort"
-	SERVICE_TYPE_CLUSTERIP = "ClusterIP"
-	DNS_SERVICE_NAME       = "DNS-Svc"
+	SERVICE_TYPE_NODEPORT   = "NodePort"
+	SERVICE_TYPE_CLUSTERIP  = "ClusterIP"
+	SERVICE_POLICY          = SERVICE_POLICY_NGINX
+	SERVICE_POLICY_NGINX    = "SERVICE_POLICY_NGINX"
+	SERVICE_POLICY_IPTABLES = "SERVICE_POLICY_IPTABLES"
+	DNS_SERVICE_NAME        = "DNS-Svc"
 )
 
 // Some const for GPU
 const (
-	NODE_DIR_PATH      = "/home/shareDir"
-	CONTAINER_DIR_PATH = "/home/shareDir"
-	GPU_JOB_NAME       = "gpujob"
-	GPU_JOB_IMAGE      = "henry35/zsh-gpu-server:4.0"
-	GPU_JOB_COMMAND    = "/home/server.sh"
+	GPU_NODE_DIR_PATH      = "/home/shareDir"
+	GPU_CONTAINER_DIR_PATH = "/home/shareDir"
+	GPU_JOB_NAME           = "gpujob"
+	GPU_JOB_IMAGE          = "henry35/zsh-gpu-server:4.0"
+	GPU_JOB_COMMAND        = "/home/server.sh"
+)
+
+// Some const for Serverless
+const (
+	FUNC_NODE_DIR_PATH      = "/home/functions"
+	FUNC_CONTAINER_DIR_PATH = "/home/functions"
+	FUNC_NAME               = "func"
+	FUNC_IMAGE              = "henry35/serverless:2.0"
+	FUNC_COMMAND            = "/home/import.sh"
+)
+
+// Image source
+const (
+	PIP3_SOURCE_IMAGE_HOSTNAME = "pypi.tuna.tsinghua.edu.cn"
+	PIP3_SOURCE_IMAGE_IP       = "101.6.15.130"
 )
 
 func init() {
@@ -79,7 +102,14 @@ func init() {
 	PROMETHEUS_URL = "http://" + LOCALHOST + ":9090"
 
 	APISERVER_URL = "http://" + MASTER_IP + ":8080"
+	FUNCTION_PROXY_URL = "http://" + MASTER_IP + ":8081"
 	NSQ_CONSUMER = MASTER_IP + ":4161"
 
-	DNS_SERVER = "100.100.100.100"
+	if SERVICE_POLICY == SERVICE_POLICY_NGINX {
+		DNS_SERVER = "10.10.10.10"
+	}
+	if SERVICE_POLICY == SERVICE_POLICY_IPTABLES {
+		DNS_SERVER = "100.100.100.100"
+	}
+
 }

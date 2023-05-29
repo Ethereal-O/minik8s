@@ -29,6 +29,9 @@ func doit(cmd *cobra.Command, args []string) {
 	if tp == config.GATEWAY_TYPE {
 		tp = config.RUNTIMEGATEWAY_TYPE
 	}
+	if tp == config.FUNCTION_TYPE {
+		tp = config.SERVERLESSFUNCTIONS_TYPE
+	}
 	res := client.Get_object(key, tp)
 	if key != config.EMPTY_FLAG {
 		fmt.Printf("Key: %v\n", key)
@@ -70,6 +73,26 @@ func doit(cmd *cobra.Command, args []string) {
 				row["Replicas"] = strconv.Itoa(rsObject.Spec.Replicas)
 				row["ActualReplicas"] = strconv.Itoa(actualNum)
 				row["Pods"] = object.SerializePodList(rspodList)
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
+	if tp == config.DAEMONSET_TYPE {
+		table, _ := gotable.Create("Name", "Uuid", "Status", "Pods")
+		for _, ds := range res {
+			var dsObject object.DaemonSet
+			json.Unmarshal([]byte(ds), &dsObject)
+			rows := make([]map[string]string, 0)
+			if dsObject.Runtime.Status != config.EXIT_STATUS {
+				dspodList, _ := object.GetPodsOfDS(&dsObject, client.GetActivePods())
+
+				row := make(map[string]string)
+				row["Name"] = dsObject.Metadata.Name
+				row["Uuid"] = dsObject.Runtime.Uuid
+				row["Status"] = dsObject.Runtime.Status
+				row["Pods"] = object.SerializePodList(dspodList)
 				rows = append(rows, row)
 			}
 			table.AddRows(rows)
@@ -129,7 +152,7 @@ func doit(cmd *cobra.Command, args []string) {
 				row := make(map[string]string)
 				row["Name"] = runtimeServiceObject.Service.Metadata.Name
 				row["Uuid"] = runtimeServiceObject.Service.Runtime.Uuid
-				row["Status"] = runtimeServiceObject.Service.Runtime.Status
+				row["Status"] = runtimeServiceObject.Status
 				row["Selector"] = object.SerializeSelectorList(runtimeServiceObject.Service.Spec.Selector)
 				row["Type"] = runtimeServiceObject.Service.Spec.Type
 				row["IP"] = runtimeServiceObject.Service.Runtime.ClusterIp
@@ -151,9 +174,25 @@ func doit(cmd *cobra.Command, args []string) {
 				row := make(map[string]string)
 				row["Name"] = runtimeGatewayObject.Gateway.Metadata.Name
 				row["Uuid"] = runtimeGatewayObject.Gateway.Runtime.Uuid
-				row["Status"] = runtimeGatewayObject.Gateway.Runtime.Status
+				row["Status"] = runtimeGatewayObject.Status
 				row["Host"] = runtimeGatewayObject.Gateway.Spec.Host
 				row["Path"] = object.SerializePathList(runtimeGatewayObject.Gateway.Spec.Paths)
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
+	if tp == config.SERVERLESSFUNCTIONS_TYPE {
+		table, _ := gotable.Create("Name", "Status", "Ip")
+		functionList := client.GetAllFunctions()
+		for _, functionObject := range functionList {
+			rows := make([]map[string]string, 0)
+			if functionObject.Runtime.Status != config.EXIT_STATUS {
+				row := make(map[string]string)
+				row["Name"] = functionObject.FuncName
+				row["Status"] = functionObject.Runtime.Status
+				row["Ip"] = functionObject.Runtime.FunctionIp
 				rows = append(rows, row)
 			}
 			table.AddRows(rows)

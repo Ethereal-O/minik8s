@@ -1,0 +1,12 @@
+kind: Service
+metadata:
+  name: Service3
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: resourceTest

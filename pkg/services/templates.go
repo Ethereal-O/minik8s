@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"minik8s/pkg/exeFile"
 	"minik8s/pkg/object"
+	"strconv"
 )
 
 func (dnsManager *DnsManager) InitDnsTemplate() {
@@ -12,6 +13,7 @@ func (dnsManager *DnsManager) InitDnsTemplate() {
 	dnsManager.initDnsServiceTemplate()
 	dnsManager.initGateWayReplicaSetTemplate()
 	dnsManager.initGateWayServiceTemplate()
+	dnsManager.initServiceReplicaSetTemplate()
 }
 
 func (dnsManager *DnsManager) initDnsReplicaSetTemplate() {
@@ -22,7 +24,7 @@ func (dnsManager *DnsManager) initDnsReplicaSetTemplate() {
 		fmt.Println("InitDnsReplicaSetTemplate fail" + err.Error())
 		return
 	}
-	dnsManager.DnsTemplates.DnsReplicaSetTemplate = ReplicaSetObject
+	dnsManager.Templates.DnsReplicaSetTemplate = ReplicaSetObject
 }
 
 func (dnsManager *DnsManager) initDnsServiceTemplate() {
@@ -33,7 +35,7 @@ func (dnsManager *DnsManager) initDnsServiceTemplate() {
 		fmt.Println("InitDnsServiceTemplate fail" + err.Error())
 		return
 	}
-	dnsManager.DnsTemplates.DnsServiceTemplate = serviceObject
+	dnsManager.Templates.DnsServiceTemplate = serviceObject
 }
 
 func (dnsManager *DnsManager) initGateWayReplicaSetTemplate() {
@@ -44,7 +46,7 @@ func (dnsManager *DnsManager) initGateWayReplicaSetTemplate() {
 		fmt.Println("InitGateWayReplicaSetTemplate fail" + err.Error())
 		return
 	}
-	dnsManager.DnsTemplates.GateWayReplicaSetTemplate = replicaSetObject
+	dnsManager.Templates.GateWayReplicaSetTemplate = replicaSetObject
 }
 
 func (dnsManager *DnsManager) initGateWayServiceTemplate() {
@@ -55,32 +57,61 @@ func (dnsManager *DnsManager) initGateWayServiceTemplate() {
 		fmt.Println("InitGateWayServiceTemplate fail" + err.Error())
 		return
 	}
-	dnsManager.DnsTemplates.GateWayServiceTemplate = serviceObject
+	dnsManager.Templates.GateWayServiceTemplate = serviceObject
+}
+
+func (dnsManager *DnsManager) initServiceReplicaSetTemplate() {
+	value, _, _ := exeFile.ReadYaml(SERVICE_REPLICATESET_TEMPLATE_FILEPATH)
+	var replicaSetObject object.ReplicaSet
+	err := json.Unmarshal([]byte(value), &replicaSetObject)
+	if err != nil {
+		fmt.Println("InitGateWayReplicaSetTemplate fail" + err.Error())
+		return
+	}
+	dnsManager.Templates.ServiceReplicaSetTemplate = replicaSetObject
 }
 
 func GetDnsReplicaSet() object.ReplicaSet {
-	template := dnsManager.DnsTemplates.DnsReplicaSetTemplate
+	template := dnsManager.Templates.DnsReplicaSetTemplate
 	return template
 }
 
 func GetDnsService() object.Service {
-	template := dnsManager.DnsTemplates.DnsServiceTemplate
+	template := dnsManager.Templates.DnsServiceTemplate
 	return template
 }
 
 func GetGateWayReplicaSet(gatewayName string) object.ReplicaSet {
-	template := dnsManager.DnsTemplates.GateWayReplicaSetTemplate
+	template := dnsManager.Templates.GateWayReplicaSetTemplate
 	template.Metadata.Name = GATEWAY_REPLICASET_PREFIX + gatewayName
-	template.Spec.Template.Metadata.Labels[DNS_GATEWAY_SELECTOR] = gatewayName
+	template.Spec.Template.Metadata.Labels[ALL_SELECTOR] = gatewayName
 	template.Spec.Template.Metadata.Name = GATEWAY_POD_PREFIX + gatewayName
-	template.Spec.Template.Spec.Volumes[0].Path = NGINX_PATH_PREFIX + "/" + gatewayName
+	template.Spec.Template.Spec.Volumes[0].Path = GATEWAY_NGINX_PATH_PREFIX + "/" + gatewayName
 	template.Spec.Template.Spec.Containers[0].Name = GATEWAY_CONTAINER_PREFIX + gatewayName
 	return template
 }
 
 func GetGateWayService(gatewayName string) object.Service {
-	template := dnsManager.DnsTemplates.GateWayServiceTemplate
+	template := dnsManager.Templates.GateWayServiceTemplate
 	template.Metadata.Name = GATEWAY_SERVICE_PREFIX + gatewayName
-	template.Spec.Selector[DNS_GATEWAY_SELECTOR] = gatewayName
+	template.Spec.Selector[ALL_SELECTOR] = gatewayName
+	return template
+}
+
+func GetServiceReplicaSet(serviceName string, ports []object.ServicePort) object.ReplicaSet {
+	template := dnsManager.Templates.ServiceReplicaSetTemplate
+	template.Metadata.Name = SERVICE_REPLICASET_PREFIX + serviceName
+	template.Spec.Template.Metadata.Labels[ALL_SELECTOR] = serviceName
+	template.Spec.Template.Metadata.Name = SERVICE_POD_PREFIX + serviceName
+	template.Spec.Template.Spec.Volumes[0].Path = SERVICE_NGINX_PATH_PREFIX + "/" + serviceName
+	template.Spec.Template.Spec.Containers[0].Name = SERVICE_CONTAINER_PREFIX + serviceName
+	var target_ports []object.Port
+	for _, port := range ports {
+		var target_port, _ = strconv.Atoi(port.TargetPort)
+		target_ports = append(target_ports, object.Port{
+			ContainerPort: target_port,
+		})
+	}
+	template.Spec.Template.Spec.Containers[0].Ports = target_ports
 	return template
 }

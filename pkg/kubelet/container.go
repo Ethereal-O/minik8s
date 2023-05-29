@@ -61,9 +61,7 @@ func CreateCommonContainer(pod *object.Pod, myContainer *object.Container) (stri
 	podUuid := pod.Runtime.Uuid
 
 	// Step 1: Prepare for labels
-	labels := map[string]string{
-		KubernetesPodUIDLabel: podUuid,
-	}
+	labels := map[string]string{}
 	for labelName, labelValue := range pod.Metadata.Labels {
 		labels[labelName] = labelValue
 	}
@@ -133,9 +131,7 @@ func CreatePauseContainer(pod *object.Pod) (string, string, error) {
 	podUuid := pod.Runtime.Uuid
 
 	// Step 1: Prepare for labels
-	labels := map[string]string{
-		KubernetesPodUIDLabel: podUuid,
-	}
+	labels := map[string]string{}
 	for labelName, labelValue := range pod.Metadata.Labels {
 		labels[labelName] = labelValue
 	}
@@ -202,6 +198,71 @@ func StartPauseContainer(pod *object.Pod) (bool, string) {
 		return false, ""
 	} else {
 		fmt.Printf("Pause Container %v (ID: %v) attached to subnet!\n", fullName, ID)
+	}
+
+	return true, ID
+}
+
+func CreateHostContainer(pod *object.Pod, myContainer *object.Container) (string, string, error) {
+	podName := pod.Metadata.Name
+	podUuid := pod.Runtime.Uuid
+
+	// Step 1: Prepare for labels
+	labels := map[string]string{}
+	for labelName, labelValue := range pod.Metadata.Labels {
+		labels[labelName] = labelValue
+	}
+
+	// Step 2: Finally create the container!
+	name := ContainerFullName(myContainer.Name, podName, podUuid)
+	ID, err := CreateContainer(name, &CreateConfig{
+		// Config
+		Image:      myContainer.Image,
+		Labels:     labels,
+		Entrypoint: myContainer.Command,
+		Cmd:        myContainer.Args,
+		Env:        getFormatEnv(myContainer.Env),
+		Volumes:    nil,
+
+		// HostConfig
+		IpcMode:     "host",
+		PidMode:     "host",
+		NetworkMode: "host",
+		Binds:       getVolumeBinds(pod, myContainer),
+		Memory:      resource.ConvertMemoryToBytes(myContainer.Limits.Memory),
+		NanoCPUs:    resource.ConvertCpuToBytes(myContainer.Limits.Cpu),
+	})
+
+	return name, ID, err
+}
+
+func StartHostContainer(pod *object.Pod, myContainer *object.Container) (bool, string) {
+	// Step 1: Prepare for image
+	err := PullImage(myContainer.Image)
+	if err != nil {
+		fmt.Printf("Failed to pull image %v! Reason: %v\n", myContainer.Image, err.Error())
+		return false, ""
+	} else {
+		fmt.Printf("Image %v pulled!\n", myContainer.Image)
+	}
+
+	// Step 2: Create a container
+	var fullName, ID string
+	fullName, ID, err = CreateHostContainer(pod, myContainer)
+	if err != nil {
+		fmt.Printf("Failed to create container %v! Reason: %v\n", fullName, err.Error())
+		return false, ""
+	} else {
+		fmt.Printf("Container %v created!\n", fullName)
+	}
+
+	// Step 3: Start the container
+	err = Client.ContainerStart(Ctx, ID, StartConfig{})
+	if err != nil {
+		fmt.Printf("Failed to start container %v (ID: %v)! Reason: %v\n", fullName, ID, err.Error())
+		return false, ""
+	} else {
+		fmt.Printf("Container %v (ID: %v) started!\n", fullName, ID)
 	}
 
 	return true, ID

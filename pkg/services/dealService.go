@@ -6,6 +6,7 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/tools"
 	"sync"
+	"time"
 )
 
 func dealRunningService(service *object.Service) {
@@ -27,13 +28,17 @@ func dealExitService(service *object.Service) {
 }
 
 func createService(service *object.Service) {
+	client.AddReplicaSet(GetServiceReplicaSet(service.Metadata.Name, service.Spec.Ports))
 	serviceManager.Lock.Lock()
 	defer serviceManager.Lock.Unlock()
 	runtimeService := &object.RuntimeService{
 		Service: *service,
+		Status:  SERVICE_STATUS_INIT,
 		Lock:    sync.Mutex{},
 		Pods:    []object.Pod{},
 	}
+	client.AddRuntimeService(*runtimeService)
+	runtimeService.Status = SERVICE_STATUS_RUNNING
 	InitRuntimeService(runtimeService)
 	serviceManager.ServiceMap[service.Metadata.Name] = runtimeService
 }
@@ -45,13 +50,25 @@ func deleteService(service *object.Service) {
 	if !ok {
 		return
 	}
+	runtimeService.Lock.Lock()
+	defer runtimeService.Lock.Unlock()
+	runtimeService.Status = SERVICE_STATUS_EXIT
 	runtimeService.Timer.Stop()
 	ret := client.DeleteRuntimeService(*runtimeService)
 	fmt.Println(ret)
+
+	replicaSetList := client.GetReplicaSetByKey(SERVICE_REPLICASET_PREFIX + service.Metadata.Name)
+	if len(replicaSetList) == 0 {
+		return
+	}
+	client.DeleteReplicaSet(replicaSetList[0])
+
 	delete(serviceManager.ServiceMap, service.Metadata.Name)
 }
 
 func updateService(service *object.Service) {
 	deleteService(service)
+	// because weave need time to delete pod, so we sleep a while
+	time.Sleep(UPDATE_SERVICE_TIME_INTERVAL)
 	createService(service)
 }

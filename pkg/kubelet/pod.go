@@ -6,27 +6,36 @@ import (
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
-	"minik8s/pkg/util/resource"
+	"strings"
 	"time"
 )
 
-func StartPod(pod *object.Pod, node *object.Node) bool {
+func StartPod(pod *object.Pod) bool {
 	var containersIdList []string
-	// Step 1: Start pause container
-	result, ID := StartPauseContainer(pod)
-	if !result {
-		return false
-	}
-	containersIdList = append(containersIdList, ID)
+	var result bool
+	var ID string
 
-	// Step 2: Get pod IP from pause container
-	inspection, _ := Client.ContainerInspect(Ctx, ID)
-	status, _ := inspectionToContainerRuntime(&inspection)
-	pod.Runtime.PodIp = status.IP
+	// Host mode pod has no pause container
+	if pod.Spec.HostMode == "true" {
+		// Step 1: Start host containers
+		result, containersIdList = StartContainersConcurrently(pod, true)
+		if !result {
+			return false
+		}
+	} else {
+		// Step 1: Start pause container
+		result, ID = StartPauseContainer(pod)
+		if !result {
+			return false
+		}
 
-	// Step 3: Start common containers
-	for _, myContainer := range pod.Spec.Containers {
-		result, ID := StartCommonContainer(pod, &myContainer)
+		// Step 2: Get pod IP from pause container
+		inspection, _ := Client.ContainerInspect(Ctx, ID)
+		status, _ := inspectionToContainerRuntime(&inspection)
+		pod.Runtime.PodIp = status.IP
+
+		// Step 3: Start common containers
+		result, containersIdList = StartContainersConcurrently(pod, false)
 		if !result {
 			return false
 		}
@@ -38,24 +47,14 @@ func StartPod(pod *object.Pod, node *object.Node) bool {
 	pod.Runtime.Containers = containersIdList
 	PodToExit[pod.Runtime.Uuid] = make(chan bool)
 	PodExited[pod.Runtime.Uuid] = make(chan bool)
+	PodDeleted[pod.Runtime.Uuid] = make(chan bool)
 	client.AddPod(*pod)
 
-	// Step 5: Sync node with API server
-	cpu := node.Runtime.Available.Cpu
-	mem := node.Runtime.Available.Memory
-	for _, container := range pod.Spec.Containers {
-		cpu -= resource.ConvertCpuToBytes(container.Limits.Cpu)
-		mem -= resource.ConvertMemoryToBytes(container.Limits.Memory)
-	}
-	node.Runtime.Available.Cpu = cpu
-	node.Runtime.Available.Memory = mem
-	client.AddNode(*node)
-
-	go ProbeCycle(pod)
+	go PodProbeCycle(pod)
 	return true
 }
 
-func DeletePod(pod *object.Pod, node *object.Node) bool {
+func DeletePod(pod *object.Pod) bool {
 	// Step 0: If the pod has not run its containers, just return
 	if len(pod.Runtime.Containers) == 0 {
 		return true
@@ -91,21 +90,10 @@ func DeletePod(pod *object.Pod, node *object.Node) bool {
 		client.AddPod(*pod)
 	}
 
-	// Step 4: Sync node with API server
-	cpu := node.Runtime.Available.Cpu
-	mem := node.Runtime.Available.Memory
-	for _, container := range pod.Spec.Containers {
-		cpu += resource.ConvertCpuToBytes(container.Limits.Cpu)
-		mem += resource.ConvertMemoryToBytes(container.Limits.Memory)
-	}
-	node.Runtime.Available.Cpu = cpu
-	node.Runtime.Available.Memory = mem
-	client.AddNode(*node)
-
 	return true
 }
 
-func ProbeCycle(pod *object.Pod) {
+func PodProbeCycle(pod *object.Pod) {
 	for {
 		select {
 		case <-PodToExit[pod.Runtime.Uuid]:
@@ -116,8 +104,7 @@ func ProbeCycle(pod *object.Pod) {
 			var containerMemoryPercentageList []float64
 			var containerCpuPercentageList []float64
 
-			//The pause container should not be calculated and is supposed to be with no error
-			for _, containerId := range pod.Runtime.Containers[1:] {
+			for _, containerId := range pod.Runtime.Containers {
 				inspection, err := Client.ContainerInspect(Ctx, containerId)
 				if err != nil {
 					// Container does not exist, restart the pod!
@@ -140,15 +127,22 @@ func ProbeCycle(pod *object.Pod) {
 			}
 			podAvgMemoryPrecentage := avg(containerMemoryPercentageList)
 			podAvgCpuPrecentage := avg(containerCpuPercentageList)
-			memoryPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgMemoryPrecentage)
-			cpuPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgCpuPrecentage)
+			podMemoryPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgMemoryPrecentage)
+			podCpuPrecentage.With(prometheus.Labels{"uuid": pod.Runtime.Uuid, "podName": pod.Metadata.Name}).Set(podAvgCpuPrecentage)
 		}
 	}
 }
 
 func PodException(pod *object.Pod) {
-	// If the pod belongs to an RS, no need to restart, because RS will do it automatically
-	pod.Runtime.NeedRestart = pod.Runtime.Belong == ""
+	pod.Runtime.NeedRestart = true
+	// If the pod belongs to an RS/DS, no need to restart, because RS/DS will do it automatically
+	if pod.Runtime.Belong != "" {
+		pod.Runtime.NeedRestart = false
+	}
+	// If the pod belongs to a gpujob, no need to restart
+	if strings.HasPrefix(strings.ToLower(pod.Metadata.Name), "gpujob") {
+		pod.Runtime.NeedRestart = false
+	}
 	pod.Runtime.Status = config.EXIT_STATUS
 	client.AddPod(*pod)
 

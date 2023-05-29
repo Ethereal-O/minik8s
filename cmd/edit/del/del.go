@@ -2,6 +2,7 @@ package del
 
 import (
 	"github.com/spf13/cobra"
+	"minik8s/cmd/edit"
 	"minik8s/pkg/client"
 	"minik8s/pkg/util/config"
 )
@@ -19,6 +20,7 @@ var delCmd = &cobra.Command{
 
 func doit(cmd *cobra.Command, args []string) {
 	client.Delete_object(key, tp)
+	edit.DelLog(key, tp)
 }
 
 func init() {

@@ -177,6 +177,67 @@ func replicaset_delete(c echo.Context) error {
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
+//--------------------- DaemonSet Handler ---------------------------
+
+func daemonset_put(c echo.Context) error {
+	dsObject := new(object.DaemonSet)
+	if err := c.Bind(dsObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if dsObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		dsObject.Runtime.Uuid = uuid
+	}
+	if dsObject.Runtime.Status == "" {
+		dsObject.Runtime.Status = config.CREATED_STATUS
+	}
+	ds, err := json.Marshal(dsObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(ds)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func daemonset_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func daemonset_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var dsObject object.DaemonSet
+	err := json.Unmarshal([]byte(res[0]), &dsObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	dsObject.Runtime.Status = config.EXIT_STATUS
+	ds, err := json.Marshal(dsObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(ds)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
 //--------------------- AutoScaler Handler ---------------------------
 
 func autoscaler_put(c echo.Context) error {
@@ -633,26 +694,26 @@ func gpujob_delete(c echo.Context) error {
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
-//--------------------- GpuFile Handler ---------------------------
+//--------------------- TransFile Handler ---------------------------
 
-func gpufile_put(c echo.Context) error {
-	gpufileObject := new(object.GpuFile)
-	if err := c.Bind(gpufileObject); err != nil {
+func transfile_put(c echo.Context) error {
+	fileObject := new(object.TransFile)
+	if err := c.Bind(fileObject); err != nil {
 		return err
 	}
 	key := c.Request().RequestURI
-	gpufile, err := json.Marshal(gpufileObject)
+	file, err := json.Marshal(fileObject)
 	if err != nil {
 		fmt.Println(err.Error())
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	if err2 := etcd.Set_etcd(key, string(gpufile)); err2 != nil {
+	if err2 := etcd.Set_etcd(key, string(file)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.String(http.StatusOK, "ok")
 }
 
-func gpufile_get(c echo.Context) error {
+func transfile_get(c echo.Context) error {
 	key := c.Request().RequestURI
 	if c.Param("key") == config.EMPTY_FLAG {
 		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
@@ -661,4 +722,61 @@ func gpufile_get(c echo.Context) error {
 		res := etcd.Get_etcd(key, false)
 		return c.JSON(http.StatusOK, res)
 	}
+}
+
+//--------------------- ServerlessFunctions Handler ---------------------------
+
+func serverlessFunctions_put(c echo.Context) error {
+	serverlessFunctionsObject := new(object.ServerlessFunctions)
+	if err := c.Bind(serverlessFunctionsObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	if serverlessFunctionsObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		serverlessFunctionsObject.Runtime.Uuid = uuid
+	}
+	serverlessFunctions, err := json.Marshal(serverlessFunctionsObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(serverlessFunctions)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func serverlessFunctions_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func serverlessFunctions_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var serverlessFunctionsObject object.ServerlessFunctions
+	err := json.Unmarshal([]byte(res[0]), &serverlessFunctionsObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	serverlessFunctionsObject.Runtime.Status = config.EXIT_STATUS
+	gpujob, err := json.Marshal(serverlessFunctionsObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(gpujob)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "delete successfully!")
 }

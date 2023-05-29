@@ -6,6 +6,7 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/tools"
+	"strings"
 	"time"
 )
 
@@ -24,7 +25,12 @@ func pollLoop(runtimeService *object.RuntimeService) {
 	for {
 		select {
 		case <-runtimeService.Timer.C:
-			poll(runtimeService)
+			if runtimeService.Status == SERVICE_STATUS_RUNNING {
+				poll(runtimeService)
+			} else {
+				fmt.Println("detecting service had been deleted, stop poll")
+				return
+			}
 		}
 	}
 }
@@ -39,6 +45,19 @@ func selectPods(runtimeService *object.RuntimeService) {
 	// get all pods and selector
 	selector := runtimeService.Service.Spec.Selector
 	allPods := client.GetAllPods()
+
+	// first check if service-pod is running
+	runningPods, _ := tools.Filter(allPods, func(pod object.Pod) bool {
+		if pod.Runtime.Status == config.RUNNING_STATUS && strings.Contains(pod.Metadata.Name, runtimeService.Service.Metadata.Name) {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	if len(runningPods) == 0 {
+		return
+	}
 
 	// apply filter to get new pods
 	filterPods, _ := tools.Filter(allPods, func(pod object.Pod) bool {
@@ -92,5 +111,9 @@ func selectPods(runtimeService *object.RuntimeService) {
 	fmt.Printf("service %s update pods num: %d\n", runtimeService.Service.Metadata.Name, len(runtimeService.Pods))
 
 	// update service config
+	if runtimeService.Status != SERVICE_STATUS_RUNNING {
+		fmt.Println("detecting service had been deleted, NOT update service config")
+		return
+	}
 	client.AddRuntimeService(*runtimeService)
 }

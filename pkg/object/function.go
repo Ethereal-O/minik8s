@@ -2,6 +2,8 @@ package object
 
 import "minik8s/pkg/util/config"
 
+// --- Pods and Rs/Ds ---
+
 func GetPodsOfRS(rs *ReplicaSet, activePods []Pod) ([]Pod, int) {
 	actualNum := 0
 	var rspodList []Pod
@@ -18,6 +20,22 @@ func RSPodFullName(rs *ReplicaSet, pod *Pod) string {
 	return rs.Metadata.Name + "_" + pod.Runtime.Uuid
 }
 
+func GetPodsOfDS(ds *DaemonSet, activePods []Pod) ([]Pod, int) {
+	actualNum := 0
+	var dspodList []Pod
+	for _, pod := range activePods {
+		if pod.Runtime.Belong == ds.Metadata.Name {
+			actualNum++
+			dspodList = append(dspodList, pod)
+		}
+	}
+	return dspodList, actualNum
+}
+
+func DSPodFullName(ds *DaemonSet, node *Node) string {
+	return ds.Metadata.Name + "_" + node.Metadata.Name
+}
+
 func SerializePodList(podList []Pod) string {
 	serialized := ""
 	for idx, pod := range podList {
@@ -28,6 +46,8 @@ func SerializePodList(podList []Pod) string {
 	}
 	return serialized
 }
+
+// --- Service ---
 
 func SerializeSelectorList(selectorList map[string]string) string {
 	serialized := ""
@@ -77,4 +97,24 @@ func SerializePathList(pathList []Path) string {
 		}
 	}
 	return serialized
+}
+
+// --- GpuJob  ---
+
+func GpuJobPodFullName(job GpuJob) string {
+	return config.GPU_JOB_NAME + "_pod_" + job.Metadata.Name
+}
+
+// --- Serverless  ---
+
+func FaasRsFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_rs_" + functions.Metadata.Name
+}
+
+func FaasServiceFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_service_" + functions.Metadata.Name
+}
+
+func FaasPodFullName(functions ServerlessFunctions) string {
+	return config.FUNC_NAME + "_pod_" + functions.Metadata.Name
 }

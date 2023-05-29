@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"minik8s/pkg/client"
+	"minik8s/pkg/util/config"
 	"time"
 )
 
@@ -62,7 +63,7 @@ func (dnsManager *DnsManager) transferGatewayToKubeProxy() {
 	var removes []string
 	for gatewayName, runtimeGateWay := range dnsManager.ToBeDoneGatewayMap {
 		resList := client.GetRuntimeServiceByKey(GATEWAY_SERVICE_PREFIX + gatewayName)
-		if len(resList) == 0 {
+		if len(resList) == 0 || resList[0].Service.Runtime.Status != config.RUNNING_STATUS {
 			continue
 		}
 		runtimeGateWay.Status = GATEWAY_STATUS_DEPLOYING

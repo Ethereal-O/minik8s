@@ -30,9 +30,9 @@ type Runtime struct {
 	// Whether the pod should be restarted
 	NeedRestart bool `yaml:"needRestart" json:"needRestart"`
 
-	// --- Node ---
-	// Available resources of the node
-	Available Resources `yaml:"available" json:"available"`
+	// --- ServerlessFunctions ---
+	// When a function is available, FunctionIp is the target Ip
+	FunctionIp string `yaml:"functionIp" json:"functionIp"`
 }
 
 // --------------------------- Node ---------------------------
@@ -46,13 +46,6 @@ type Node struct {
 
 type NodeSpec struct {
 	Ip string `yaml:"ip" json:"ip"`
-	// Total resources of the node
-	Capacity Resources `yaml:"capacity" json:"capacity"`
-}
-
-type Resources struct {
-	Cpu    int64 `yaml:"cpu" json:"cpu"`
-	Memory int64 `yaml:"memory" json:"memory"`
 }
 
 // --------------------------- Replica Set ---------------------------
@@ -72,6 +65,19 @@ type RsSpec struct {
 type Template struct {
 	Metadata Metadata `yaml:"metadata" json:"metadata"`
 	Spec     PodSpec  `yaml:"spec" json:"spec"`
+}
+
+// --------------------------- Daemon Set ---------------------------
+
+type DaemonSet struct {
+	Kind     string   `yaml:"kind" json:"kind"`
+	Metadata Metadata `yaml:"metadata" json:"metadata"`
+	Spec     DsSpec   `yaml:"spec" json:"spec"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
+}
+
+type DsSpec struct {
+	Template Template `yaml:"template" json:"template"`
 }
 
 // --------------------------- Auto Scaler ---------------------------
@@ -112,6 +118,7 @@ type Pod struct {
 
 type PodSpec struct {
 	RestartPolicy string      `yaml:"restartPolicy" json:"restartPolicy"`
+	HostMode      string      `yaml:"hostMode" json:"hostMode"`
 	Volumes       []Volume    `yaml:"volumes" json:"volumes"`
 	Containers    []Container `yaml:"containers" json:"containers"`
 }
@@ -213,9 +220,56 @@ type GpuJobSpec struct {
 	Path string `json:"path" yaml:"path"`
 }
 
-// --------------------------- GpuFile ---------------------------
+//----------------------------- ServerlessFunctions ---------------------------
 
-type GpuFile struct {
+type ServerlessFunctions struct {
+	Kind     string   `yaml:"kind" json:"kind"`
+	Metadata Metadata `yaml:"metadata" json:"metadata"`
+	Spec     FuncSpec `yaml:"spec" json:"spec"`
+	Runtime  Runtime  `yaml:"runtime" json:"runtime"`
+}
+
+type FuncSpec struct {
+	Path  string     `json:"path" yaml:"path"`
+	Items []Function `json:"items" yaml:"items"`
+}
+
+type Function struct {
+	FuncName string  `json:"funcName" yaml:"funcName"`
+	Module   string  `json:"module" yaml:"module"`
+	Runtime  Runtime `yaml:"runtime" json:"runtime"`
+	FaasName string  `yaml:"faasName" json:"faasName"`
+}
+
+// --------------------------- File ---------------------------
+
+type TransFile struct {
 	Dirname string `json:"dirname" yaml:"dirname"`
 	Data    string `json:"data" yaml:"data"`
+	Tp      string `json:"tp" yaml:"tp"`
+}
+
+// --------------------------- DAG -----------------------------
+
+type WorkFlow struct {
+	WorkFlowName string    `json:"workFlowName" yaml:"workFlowName"`
+	StartNode    string    `json:"startNode" yaml:"startNode"`
+	Nodes        []DagNode `json:"nodes" yaml:"nodes"`
+}
+
+type DagNode struct {
+	NodeName string   `json:"nodeName" yaml:"nodeName"`
+	FuncName string   `json:"funcName" yaml:"funcName"`
+	Choices  []Choice `json:"choices" yaml:"choices"`
+}
+
+type Choice struct {
+	Condition Condition `json:"condition" yaml:"condition"`
+	NextNode  string    `json:"nextNode" yaml:"nextNode"`
+}
+
+type Condition struct {
+	TarVariable string `json:"tarVariable" yaml:"tarVariable"`
+	TarValue    string `json:"tarValue" yaml:"tarValue"`
+	Relation    string `json:"relation" yaml:"relation"`
 }

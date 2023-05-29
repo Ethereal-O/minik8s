@@ -1,6 +1,8 @@
 package structure
 
-import "sync"
+import (
+	"sync"
+)
 
 type Cmap struct {
 	lock       sync.Mutex

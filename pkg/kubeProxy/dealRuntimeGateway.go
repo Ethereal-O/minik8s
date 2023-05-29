@@ -2,6 +2,7 @@ package kubeProxy
 
 import (
 	"fmt"
+	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/services"
 	"minik8s/pkg/util/tools"
@@ -12,7 +13,7 @@ func dealRunningRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 	if !ok {
 		fmt.Printf("creating runtimeGateway %s\n", runtimeGateway.Gateway.Metadata.Name)
 		createRuntimeGateway(runtimeGateway)
-	} else if tools.MD5(oldRuntimeGateway.Gateway) != tools.MD5(*runtimeGateway) {
+	} else if tools.MD5(*oldRuntimeGateway) != tools.MD5(*runtimeGateway) {
 		fmt.Printf("updating runtimeGateway %s\n", runtimeGateway.Gateway.Metadata.Name)
 		updateRuntimeGateway(runtimeGateway)
 	} else {
@@ -29,16 +30,19 @@ func createRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 	kubeProxyManager.Lock.Lock()
 	defer kubeProxyManager.Lock.Unlock()
 	if runtimeGateway.Status == services.GATEWAY_STATUS_INIT {
-		createDir(runtimeGateway)
+		createDir(services.GATEWAY_NGINX_PATH_PREFIX + "/" + runtimeGateway.Gateway.Metadata.Name)
 	} else if runtimeGateway.Status == services.GATEWAY_STATUS_DEPLOYING {
 		runtimeGateway.Status = services.GATEWAY_STATUS_RUNNING
 		kubeProxyManager.RuntimeGatewayMap[runtimeGateway.Gateway.Metadata.Name] = runtimeGateway
 
-		updateNginxConfig(runtimeGateway)
+		updateGatewayNginxConfig(runtimeGateway)
 		fmt.Println("write nginx config finished")
-		reloadNginxConfig(runtimeGateway)
+		reloadNginxConfig(services.GATEWAY_CONTAINER_PREFIX + runtimeGateway.Gateway.Metadata.Name)
 		fmt.Println("reload nginx config finished")
 		updateDnsConfig()
+
+		client.AddRuntimeGateway(*runtimeGateway)
+
 	}
 }
 
@@ -51,10 +55,14 @@ func deleteRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
 	}
 	delete(kubeProxyManager.RuntimeGatewayMap, runtimeGateway.Gateway.Metadata.Name)
 	updateDnsConfig()
-	deleteDir(runtimeGateway)
+	deleteDir(services.GATEWAY_NGINX_PATH_PREFIX + "/" + runtimeGateway.Gateway.Metadata.Name)
 }
 
 func updateRuntimeGateway(runtimeGateway *object.RuntimeGateway) {
+	if runtimeGateway.Status == services.GATEWAY_STATUS_RUNNING {
+		fmt.Printf("not to deal with running gateway")
+		return
+	}
 	deleteRuntimeGateway(runtimeGateway)
 	createRuntimeGateway(runtimeGateway)
 }

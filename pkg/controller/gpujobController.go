@@ -37,14 +37,14 @@ func dealJob(gpujobChan chan string) {
 			var newPod = &object.Pod{
 				Kind: config.POD_TYPE,
 				Metadata: object.Metadata{
-					Name: "pod_" + jobname,
+					Name: object.GpuJobPodFullName(tarGpuJob),
 				},
 				Spec: object.PodSpec{
 					Volumes: []object.Volume{
 						{
 							Name: "v1",
 							Type: "hostPath",
-							Path: config.NODE_DIR_PATH + "/" + jobname,
+							Path: config.GPU_NODE_DIR_PATH + "/" + jobname,
 						},
 					},
 					Containers: []object.Container{
@@ -54,7 +54,7 @@ func dealJob(gpujobChan chan string) {
 							VolumeMounts: []object.VolumeMount{
 								{
 									Name:      "v1",
-									MountPath: config.CONTAINER_DIR_PATH,
+									MountPath: config.GPU_CONTAINER_DIR_PATH,
 								},
 							},
 							Ports: []object.Port{

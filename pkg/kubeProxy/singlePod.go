@@ -5,6 +5,8 @@ import (
 	"minik8s/pkg/util/iptables"
 )
 
+// DESPERATE
+
 func createSinglePod(singleService *SingleService, podInfo PodInfo, id int) *SinglePod {
 	singlePod := &SinglePod{
 		Table:    singleService.Table,
@@ -54,16 +56,11 @@ func (singlePod *SinglePod) initSinglePod() error {
 func (singlePod *SinglePod) deleteSinglePod() error {
 	ipt, err := iptables.New()
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	err = ipt.Delete(singlePod.Table, singlePod.Parent, singlePod.RuleCommand...)
-	if err != nil {
-		return err
-	}
 	err = singlePod.Net.deleteSingleNet()
-	if err != nil {
-		return err
-	}
 	err = ipt.DeleteChain(singlePod.Table, singlePod.Name)
 	return err
 }
