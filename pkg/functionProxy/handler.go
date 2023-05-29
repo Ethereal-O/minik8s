@@ -28,7 +28,7 @@ func forwardRequest(c2 echo.Context) error {
 	funcName := formData["function"]
 	tarFunction := client.GetFunction(funcName)
 	// If the function doesn't exist, just do nothing and return the corresponding information
-	if tarFunction == nil {
+	if tarFunction == nil || tarFunction.Runtime.Status == config.EXIT_STATUS {
 		return c2.String(http.StatusOK, "Function not exist!")
 	}
 	// If the function exist but scale-to-0, activate it and return the corresponding information
