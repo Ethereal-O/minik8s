@@ -11,12 +11,13 @@
 检查hostPort是否已开放
 3: curl localhost:8888
 检查Pod是否共享Network Namespace
-3: docker exec (downloader) curl localhost:80
+3: docker exec (curl) curl localhost:80
 检查Stress容器的资源占用量
 3: docker stats
 检查Volume是否可以共享文件
+3: docker exec (nginx) touch /usr/share/nginx/html/files/hello.txt
 3: docker exec (nginx) echo "hello" > /usr/share/nginx/html/files/hello.txt
-3: docker exec (downloader) cat /data/hello.txt
+3: docker exec (curl) cat /usr/share/nginx/html/files/hello.txt
 检查Pod的容错性
 3: docker kill (nginx)
 3: ./kubectl get -t Pod

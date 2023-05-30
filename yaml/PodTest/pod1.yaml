@@ -16,18 +16,18 @@ spec:
         - name: upload
           mountPath: /usr/share/nginx/html/files
     - name: curl
-      image: curlimages/curl:8.1.1
+      image: nginx:1.23.2
       volumeMounts:
         - name: upload
-          mountPath: /data
+          mountPath: /usr/share/nginx/html/files
     - name: stress
       image: polinux/stress:1.0.4
       limits:
         cpu: "0.5" # 0.5 CPU core
-        memory: "200Mi" # 200 MiB Memory
-      args: [ "stress", "--cpu", "1", "--vm", "1", "--vm-bytes", "250M" ]
-      # Attempt to use 1 CPU core, 250 MiB Memory
-      # But can only use 0.5 CPU core, 200 MiB Memory
+        memory: "100Mi" # 100 MiB Memory
+      args: [ "stress", "--cpu", "1", "--vm", "1", "--vm-bytes", "150M" ]
+      # Attempt to use 1 CPU core, 150 MiB Memory
+      # But can only use 0.5 CPU core, 100 MiB Memory
   volumes:
     - name: upload
       type: hostPath
