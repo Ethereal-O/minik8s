@@ -8,37 +8,23 @@ import (
 	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
-	"minik8s/pkg/util/network"
 	"time"
 )
 
-func StartNode() {
-	ip, err := network.GetHostIp()
-	if err != nil {
-		fmt.Println("[Kubelet] Cannot obtain host IP!")
-		panic(err)
-	} else {
-		fmt.Printf("[Kubelet] Obtained host IP: %v\n", ip)
+func DeleteNode() bool {
+	// Step 0: Check if my node has started
+	myNode := getMyNode()
+	if myNode == nil {
+		return true
 	}
 
-	var node object.Node
-	node.Kind = "Node"
-	node.Metadata.Name = "Node_" + ip
-	node.Spec.Ip = ip
-
-	client.AddNode(node)
-}
-
-func DeleteNode() {
 	// Step 1: Stop probe cycle
 	NodeToExit <- true
 	<-NodeExited
 
 	// Step 2: Delete all pods
-	ip, _ := network.GetHostIp()
-	node := client.GetNode(ip)
 	for _, pod := range client.GetActivePods() {
-		if pod.Runtime.Bind == node.Metadata.Name {
+		if pod.Runtime.Bind == myNode.Metadata.Name {
 			pod.Runtime.Status = config.EXIT_STATUS
 			client.AddPod(pod)
 			<-PodDeleted[pod.Runtime.Uuid] // Wait for pod delete
@@ -47,9 +33,10 @@ func DeleteNode() {
 	}
 
 	// Step 3: Stop current node
-	node.Runtime.Status = config.EXIT_STATUS
-	client.AddNode(node)
-	fmt.Printf("[Kubelet] Node %v deleted!\n", node.Metadata.Name)
+	myNode.Runtime.Status = config.EXIT_STATUS
+	client.AddNode(*myNode)
+	fmt.Printf("[Kubelet] Node %v deleted!\n", myNode.Metadata.Name)
+	return true
 }
 
 func NodeProbeCycle(node *object.Node) {

@@ -29,7 +29,7 @@ func Start_kubelet() {
 	go start_monitor()
 
 	time.Sleep(5 * time.Second)
-	StartNode()
+	//StartNode()
 	fmt.Println("Kubelet start")
 
 	// Wait until Ctrl-C
@@ -53,8 +53,11 @@ func dealPod(podChan chan string) {
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			ip, _ := network.GetHostIp()
-			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
+			myNode := getMyNode()
+			if myNode == nil {
+				continue
+			}
+			if tarPod.Runtime.Status == config.BOUND_STATUS && tarPod.Runtime.Bind == myNode.Metadata.Name {
 				go func(pod *object.Pod) {
 					started := StartPod(pod)
 					if started {
@@ -63,7 +66,7 @@ func dealPod(podChan chan string) {
 						fmt.Printf("[Kubelet] Failed to start pod %v!\n", pod.Metadata.Name)
 					}
 				}(&tarPod)
-			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == "Node_"+ip {
+			} else if tarPod.Runtime.Status == config.EXIT_STATUS && tarPod.Runtime.Bind == myNode.Metadata.Name {
 				go func(pod *object.Pod) {
 					deleted := DeletePod(pod)
 					PodDeleted[pod.Runtime.Uuid] <- true
@@ -92,16 +95,30 @@ func dealNode(nodeChan chan string) {
 				fmt.Println(err.Error())
 			}
 			ip, _ := network.GetHostIp()
-			if tarNode.Runtime.Status == config.CREATED_STATUS && tarNode.Metadata.Name == "Node_"+ip {
+			if tarNode.Runtime.Status == config.CREATED_STATUS && tarNode.Spec.Ip == ip {
 				err = weave.Expose(tarNode.Runtime.ClusterIp + network.Mask)
 				if err != nil {
-					fmt.Println("[Kubelet] Failed to start node!")
+					fmt.Printf("[Kubelet] Failed to start node %v!\n", tarNode.Metadata.Name)
 					fmt.Println(err.Error())
 				} else {
 					tarNode.Runtime.Status = config.RUNNING_STATUS
 					client.AddNode(tarNode)
-					fmt.Println("[Kubelet] Node started!")
+					fmt.Printf("[Kubelet] Node %v started!\n", tarNode.Metadata.Name)
 					go NodeProbeCycle(&tarNode)
+				}
+			} else if tarNode.Runtime.Status == config.EXIT_STATUS && tarNode.Spec.Ip == ip {
+				err = weave.Reset()
+				if err != nil {
+					fmt.Printf("[Kubelet] Failed to stop node %v!\n", tarNode.Metadata.Name)
+					fmt.Println(err.Error())
+				} else {
+					deleted := DeleteNode()
+					if deleted {
+						fmt.Printf("[Kubelet] Node %v stopped!\n", tarNode.Metadata.Name)
+					} else {
+						fmt.Printf("[Kubelet] Failed to stop node %v!\n", tarNode.Metadata.Name)
+						fmt.Println(err.Error())
+					}
 				}
 			}
 		}

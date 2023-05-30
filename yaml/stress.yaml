@@ -4,7 +4,6 @@ metadata:
   labels:
     app: myApp
 spec:
-  restartPolicy: Always
   containers:
     - name: stress
       image: polinux/stress:1.0.4

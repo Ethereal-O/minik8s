@@ -305,8 +305,8 @@ func GetActiveNodes() []object.Node {
 	return resList
 }
 
-func GetNode(ip string) object.Node {
-	nodeList := Get_object("Node_"+ip, config.NODE_TYPE)
+func GetNode(key string) object.Node {
+	nodeList := Get_object(key, config.NODE_TYPE)
 	var nodeObject object.Node
 	json.Unmarshal([]byte(nodeList[0]), &nodeObject)
 	return nodeObject
