@@ -8,12 +8,14 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/liushuochen/gotable v0.0.0-20221119160816-1113793e7092
 	github.com/nsqio/go-nsq v1.1.0
+	github.com/pkg/sftp v1.13.5
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/common v0.37.0
 	github.com/shirou/gopsutil v2.21.11+incompatible
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2
 	go.etcd.io/etcd/client/v3 v3.5.8
+	golang.org/x/crypto v0.1.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -34,6 +36,7 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -60,7 +63,6 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.17.0 // indirect
-	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
