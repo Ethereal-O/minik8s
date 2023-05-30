@@ -7,7 +7,7 @@ spec:
   nodeSelector:
     role: worker
   containers:
-    - name: viewer
+    - name: nginx
       image: dplsming/nginx-fileserver:1.0
       ports:
         - containerPort: 80
@@ -15,13 +15,8 @@ spec:
       volumeMounts:
         - name: upload
           mountPath: /usr/share/nginx/html/files
-    - name: downloader
-      image: dplsming/aria2ng-downloader:1.0
-      ports:
-        - containerPort: 6800
-          hostPort: 6800
-        - containerPort: 6880
-          hostPort: 6880
+    - name: curl
+      image: curlimages/curl:8.1.1
       volumeMounts:
         - name: upload
           mountPath: /data
