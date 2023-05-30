@@ -13,3 +13,8 @@ func Expose(ip string) error {
 	_, err := exec.Command("weave", "expose", ip).Output()
 	return err
 }
+
+func Reset() error {
+	_, err := exec.Command("weave", "reset").Output()
+	return err
+}

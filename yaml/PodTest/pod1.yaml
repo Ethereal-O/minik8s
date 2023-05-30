@@ -4,6 +4,8 @@ metadata:
   labels:
     app: myApp
 spec:
+  nodeSelector:
+    role: worker
   containers:
     - name: viewer
       image: dplsming/nginx-fileserver:1.0
@@ -21,12 +23,17 @@ spec:
         - containerPort: 6880
           hostPort: 6880
       volumeMounts:
-        - name: download
+        - name: upload
           mountPath: /data
+    - name: stress
+      image: polinux/stress:1.0.4
+      limits:
+        cpu: "0.5" # 0.5 CPU core
+        memory: "200Mi" # 200 MiB Memory
+      args: [ "stress", "--cpu", "1", "--vm", "1", "--vm-bytes", "250M" ]
+      # Attempt to use 1 CPU core, 250 MiB Memory
+      # But can only use 0.5 CPU core, 200 MiB Memory
   volumes:
     - name: upload
       type: hostPath
       path: /home/os/minik8s/upload
-    - name: download
-      type: hostPath
-      path: /home/os/minik8s/download

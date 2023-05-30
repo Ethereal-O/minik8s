@@ -2,12 +2,10 @@ package object
 
 // --------------------------- Basic Types ---------------------------
 
-type Labels map[string]string
-
 // Metadata take values from .yaml files
 type Metadata struct {
-	Name   string `yaml:"name" json:"name"`
-	Labels Labels `yaml:"labels" json:"labels"`
+	Name   string            `yaml:"name" json:"name"`
+	Labels map[string]string `yaml:"labels" json:"labels"`
 }
 
 // Runtime generate values from runtime (not in .yaml files)
@@ -117,10 +115,10 @@ type Pod struct {
 }
 
 type PodSpec struct {
-	RestartPolicy string      `yaml:"restartPolicy" json:"restartPolicy"`
-	HostMode      string      `yaml:"hostMode" json:"hostMode"`
-	Volumes       []Volume    `yaml:"volumes" json:"volumes"`
-	Containers    []Container `yaml:"containers" json:"containers"`
+	HostMode     string            `yaml:"hostMode" json:"hostMode"`
+	Volumes      []Volume          `yaml:"volumes" json:"volumes"`
+	Containers   []Container       `yaml:"containers" json:"containers"`
+	NodeSelector map[string]string `yaml:"nodeSelector" json:"nodeSelector"`
 }
 
 type Volume struct {

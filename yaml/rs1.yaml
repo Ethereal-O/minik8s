@@ -8,7 +8,6 @@ spec:
       labels:
         app: myApp
     spec:
-      restartPolicy: Always
       containers:
         - name: viewer
           image: dplsming/nginx-fileserver:1.0

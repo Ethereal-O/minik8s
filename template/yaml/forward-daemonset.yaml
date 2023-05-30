@@ -10,7 +10,6 @@ spec:
       labels:
         bound: Forward
     spec:
-      restartPolicy: Always
       hostMode: true
       containers:
         - name: Forward-Cont

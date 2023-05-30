@@ -35,6 +35,20 @@ func getOptionalNodes(pod *object.Pod) []object.Node {
 
 	var optional_nodes []object.Node
 	for _, node := range nodes {
+		// Filter by labels
+		labelOk := true
+		for key, value := range pod.Spec.NodeSelector {
+			nodeValue, ok := node.Metadata.Labels[key]
+			if !ok || value != nodeValue {
+				labelOk = false
+				break
+			}
+		}
+		if !labelOk {
+			continue
+		}
+
+		// Filter by resources
 		cpu := prometheus_query("cpu", node.Runtime.Uuid)
 		mem := prometheus_query("memory", node.Runtime.Uuid)
 		for _, container := range pod.Spec.Containers {

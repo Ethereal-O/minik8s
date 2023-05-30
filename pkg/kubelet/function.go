@@ -6,11 +6,23 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 	"io"
+	"minik8s/pkg/client"
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/network"
 	"strconv"
 	"time"
 )
+
+func getMyNode() *object.Node {
+	ip, _ := network.GetHostIp()
+	nodes := client.GetActiveNodes()
+	for _, node := range nodes {
+		if node.Spec.Ip == ip {
+			return &node
+		}
+	}
+	return nil
+}
 
 // ------------------Container Start------------------
 
