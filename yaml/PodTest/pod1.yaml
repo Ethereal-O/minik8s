@@ -24,10 +24,8 @@ spec:
       image: polinux/stress:1.0.4
       limits:
         cpu: "0.5" # 0.5 CPU core
-        memory: "100Mi" # 100 MiB Memory
-      args: [ "stress", "--cpu", "1", "--vm", "1", "--vm-bytes", "150M" ]
-      # Attempt to use 1 CPU core, 150 MiB Memory
-      # But can only use 0.5 CPU core, 100 MiB Memory
+      args: [ "stress", "--cpu", "1" ]
+      # Attempt to use 1 CPU core, but can only use 0.5 CPU core
   volumes:
     - name: upload
       type: hostPath
