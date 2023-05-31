@@ -12,7 +12,7 @@
 3: curl localhost:8888
 检查Pod是否共享Network Namespace
 3: docker exec (curl) curl localhost:80
-检查Stress容器的资源占用量
+检查容器的资源占用量
 3: docker stats
 检查Volume是否可以共享文件
 3: docker exec (nginx) touch /usr/share/nginx/html/files/hello.txt
