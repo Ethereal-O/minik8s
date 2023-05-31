@@ -16,12 +16,11 @@ spec:
         - name: upload
           mountPath: /usr/share/nginx/html/files
     - name: curl
-      image: nginx:1.23.2
-      ports:
-        - containerPort: 80
+      image: appropriate/curl
+      args: [ "sleep", "86400" ]
       volumeMounts:
         - name: upload
-          mountPath: /usr/share/nginx/html/files
+          mountPath: /usr
     - name: stress
       image: polinux/stress:1.0.4
       limits:
