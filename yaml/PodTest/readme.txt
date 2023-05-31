@@ -16,10 +16,5 @@
 3: docker stats
 检查Volume是否可以共享文件
 3: docker exec (nginx) touch /usr/share/nginx/html/files/hello.txt
-3: docker exec (nginx) echo "hello" > /usr/share/nginx/html/files/hello.txt
-3: docker exec (curl) cat /usr/share/nginx/html/files/hello.txt
-检查Pod的容错性
-3: docker kill (nginx)
-3: ./kubectl get -t Pod
-3: docker ps
-3: curl localhost:8888
+3: docker exec (nginx) sh -c 'echo "hello" > /usr/share/nginx/html/files/hello.txt'
+3: docker exec (curl) cat /projects/hello.txt
