@@ -16,11 +16,10 @@ spec:
         - name: upload
           mountPath: /usr/share/nginx/html/files
     - name: curl
-      image: appropriate/curl
-      args: [ "sleep", "86400" ]
+      image: eclipse/ubuntu_jre
       volumeMounts:
         - name: upload
-          mountPath: /usr
+          mountPath: /projects
     - name: stress
       image: polinux/stress:1.0.4
       limits:
