@@ -12,6 +12,9 @@ spec:
       ports:
         - containerPort: 80
           hostPort: 8888
+      limits:
+        cpu: "0.5" # 0.5 CPU core
+        memory: "500Mi" # 500 MiB Memory
       volumeMounts:
         - name: upload
           mountPath: /usr/share/nginx/html/files
@@ -20,14 +23,6 @@ spec:
       volumeMounts:
         - name: upload
           mountPath: /usr/share/nginx/html/files
-    - name: stress
-      image: polinux/stress:1.0.4
-      limits:
-        cpu: "0.5" # 0.5 CPU core
-        memory: "100Mi" # 100 MiB Memory
-      args: [ "stress", "--cpu", "1", "--vm", "1", "--vm-bytes", "150M" ]
-      # Attempt to use 1 CPU core, 150 MiB Memory
-      # But can only use 0.5 CPU core, 100 MiB Memory
   volumes:
     - name: upload
       type: hostPath
