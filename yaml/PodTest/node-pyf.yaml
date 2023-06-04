@@ -1,0 +1,7 @@
+kind: Node
+metadata:
+  name: minik8s-1
+  labels:
+    role: master
+spec:
+  ip: 192.168.29.128

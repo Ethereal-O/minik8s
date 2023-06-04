@@ -20,7 +20,7 @@ docker run -d \
   --network=host \
   --name prometheus \
   -v "$(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml" \
-  prom/prometheus \
+  prom/prometheus --config.file=/etc/prometheus/prometheus.yml --web.enable-lifecycle \
   > /dev/null 2>&1
 echo "[Master] Prometheus started!" 1>&2
 

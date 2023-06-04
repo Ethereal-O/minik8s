@@ -10,6 +10,7 @@ import (
 	"minik8s/pkg/object"
 	"minik8s/pkg/util/config"
 	"minik8s/pkg/util/counter"
+	"minik8s/pkg/util/prometheusConfig"
 	"minik8s/pkg/util/stringParse"
 	"net/http"
 )
@@ -316,6 +317,9 @@ func node_put(c echo.Context) error {
 	if nodeObject.Runtime.ClusterIp == "" {
 		nodeObject.Runtime.ClusterIp = counter.NewNodeIP()
 	}
+	if nodeObject.Runtime.Status == config.RUNNING_STATUS {
+		prometheusConfig.AddTarget(nodeObject.Spec.Ip + ":9080")
+	}
 	node, err := json.Marshal(nodeObject)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -350,6 +354,7 @@ func node_delete(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "unmarshal error!")
 	}
 	nodeObject.Runtime.Status = config.EXIT_STATUS
+	prometheusConfig.DelTarget(nodeObject.Spec.Ip + ":9080")
 	node, err := json.Marshal(nodeObject)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -358,7 +363,6 @@ func node_delete(c echo.Context) error {
 	if err2 := etcd.Set_etcd(key, string(node)); err2 != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
