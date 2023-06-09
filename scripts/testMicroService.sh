@@ -2,18 +2,18 @@
 ## IMPORTANT: This script should be run NOT as root
 sleep 20
 # Start Pod1 and Pod2
-./kubectl apply -f ./yaml/MicroServiceTest/pod1.yaml
-./kubectl apply -f ./yaml/MicroServiceTest/pod2.yaml
+./kubectl apply -f ./yaml/MicroServiceTest/pod1.yaml > /dev/null 2>&1
+./kubectl apply -f ./yaml/MicroServiceTest/pod2.yaml > /dev/null 2>&1
 sleep 10
 echo "[TestMicroService] Pod1 and Pod2 started!" 1>&2
 
 # Start Service1
-./kubectl apply -f ./yaml/MicroServiceTest/service1.yaml
+./kubectl apply -f ./yaml/MicroServiceTest/service1.yaml > /dev/null 2>&1
 sleep 20
 echo "[TestMicroService] Service1 started!" 1>&2
 
 # Start VirtualService1
-./kubectl apply -f ./yaml/MicroServiceTest/virtualService1.yaml
+./kubectl apply -f ./yaml/MicroServiceTest/virtualService1.yaml > /dev/null 2>&1
 sleep 5
 echo "[TestMicroService] VirtualService1 started!" 1>&2
 
