@@ -69,7 +69,7 @@ make testMicroService
 make clean
 ```
 
-**CONTAIN:**
+**CAUTION:**
 
 - If you encounter any problem, try to run `make clean`, check your iptables if clean and run again.
 The following command may help to clean iptables made by microService:
