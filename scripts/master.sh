@@ -43,6 +43,7 @@ curl -d "hello" "${pubUrl}DaemonSet" > /dev/null 2>&1
 curl -d "hello" "${pubUrl}AutoScaler" > /dev/null 2>&1
 curl -d "hello" "${pubUrl}Service" > /dev/null 2>&1
 curl -d "hello" "${pubUrl}RuntimeService" > /dev/null 2>&1
+curl -d "hello" "${pubUrl}VirtualService" > /dev/null 2>&1
 curl -d "hello" "${pubUrl}Node" > /dev/null 2>&1
 curl -d "hello" "${pubUrl}DNS" > /dev/null 2>&1
 curl -d "hello" "${pubUrl}Gateway" > /dev/null 2>&1

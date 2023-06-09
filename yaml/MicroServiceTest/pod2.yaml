@@ -1,0 +1,16 @@
+kind: Pod
+metadata:
+  name: pod-resoures
+  labels:
+    version: v2
+    app: microServiceTest
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.23.2
+      ports:
+        - containerPort: 80
+          protocol: TCP
+      limits:
+        cpu: "1"
+        memory: "300Mi"

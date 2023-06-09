@@ -63,7 +63,7 @@ func dealService(serviceChan chan string) {
 		}
 	}
 
-	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES {
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_IPTABLES || config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
 		for {
 			select {
 			case mes := <-serviceChan:

@@ -4,7 +4,7 @@
 touch cmd.log
 
 # Start flannel network
-grep "SERVICE_POLICY          = SERVICE_POLICY_IPTABLES" ./pkg/util/config/config.go > /dev/null 2>&1
+grep -E 'SERVICE_POLICY *= SERVICE_POLICY_IPTABLES|SERVICE_POLICY *= SERVICE_POLICY_MICROSERVICE' ./pkg/util/config/config.go > /dev/null 2>&1
 if [ "$?" != 1 ]; then
   bash ./scripts/helper/flannel_start.sh
   if [ "$?" = 1 ]; then

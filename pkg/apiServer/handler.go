@@ -509,6 +509,71 @@ func runtimeService_delete(c echo.Context) error {
 	return c.String(http.StatusOK, "delete successfully!")
 }
 
+//--------------------- Virtual Service Handler ---------------------------
+
+func virtualService_put(c echo.Context) error {
+	virtualServiceObject := new(object.VirtualService)
+	if err := c.Bind(virtualServiceObject); err != nil {
+		return err
+	}
+	key := c.Request().RequestURI
+	// create
+	if virtualServiceObject.Runtime.Uuid == "" {
+		uuid := counter.GetUuid()
+		virtualServiceObject.Runtime.Uuid = uuid
+	}
+	if virtualServiceObject.Runtime.Status == "" {
+		virtualServiceObject.Runtime.Status = config.RUNNING_STATUS
+	}
+	if virtualServiceObject.Spec.Type == "" {
+		virtualServiceObject.Spec.Type = config.VIRTUAL_SERVICE_TYPE_EXACT
+	}
+	virtualService, err := json.Marshal(virtualServiceObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(virtualService)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "ok")
+}
+
+func virtualService_get(c echo.Context) error {
+	key := c.Request().RequestURI
+	fmt.Println(key)
+	if c.Param("key") == config.EMPTY_FLAG {
+		res := etcd.Get_etcd(key[0:len(key)-len(config.EMPTY_FLAG)], true)
+		return c.JSON(http.StatusOK, res)
+	} else {
+		res := etcd.Get_etcd(key, false)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func virtualService_delete(c echo.Context) error {
+	key := c.Request().RequestURI
+	res := etcd.Get_etcd(key, false)
+	if len(res) != 1 {
+		return c.String(http.StatusInternalServerError, "not exist!")
+	}
+	var virtualServiceObject object.VirtualService
+	err := json.Unmarshal([]byte(res[0]), &virtualServiceObject)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "unmarshal error!")
+	}
+	virtualServiceObject.Runtime.Status = config.EXIT_STATUS
+	virtualService, err := json.Marshal(virtualServiceObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if err2 := etcd.Set_etcd(key, string(virtualService)); err2 != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(http.StatusOK, "delete successfully!")
+}
+
 //--------------------- Gateway Handler ---------------------------
 
 func gateway_put(c echo.Context) error {

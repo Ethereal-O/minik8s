@@ -48,6 +48,8 @@ func ReadYaml(file string) (string, string, string) {
 		return parseNode(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: Service") {
 		return parseService(yamlFile)
+	} else if strings.Contains(string(yamlFile), "kind: VirtualService") {
+		return parseVirtualService(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: Gateway") {
 		return parseGateway(yamlFile)
 	} else if strings.Contains(string(yamlFile), "kind: GpuJob") {
@@ -83,6 +85,19 @@ func parseService(yamlFile []byte) (string, string, string) {
 	key = conf.Metadata.Name
 	inf, err = json.Marshal(&conf)
 	return string(inf), key, "Service"
+}
+
+func parseVirtualService(yamlFile []byte) (string, string, string) {
+	var conf object.VirtualService
+	var inf []byte
+	var key string
+	err := yaml.Unmarshal(yamlFile, &conf)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	key = conf.Metadata.Name
+	inf, err = json.Marshal(&conf)
+	return string(inf), key, "VirtualService"
 }
 
 func parseGateway(yamlFile []byte) (string, string, string) {

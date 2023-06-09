@@ -184,6 +184,26 @@ type ServicePort struct {
 	NodePort   string `json:"nodePort" yaml:"nodePort"`
 }
 
+// --------------------------- VirtualService ---------------------------
+
+type VirtualService struct {
+	Kind     string             `yaml:"kind" json:"kind"`
+	Metadata Metadata           `yaml:"metadata" json:"metadata"`
+	Spec     VirtualServiceSpec `yaml:"spec" json:"spec"`
+	Runtime  Runtime            `yaml:"runtime" json:"runtime"`
+}
+
+type VirtualServiceSpec struct {
+	Type     string                   `json:"type" yaml:"type"`
+	Service  string                   `json:"service" yaml:"service"`
+	Selector []VirtualServiceSelector `json:"selector" yaml:"selector"`
+}
+
+type VirtualServiceSelector struct {
+	MatchLabels map[string]string `json:"matchLabels" yaml:"matchLabels"`
+	Weight      int               `json:"weight" yaml:"weight"`
+}
+
 // --------------------------- Gateway ---------------------------
 
 type Gateway struct {

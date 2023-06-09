@@ -63,6 +63,26 @@ func GetHostIp() (string, error) {
 	return "", errors.New("cannot find IP address which has prefix 192.168")
 }
 
+func GetDockerHostIp() (string, error) {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+	for _, iface := range ifaces {
+		addrs, err := iface.Addrs()
+		if err != nil {
+			return "", err
+		}
+		for _, addr := range addrs {
+			ipStr := addr.String()
+			if strings.HasPrefix(ipStr, "172.17") {
+				return strings.Split(ipStr, "/")[0], nil
+			}
+		}
+	}
+	return "", errors.New("cannot find IP address which has prefix 172.17")
+}
+
 func Hostname() string {
 	hostname, _ := os.Hostname()
 	return hostname

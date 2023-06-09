@@ -164,6 +164,25 @@ func doit(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println(table)
 	}
+	if tp == config.VIRTUALSERVICE_TYPE {
+		table, _ := gotable.Create("Name", "Uuid", "Status", "Type", "Selector")
+		for _, virtualService := range res {
+			var virtualServiceObject object.VirtualService
+			json.Unmarshal([]byte(virtualService), &virtualServiceObject)
+			rows := make([]map[string]string, 0)
+			if virtualServiceObject.Runtime.Status != config.EXIT_STATUS {
+				row := make(map[string]string)
+				row["Name"] = virtualServiceObject.Metadata.Name
+				row["Uuid"] = virtualServiceObject.Runtime.Uuid
+				row["Status"] = virtualServiceObject.Runtime.Status
+				row["Type"] = virtualServiceObject.Spec.Type
+				row["Selector"] = object.SerializeVirtualSelectorList(virtualServiceObject.Spec.Selector)
+				rows = append(rows, row)
+			}
+			table.AddRows(rows)
+		}
+		fmt.Println(table)
+	}
 	if tp == config.RUNTIMEGATEWAY_TYPE {
 		table, _ := gotable.Create("Name", "Uuid", "Status", "Host", "Path")
 		for _, gateway := range res {

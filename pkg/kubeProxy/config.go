@@ -16,14 +16,30 @@ const (
 	PREROUTING_CHAIN                     = "PREROUTING"
 	POSTROUTING_CHAIN                    = "POSTROUTING"
 	CHECK_NODEPORT_SERVICE_TIME_INTERVAL = 5 * time.Second
+	OUTBOUND_PORT                        = "15001"
+	INBOUND_PORT                         = "15006"
+	PROMETHEUS_PORT                      = "15020"
+	LOCALHOST                            = "127.0.0.1"
+	LOCALHOST_DOCKER                     = "172.17.0.1"
+	LOCALHOST_SIDECAR                    = "127.0.0.6"
 )
 
 type KubeProxyManager struct {
-	RootMap           map[string]map[string]*SingleService // DEPRECATED
-	RuntimeServiceMap map[string]*object.RuntimeService
+	// struct for all policy
 	RuntimeGatewayMap map[string]*object.RuntimeGateway
-	RootChain         RootChain // DEPRECATED
-	Lock              sync.Mutex
+	RuntimeServiceMap map[string]*object.RuntimeService
+	// struct for microservice
+	VirtualServiceMap map[string]*object.VirtualService
+	PodMatchMap       map[string]map[string]*PodMatch
+	// struct for iptables
+	RootMap   map[string]map[string]*SingleService // DEPRECATED
+	RootChain RootChain                            // DEPRECATED
+	Lock      sync.Mutex
+}
+
+type PodMatch struct {
+	Pod       *object.Pod
+	PodWeight int
 }
 
 // DEPRECATED

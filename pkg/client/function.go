@@ -154,6 +154,42 @@ func DeleteRuntimeService(runtimeService object.RuntimeService) string {
 	return Delete_object(runtimeService.Service.Metadata.Name, config.RUNTIMESERVICE_TYPE)
 }
 
+// --------------------------- Virtual Service ---------------------------
+
+func GetAllVirtualServices() []object.VirtualService {
+	virtualServiceList := Get_object(config.EMPTY_FLAG, config.VIRTUALSERVICE_TYPE)
+	var resList []object.VirtualService
+	for _, virtualService := range virtualServiceList {
+		var virtualServiceObject object.VirtualService
+		json.Unmarshal([]byte(virtualService), &virtualServiceObject)
+		resList = append(resList, virtualServiceObject)
+	}
+	return resList
+}
+
+func GetVirtualServiceByKey(key string) []object.VirtualService {
+	virtualServiceList := Get_object(key, config.VIRTUALSERVICE_TYPE)
+	var resList []object.VirtualService
+	for _, virtualService := range virtualServiceList {
+		var virtualServiceObject object.VirtualService
+		json.Unmarshal([]byte(virtualService), &virtualServiceObject)
+		resList = append(resList, virtualServiceObject)
+	}
+	return resList
+}
+
+func AddVirtualService(virtualService object.VirtualService) string {
+	virtualServiceValue, err := json.Marshal(virtualService)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return Put_object(virtualService.Metadata.Name, string(virtualServiceValue), config.VIRTUALSERVICE_TYPE)
+}
+
+func DeleteVirtualService(virtualService object.VirtualService) string {
+	return Delete_object(virtualService.Metadata.Name, config.VIRTUALSERVICE_TYPE)
+}
+
 // --------------------------- Gateway ---------------------------
 
 func GetAllGateways() []object.Gateway {

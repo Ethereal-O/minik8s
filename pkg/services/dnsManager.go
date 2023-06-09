@@ -21,6 +21,10 @@ func createDnsManager() *DnsManager {
 }
 
 func StartDnsManager() {
+	if config.SERVICE_POLICY == config.SERVICE_POLICY_MICROSERVICE {
+		fmt.Println("MicroService policy is not support dns manager!")
+		return
+	}
 	dnsManager = createDnsManager()
 	dnsManager.initDnsManager()
 	gatewayChan, dnsStop := messging.Watch("/"+config.GATEWAY_TYPE, true)

@@ -1,6 +1,9 @@
 package object
 
-import "minik8s/pkg/util/config"
+import (
+	"minik8s/pkg/util/config"
+	"strconv"
+)
 
 // --- Pods and Rs/Ds ---
 
@@ -95,6 +98,30 @@ func SerializePathList(pathList []Path) string {
 		if idx < len(pathList)-1 {
 			serialized += ", "
 		}
+	}
+	return serialized
+}
+
+// --- VirtualService ---
+
+func SerializeVirtualSelectorList(selectorList []VirtualServiceSelector) string {
+	serialized := ""
+	i := 0
+	for _, selector := range selectorList {
+		serialized += "("
+		j := 0
+		for k, v := range selector.MatchLabels {
+			serialized += k + ":" + v
+			if j < len(selector.MatchLabels)-1 {
+				serialized += ", "
+			}
+			j++
+		}
+		serialized += "):" + strconv.Itoa(selector.Weight)
+		if i < len(selectorList)-1 {
+			serialized += ", "
+		}
+		i++
 	}
 	return serialized
 }
