@@ -2,11 +2,10 @@
 
 1. Install Docker
 2. Install weave, see `scripts/helper/weave_setup.sh`
-3. Install ETCD, see `https://blog.csdn.net/qq_42874635/article/details/126906174`
-4. Install NSQ, see `https://nsq.io/overview/quick_start.html`
-5. Install Prometheus, see `https://blog.csdn.net/qzcsu/article/details/124770699` (version:2.43.0)
-6. Configure `master_ip.txt`, just input the **IP address of master node**
-7. Enjoy hacking!
+3. Install Flannel, see `scripts/helper/flannel_setup.sh`
+4. Configure `master_ip.txt`, just input the **IP address of master node**
+5. Change mode of service, see `pkg/util/config/config.go`
+6. Enjoy hacking!
 
 **Usage:**
 
@@ -25,37 +24,56 @@ make master
 make worker
 ```
 
-- Build k8s, run a master, a worker, a Pod on one host
+- Apply a Pod on one host
 ```
 make testPod
 ```
 
-- Build k8s, run a master, a worker, a Pod, a Service on one host
+- Apply a Pod, a Service on one host
 ```
 make testService
 ```
 
-- Build k8s, run a master, a worker, a RS, a Service on one host
+- Apply a RS, a Service on one host
 ```
 make testRS
 ```
 
-- Build k8s, run a master, a worker, a Stress Pod on one host
+- Apply a Stress Pod on one host
 ```
 make testStress
 ```
 
-- Build k8s, run a master, a worker, a Gpu Job on one host
+- Apply a Pod, two Services, a gateway on one host
+```
+make testGateway
+```
+
+- Apply a Gpu Job on one host
 ```
 make testGpu
 ```
 
-- Build k8s, run a master, a worker, a serverless test on one host
+- Apply a serverless test on one host
 ```
 make testServerless
+```
+
+- Apply a microService test on one host
+```
+make testMicroService
 ```
 
 - Stop k8s and clear k8s states
 ```
 make clean
 ```
+
+**CONTAIN:**
+
+- If you encounter any problem, try to run `make clean`, check your iptables if clean and run again.
+The following command may help to clean iptables made by microService:
+```
+docker run --rm --name=istio-init --network=host --cap-add=NET_ADMIN istio/proxyv2:1.16.0 istio-clean-iptables
+```
+- Because our etcd is running in container, it has circle dependency with flannel, so it maybe fail when you run just after reboot. Just wait flannel online and rerun `make clean` and other command again.
