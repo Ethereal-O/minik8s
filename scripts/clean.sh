@@ -36,5 +36,9 @@ echo "[Cleaner] Containers cleared!" 1>&2
 sudo rm cmd.log > /dev/null 2>&1
 echo "[Cleaner] Command log cleared!" 1>&2
 
+sudo rm ./prometheus.yml 2>&1
+sudo cp ./template/yaml/empty-prometheus.yml ./prometheus.yml 2>&1
+echo "[Cleaner] Prometheus config cleared!" 1>&2
+
 echo "[Cleaner] All states cleared!" 1>&2
 
