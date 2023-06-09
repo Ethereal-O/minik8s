@@ -24,6 +24,11 @@ make master
 make worker
 ```
 
+- Apply node yaml
+```
+./kubectl apply -f ./yaml/PodTest/node1.yaml
+```
+
 - Apply a Pod on one host
 ```
 make testPod
@@ -77,3 +82,4 @@ The following command may help to clean iptables made by microService:
 docker run --rm --name=istio-init --network=host --cap-add=NET_ADMIN istio/proxyv2:1.16.0 istio-clean-iptables
 ```
 - Because our etcd is running in container, it has circle dependency with flannel, so it maybe fail when you run just after reboot. Just wait flannel online and rerun `make clean` and other command again.
+- For more information, see doc in `doc/` and `scripts/`
